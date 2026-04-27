@@ -21,71 +21,31 @@
       --radius: 18px;
     }
     * { box-sizing: border-box; }
-    html, body {
-      margin: 0;
-      padding: 0;
-      background: linear-gradient(180deg, #09101c 0%, #0b1220 100%);
-      color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    }
+    html, body { margin: 0; padding: 0; background: linear-gradient(180deg,#09101c 0%,#0b1220 100%); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
     body { min-height: 100vh; }
-    .wrap {
-      max-width: 1180px;
-      margin: 0 auto;
-      padding: max(14px, env(safe-area-inset-top)) 14px calc(16px + env(safe-area-inset-bottom));
-    }
-    .card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 14px;
-      margin-bottom: 14px;
-      backdrop-filter: blur(8px);
-    }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: max(14px, env(safe-area-inset-top)) 14px calc(16px + env(safe-area-inset-bottom)); }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 14px; margin-bottom: 14px; backdrop-filter: blur(8px); }
     .title { margin: 0 0 6px; font-size: 1.45rem; font-weight: 800; line-height: 1.2; }
     .subtitle { margin: 0; color: var(--muted); line-height: 1.45; font-size: .96rem; }
     .pillbar { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-    .pill {
-      padding: 6px 10px; border-radius: 999px; border: 1px solid rgba(56, 189, 248, 0.16);
-      background: rgba(56, 189, 248, 0.1); color: #bae6fd; font-size: .82rem; font-weight: 700;
-    }
+    .pill { padding: 6px 10px; border-radius: 999px; border: 1px solid rgba(56,189,248,.16); background: rgba(56,189,248,.1); color: #bae6fd; font-size: .82rem; font-weight: 700; }
     .grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: 14px; }
     @media (max-width: 960px) { .grid { grid-template-columns: 1fr; } }
     .filegrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     @media (max-width: 720px) { .filegrid { grid-template-columns: 1fr; } }
-    .filebox {
-      border-radius: 16px; border: 1px solid var(--line); background: rgba(15, 23, 42, 0.86); padding: 12px;
-    }
-    .video-wrap {
-      position: relative; overflow: hidden; border-radius: 16px; border: 1px solid var(--line); background: #000; aspect-ratio: 3 / 4;
-    }
-    #scanner, #scanner video {
-      width: 100%; height: 100%; display: block; object-fit: cover; background: #000;
-    }
+    .filebox { border-radius: 16px; border: 1px solid var(--line); background: rgba(15,23,42,.86); padding: 12px; }
+    .video-wrap { position: relative; overflow: hidden; border-radius: 16px; border: 1px solid var(--line); background: #000; aspect-ratio: 3/4; }
+    #scanner, #scanner video { width: 100%; height: 100%; display: block; object-fit: cover; background: #000; }
     #scanner canvas, #scanner video { position: absolute; inset: 0; }
     .guide { position: absolute; inset: 0; pointer-events: none; }
-    .guide::before {
-      content: ''; position: absolute; left: 5%; right: 5%; top: 43%; height: 14%; border-radius: 14px;
-      border: 3px solid rgba(56, 189, 248, 0.96); box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.18) inset;
-    }
-    .guide::after {
-      content: 'Place le code dans la bande bleue, bien horizontal'; position: absolute; left: 0; right: 0; top: 60%;
-      text-align: center; color: #e2e8f0; font-size: .92rem; font-weight: 700; text-shadow: 0 2px 8px rgba(0, 0, 0, .7); padding: 0 10px;
-    }
-    .status {
-      margin-top: 12px; min-height: 44px; display: flex; align-items: center; gap: 10px; border-radius: 14px;
-      border: 1px solid var(--line); background: rgba(15, 23, 42, 0.86); padding: 10px 12px; color: var(--muted); line-height: 1.35;
-    }
+    .guide::before { content: ''; position: absolute; left: 5%; right: 5%; top: 43%; height: 14%; border-radius: 14px; border: 3px solid rgba(56,189,248,.96); box-shadow: 0 0 0 9999px rgba(0,0,0,.18) inset; }
+    .guide::after { content: 'Place le code dans la bande bleue, bien horizontal'; position: absolute; left: 0; right: 0; top: 60%; text-align: center; color: #e2e8f0; font-size: .92rem; font-weight: 700; text-shadow: 0 2px 8px rgba(0,0,0,.7); padding: 0 10px; }
+    .status { margin-top: 12px; min-height: 44px; display: flex; align-items: center; gap: 10px; border-radius: 14px; border: 1px solid var(--line); background: rgba(15,23,42,.86); padding: 10px 12px; color: var(--muted); line-height: 1.35; }
     .dot { width: 10px; height: 10px; border-radius: 999px; background: var(--warn); flex: 0 0 auto; }
     .status.scan .dot { background: var(--accent); animation: pulse 1.1s infinite; }
     .status.ok .dot { background: var(--ok); }
     .status.ko .dot { background: var(--ko); }
-    @keyframes pulse {
-      0% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(1.35); opacity: .65; }
-      100% { transform: scale(1); opacity: 1; }
-    }
+    @keyframes pulse { 0%{transform:scale(1);opacity:1} 50%{transform:scale(1.35);opacity:.65} 100%{transform:scale(1);opacity:1} }
     .btnrow, .btnrow2, .btnrow3 { display: grid; gap: 10px; margin-top: 12px; }
     .btnrow { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     .btnrow2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -93,66 +53,48 @@
     @media (max-width: 700px) { .btnrow, .btnrow2, .btnrow3 { grid-template-columns: 1fr; } }
     button { min-height: 50px; border: 0; border-radius: 14px; font-size: .98rem; font-weight: 760; cursor: pointer; padding: 13px 12px; }
     button:disabled { opacity: .55; cursor: not-allowed; }
-    .btn-primary { background: linear-gradient(180deg, #38bdf8 0%, #0ea5e9 100%); color: #082f49; }
+    .btn-primary { background: linear-gradient(180deg,#38bdf8 0%,#0ea5e9 100%); color: #082f49; }
     .btn-secondary { background: #334155; color: #f8fafc; }
-    .btn-torch { background: linear-gradient(180deg, #fbbf24 0%, #f59e0b 100%); color: #422006; }
-    .btn-danger { background: linear-gradient(180deg, #f87171 0%, #ef4444 100%); color: #450a0a; }
-    .btn-success { background: linear-gradient(180deg, #4ade80 0%, #22c55e 100%); color: #052e16; }
+    .btn-torch { background: linear-gradient(180deg,#fbbf24 0%,#f59e0b 100%); color: #422006; }
+    .btn-danger { background: linear-gradient(180deg,#f87171 0%,#ef4444 100%); color: #450a0a; }
+    .btn-success { background: linear-gradient(180deg,#4ade80 0%,#22c55e 100%); color: #052e16; }
     .btn-neutral { background: #1e293b; color: #e2e8f0; }
-    .btn-ras { background: linear-gradient(180deg, #e2e8f0 0%, #cbd5e1 100%); color: #0f172a; }
+    .btn-ras { background: linear-gradient(180deg,#e2e8f0 0%,#cbd5e1 100%); color: #0f172a; }
     .field { margin-top: 12px; }
     label { display: block; margin-bottom: 8px; font-size: .92rem; font-weight: 700; }
-    input[type='text'], input[type='file'] {
-      width: 100%; border-radius: 14px; border: 1px solid var(--line); background: rgba(15, 23, 42, 0.86); color: var(--text);
-      padding: 14px; font-size: 16px; min-height: 50px;
-    }
+    input[type='text'], input[type='file'] { width: 100%; border-radius: 14px; border: 1px solid var(--line); background: rgba(15,23,42,.86); color: var(--text); padding: 14px; font-size: 16px; min-height: 50px; }
     .input-row { display: grid; grid-template-columns: 1fr auto; gap: 10px; }
     @media (max-width: 520px) { .input-row { grid-template-columns: 1fr; } }
     .note, .small { color: var(--muted); font-size: .9rem; line-height: 1.4; }
     .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
     @media (max-width: 760px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-    .stat { border-radius: 16px; border: 1px solid var(--line); background: rgba(15, 23, 42, 0.86); padding: 12px; }
-    .stat.ok { background: rgba(34, 197, 94, 0.12); }
-    .stat.ko { background: rgba(239, 68, 68, 0.12); }
+    .stat { border-radius: 16px; border: 1px solid var(--line); background: rgba(15,23,42,.86); padding: 12px; }
+    .stat.ok { background: rgba(34,197,94,.12); }
+    .stat.ko { background: rgba(239,68,68,.12); }
     .k { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin-bottom: 4px; }
     .v { font-size: 1.6rem; font-weight: 800; }
     .search-row { display: grid; grid-template-columns: 1fr 280px; gap: 10px; align-items: center; }
     @media (max-width: 760px) { .search-row { grid-template-columns: 1fr; } }
     .history-list { display: grid; gap: 10px; margin-top: 12px; }
-    .history-item {
-      border-radius: 16px; border: 1px solid var(--line); padding: 12px; display: grid;
-      grid-template-columns: 1fr 1fr .85fr .85fr 1fr auto; gap: 10px;
-    }
-    .history-item.ok { background: rgba(34, 197, 94, 0.14); }
-    .history-item.ko { background: rgba(239, 68, 68, 0.16); }
+    .history-item { border-radius: 16px; border: 1px solid var(--line); padding: 12px; display: grid; grid-template-columns: 1fr 1fr .85fr .85fr 1fr auto; gap: 10px; }
+    .history-item.ok { background: rgba(34,197,94,.14); }
+    .history-item.ko { background: rgba(239,68,68,.16); }
     @media (max-width: 980px) { .history-item { grid-template-columns: 1fr; } }
-    .empty {
-      border-radius: 16px; border: 1px dashed rgba(148, 163, 184, 0.25); background: rgba(15, 23, 42, 0.62); color: var(--muted);
-      padding: 24px; text-align: center; margin-top: 12px;
-    }
-    .tag {
-      display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; border: 1px solid var(--line); padding: 5px 9px;
-      font-size: .78rem; font-weight: 700; background: rgba(15, 23, 42, 0.72); color: var(--text);
-    }
-    .tag.ok { background: rgba(34, 197, 94, 0.14); color: #bbf7d0; }
+    .empty { border-radius: 16px; border: 1px dashed rgba(148,163,184,.25); background: rgba(15,23,42,.62); color: var(--muted); padding: 24px; text-align: center; margin-top: 12px; }
+    .tag { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; border: 1px solid var(--line); padding: 5px 9px; font-size: .78rem; font-weight: 700; background: rgba(15,23,42,.72); color: var(--text); }
+    .tag.ok { background: rgba(34,197,94,.14); color: #bbf7d0; }
     .tag.neutral { color: #cbd5e1; }
-    .overlay {
-      position: fixed; inset: 0; z-index: 999; display: none; align-items: center; justify-content: center; text-align: center;
-      padding: 24px; pointer-events: none;
-    }
+    .overlay { position: fixed; inset: 0; z-index: 999; display: none; align-items: center; justify-content: center; text-align: center; padding: 24px; pointer-events: none; }
     .overlay.show { display: flex; }
-    .overlay.ok { background: rgba(34, 197, 94, .80); }
-    .overlay.ko { background: rgba(239, 68, 68, .84); }
-    .overlay-box { max-width: 860px; color: white; text-shadow: 0 4px 12px rgba(0, 0, 0, .4); width: 100%; }
-    .overlay-title { font-size: clamp(3rem, 10vw, 7rem); font-weight: 900; line-height: 1; margin: 0 0 10px; }
-    .overlay-sub { font-size: clamp(1rem, 2.6vw, 1.6rem); font-weight: 700; margin: 0; }
-    .overlay-sn { font-size: clamp(1.2rem, 3vw, 2rem); font-weight: 800; margin-top: 10px; word-break: break-all; }
+    .overlay.ok { background: rgba(34,197,94,.80); }
+    .overlay.ko { background: rgba(239,68,68,.84); }
+    .overlay-box { max-width: 860px; color: white; text-shadow: 0 4px 12px rgba(0,0,0,.4); width: 100%; }
+    .overlay-title { font-size: clamp(3rem,10vw,7rem); font-weight: 900; line-height: 1; margin: 0 0 10px; }
+    .overlay-sub { font-size: clamp(1rem,2.6vw,1.6rem); font-weight: 700; margin: 0; }
+    .overlay-sn { font-size: clamp(1.2rem,3vw,2rem); font-weight: 800; margin-top: 10px; word-break: break-all; }
     .overlay-comment-wrap { margin: 18px auto 0; max-width: 720px; text-align: left; pointer-events: auto; }
     .overlay-comment-label { display: block; margin-bottom: 8px; font-size: .95rem; font-weight: 800; color: white; }
-    .overlay-comment {
-      width: 100%; min-height: 56px; border-radius: 16px; border: 0; padding: 14px 16px; font-size: 16px;
-      background: rgba(255,255,255,.96); color: #0f172a; box-shadow: 0 10px 26px rgba(0,0,0,.18);
-    }
+    .overlay-comment { width: 100%; min-height: 56px; border-radius: 16px; border: 0; padding: 14px 16px; font-size: 16px; background: rgba(255,255,255,.96); color: #0f172a; box-shadow: 0 10px 26px rgba(0,0,0,.18); }
     .overlay-actions { margin-top: 18px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; pointer-events: auto; }
     .overlay button { box-shadow: 0 8px 18px rgba(0,0,0,.22); }
     @media (max-width: 700px) { .overlay-actions { grid-template-columns: 1fr; } }
@@ -164,12 +106,10 @@
       <div id="overlayTitle" class="overlay-title">PRÊT</div>
       <p id="overlaySub" class="overlay-sub">Le résultat du dernier scan reste affiché jusqu'au prochain scan.</p>
       <div id="overlaySN" class="overlay-sn"></div>
-
       <div class="overlay-comment-wrap">
         <label for="overlayCommentInput" class="overlay-comment-label">Commentaire rapide</label>
         <input id="overlayCommentInput" class="overlay-comment" type="text" placeholder="Ajouter un commentaire pour ce SN (état, câble, choc, manquant, etc.)" />
       </div>
-
       <div class="overlay-actions">
         <button id="overlayNextBtn" class="btn-primary">Scanner suivant</button>
         <button id="overlayRasBtn" class="btn-ras">RAS</button>
@@ -213,30 +153,42 @@
       </div>
     </div>
 
+    <div class="card">
+      <h2 class="title" style="font-size:1.15rem;">Informations d'export</h2>
+      <p class="subtitle">Ces champs servent à nommer le fichier exporté / partagé.</p>
+      <div class="filegrid" style="margin-top:12px;">
+        <div class="filebox">
+          <label for="clientNameInput">Client</label>
+          <input id="clientNameInput" type="text" placeholder="Nom du client" />
+        </div>
+        <div class="filebox">
+          <label for="receiptNameInput">Bon de réception</label>
+          <input id="receiptNameInput" type="text" placeholder="Ex. BR-2026-041" />
+        </div>
+      </div>
+      <div class="small" style="margin-top:10px;">Nom généré : <strong id="exportNamePreview">retours_location_YYYY-MM-DD.csv</strong></div>
+    </div>
+
     <div class="grid">
       <div class="card">
         <div class="video-wrap">
           <div id="scanner"></div>
           <div class="guide"></div>
         </div>
-
         <div id="status" class="status">
           <span class="dot"></span>
           <span id="statusText">Prêt. Charge les références puis appuie sur « Autoriser & scanner ».</span>
         </div>
-
         <div class="btnrow">
           <button id="btnStart" class="btn-primary">Autoriser & scanner</button>
           <button id="btnStop" class="btn-secondary" disabled>Arrêter</button>
           <button id="btnTorch" class="btn-torch" disabled>Torche</button>
         </div>
-
         <div class="btnrow2">
           <button id="btnNext" class="btn-secondary">Scanner suivant</button>
           <button id="btnUndoLast" class="btn-neutral">Annuler dernier scan</button>
         </div>
-
-        <div class="note">Le commentaire peut être saisi directement dans l'écran rouge / vert. Le bouton <strong>RAS</strong> remplit automatiquement la note.</div>
+        <div class="note">Simple bip vert / double bip rouge. Le bouton <strong>RAS</strong> remplit automatiquement le commentaire.</div>
       </div>
 
       <div class="card">
@@ -247,7 +199,6 @@
             <button id="btnValidateManual" class="btn-success">Valider manuel</button>
           </div>
         </div>
-
         <div class="field">
           <label for="notesInput">Notes</label>
           <div class="input-row">
@@ -255,14 +206,12 @@
             <button id="btnRasMain" class="btn-ras">RAS</button>
           </div>
         </div>
-
         <div class="stats">
           <div class="stat"><div class="k">Total scans</div><div id="countTotal" class="v">0</div></div>
           <div class="stat ok"><div class="k">OK</div><div id="countOK" class="v">0</div></div>
           <div class="stat ko"><div class="k">À contrôler</div><div id="countKO" class="v">0</div></div>
           <div class="stat"><div class="k">Prêt export</div><div id="countExport" class="v">0</div></div>
         </div>
-
         <div class="btnrow2">
           <button id="btnExport" class="btn-secondary">Exporter CSV</button>
           <button id="btnShare" class="btn-secondary">Partager</button>
@@ -289,7 +238,9 @@
 
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script>
-    const STORAGE_SCANNED = 'retourloc_scanned_v5';
+    const STORAGE_SCANNED = 'retourloc_scanned_v6';
+    const STORAGE_META = 'retourloc_export_meta_v1';
+
     const scannerEl = document.getElementById('scanner');
     const statusEl = document.getElementById('status');
     const statusTextEl = document.getElementById('statusText');
@@ -325,12 +276,14 @@
     const overlayTitleEl = document.getElementById('overlayTitle');
     const overlaySubEl = document.getElementById('overlaySub');
     const overlaySNEl = document.getElementById('overlaySN');
+    const clientNameInput = document.getElementById('clientNameInput');
+    const receiptNameInput = document.getElementById('receiptNameInput');
+    const exportNamePreview = document.getElementById('exportNamePreview');
 
-    let knownMap = new Map(); // canonical SN -> { source, display }
+    let knownMap = new Map();
     let scanned = loadScanned();
     let bjongLoaded = false;
     let batteryLoaded = false;
-
     let permissionPrimed = false;
     let engineLoaded = false;
     let activePrimeStream = null;
@@ -343,22 +296,11 @@
     let lastDetectedAt = 0;
     let audioCtx = null;
 
-    function normalize(v) {
-      return String(v || '').trim().toUpperCase().replace(/\s+/g, '');
-    }
-    function canonicalSN(v) {
-      const s = normalize(v);
-      return s.replace(/^V(?=.+)/, '');
-    }
-    function displaySN(v) {
-      return normalize(v);
-    }
-    function escapeHtml(v) {
-      return String(v ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
-    }
-    function escapeCsv(v) {
-      return '"' + String(v ?? '').replace(/"/g, '""') + '"';
-    }
+    function normalize(v) { return String(v || '').trim().toUpperCase().replace(/\s+/g, ''); }
+    function canonicalSN(v) { const s = normalize(v); return s.replace(/^V(?=.+)/, ''); }
+    function displaySN(v) { return normalize(v); }
+    function escapeHtml(v) { return String(v ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\"/g, '&quot;').replace(/'/g, '&#039;'); }
+    function escapeCsv(v) { return '"' + String(v ?? '').replace(/"/g, '""') + '"'; }
 
     function playBeep(type = 'ok') {
       try {
@@ -366,19 +308,56 @@
         if (!Ctx) return;
         if (!audioCtx) audioCtx = new Ctx();
         if (audioCtx.state === 'suspended') audioCtx.resume();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = 'sine';
-        osc.frequency.value = type === 'ok' ? 1046 : 740;
-        gain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.18, audioCtx.currentTime + 0.01);
-        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.18);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.2);
+        const scheduleBeep = (freq, startOffset, duration) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.value = freq;
+          const t0 = audioCtx.currentTime + startOffset;
+          gain.gain.setValueAtTime(0.0001, t0);
+          gain.gain.exponentialRampToValueAtTime(0.18, t0 + 0.01);
+          gain.gain.exponentialRampToValueAtTime(0.0001, t0 + duration);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(t0);
+          osc.stop(t0 + duration + 0.02);
+        };
+        if (type === 'ok') {
+          scheduleBeep(1046, 0, 0.16);
+        } else {
+          scheduleBeep(740, 0, 0.12);
+          scheduleBeep(740, 0.18, 0.12);
+        }
       } catch (_) {}
     }
+
+    function loadMeta() {
+      try {
+        const raw = localStorage.getItem(STORAGE_META);
+        const obj = raw ? JSON.parse(raw) : {};
+        return { client: String(obj.client || ''), receipt: String(obj.receipt || '') };
+      } catch {
+        return { client: '', receipt: '' };
+      }
+    }
+    function saveMeta() {
+      localStorage.setItem(STORAGE_META, JSON.stringify({ client: clientNameInput.value.trim(), receipt: receiptNameInput.value.trim() }));
+      updateExportNamePreview();
+    }
+    function slugifyName(v) {
+      return String(v || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zA-Z0-9_-]+/g, '_').replace(/^_+|_+$/g, '').replace(/_+/g, '_');
+    }
+    function buildExportFileName() {
+      const date = new Date().toISOString().slice(0, 10);
+      const client = slugifyName(clientNameInput.value.trim());
+      const receipt = slugifyName(receiptNameInput.value.trim());
+      const parts = ['retours_location'];
+      if (client) parts.push(client);
+      if (receipt) parts.push(receipt);
+      parts.push(date);
+      return parts.join('_') + '.csv';
+    }
+    function updateExportNamePreview() { exportNamePreview.textContent = buildExportFileName(); }
 
     function loadScanned() {
       try {
@@ -396,17 +375,12 @@
       if (mode === 'ko') statusEl.classList.add('ko');
       statusTextEl.textContent = text;
     }
-
-    function getLastEntry() {
-      return scanned.length ? scanned[0] : null;
-    }
-
+    function getLastEntry() { return scanned.length ? scanned[0] : null; }
     function syncOverlayComment() {
       const last = getLastEntry();
       overlayCommentInput.value = last ? (last.notes || '') : '';
       overlayCommentInput.disabled = !last;
     }
-
     function setOverlay(state, sn = '', source = '', notes = '') {
       overlayEl.className = 'overlay show ' + (state === 'ok' ? 'ok' : 'ko');
       overlayTitleEl.textContent = state === 'ok' ? 'OK' : 'A CONTRÔLER';
@@ -415,7 +389,6 @@
       syncOverlayComment();
       setTimeout(() => { if (overlayEl.classList.contains('show')) overlayCommentInput.focus(); }, 50);
     }
-
     function clearOverlay() {
       overlayEl.className = 'overlay';
       overlayTitleEl.textContent = 'PRÊT';
@@ -431,7 +404,6 @@
       tagBattery.textContent = batteryLoaded ? 'Batteries chargées' : 'Batteries non chargées';
       knownCountEl.textContent = String(knownMap.size);
     }
-
     function updateCounters() {
       const ok = scanned.filter(x => x.status === 'OK').length;
       const ko = scanned.filter(x => x.status === 'A CONTRÔLER').length;
@@ -460,7 +432,7 @@
           <div><div class="k">Barcode réel</div><div style="font-weight:700; word-break:break-all;">${escapeHtml(r.realScanned || r.scannedInput || '')}</div></div>
           <div><div class="k">Statut</div><div>${escapeHtml(r.status)}</div></div>
           <div><div class="k">Source</div><div>${escapeHtml(r.source)}</div></div>
-          <div><div class="k">Notes</div><input type="text" data-note-id="${r.id}" value="${escapeHtml(r.notes || '')}" placeholder="Ajouter une note" /></div>
+          <div><div class="k">Notes</div><input type="text" data-note-id="${r.id}" value="${escapeHtml(r.notes || '')}" placeholder="Ajouter une note" /></div></div>
           <div style="display:flex; align-items:center; justify-content:flex-end; gap:8px;"><button class="btn-neutral" data-delete-id="${r.id}" style="min-height:42px; padding:10px 12px;">Annuler</button></div>
         </div>`).join('');
       historyListEl.querySelectorAll('[data-delete-id]').forEach(btn => {
@@ -481,26 +453,22 @@
 
     function extractSNFromDelimitedLine(line) {
       const cols = String(line || '').split(/[,;\t]/);
-      const colF = cols[5] !== undefined ? cols[5] : '';
-      return displaySN(colF);
+      return displaySN(cols[5] !== undefined ? cols[5] : '');
     }
-
     async function parseFileToKnownMap(file, sourceName) {
       const map = new Map();
       const ext = (file.name.split('.').pop() || '').toLowerCase();
-
       if (ext === 'txt' || ext === 'csv') {
         const text = await file.text();
         String(text || '').split(/\r?\n/).forEach((line, idx) => {
           const raw = extractSNFromDelimitedLine(line);
           const key = canonicalSN(raw);
           if (!key) return;
-          if (idx === 0 && ['SN', 'SERIAL', 'SERIALNUMBER', 'NUMERO DE SERIE', 'N° SERIE'].includes(key)) return;
+          if (idx === 0 && ['SN','SERIAL','SERIALNUMBER','NUMERO DE SERIE','N° SERIE'].includes(key)) return;
           if (!map.has(key)) map.set(key, { source: sourceName, display: raw || key });
         });
         return map;
       }
-
       const buffer = await file.arrayBuffer();
       const wb = XLSX.read(buffer, { type: 'array' });
       const ws = wb.Sheets[wb.SheetNames[0]];
@@ -510,12 +478,11 @@
         const raw = displaySN(row[5]);
         const key = canonicalSN(raw);
         if (!key) return;
-        if (idx === 0 && ['SN', 'SERIAL', 'SERIALNUMBER', 'NUMERO DE SERIE', 'N° SERIE'].includes(key)) return;
+        if (idx === 0 && ['SN','SERIAL','SERIALNUMBER','NUMERO DE SERIE','N° SERIE'].includes(key)) return;
         if (!map.has(key)) map.set(key, { source: sourceName, display: raw || key });
       });
       return map;
     }
-
     async function handleRefFile(file, sourceName) {
       if (!file) return;
       try {
@@ -539,17 +506,7 @@
       const source = ref ? ref.source : 'INCONNU';
       const status = ref ? 'OK' : 'A CONTRÔLER';
       const note = notesInput.value.trim();
-      const entry = {
-        id: Date.now() + Math.random(),
-        sn: ref ? ref.display : scannedDisplay,
-        realScanned: scannedDisplay,
-        scannedInput: scannedDisplay,
-        canonical: key,
-        status,
-        source,
-        date: new Date().toLocaleString('fr-FR'),
-        notes: note
-      };
+      const entry = { id: Date.now() + Math.random(), sn: ref ? ref.display : scannedDisplay, realScanned: scannedDisplay, scannedInput: scannedDisplay, canonical: key, status, source, date: new Date().toLocaleString('fr-FR'), notes: note };
       scanned.unshift(entry);
       saveScanned(); updateCounters(); renderHistory();
       barcodeInput.value = ''; notesInput.value = '';
@@ -568,26 +525,22 @@
         overlaySubEl.textContent = last.source ? ('Source : ' + last.source + (last.notes ? ' • Note : ' + last.notes : '')) : 'Le résultat reste affiché jusqu’au prochain scan.';
       }
     }
-
     function applyRAS(target) {
       target.value = 'RAS';
       target.dispatchEvent(new Event('input', { bubbles: true }));
       target.dispatchEvent(new Event('change', { bubbles: true }));
       target.focus();
     }
-
     function undoLast() {
       if (!scanned.length) return;
       scanned.shift();
       saveScanned(); updateCounters(); renderHistory();
       setStatus('Dernier scan annulé.', 'ok');
     }
-
     function flushScanned() {
       if (!confirm('Vider la base scannée ?')) return;
       scanned = []; saveScanned(); updateCounters(); renderHistory(); clearOverlay(); setStatus('Base scannée vidée.', 'ok');
     }
-
     function clearReferences() {
       if (!confirm('Décharger les références BJONG / Batteries ?')) return;
       knownMap = new Map(); bjongLoaded = false; batteryLoaded = false; updateSourceTags(); setStatus('Références déchargées.', 'ok');
@@ -599,20 +552,18 @@
       const content = [header.map(escapeCsv).join(';'), ...rows].join('\n');
       return new Blob(['\uFEFF' + content], { type: 'text/csv;charset=utf-8' });
     }
-
     function exportCsv() {
       if (!scanned.length) return;
       const blob = exportCsvBlob();
       const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob); a.download = 'retours_location_' + new Date().toISOString().slice(0, 10) + '.csv';
+      a.href = URL.createObjectURL(blob); a.download = buildExportFileName();
       document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
       setStatus('CSV exporté.', 'ok');
     }
-
     async function shareCsv() {
       if (!scanned.length) return;
       const blob = exportCsvBlob();
-      const file = new File([blob], 'retours_location_' + new Date().toISOString().slice(0, 10) + '.csv', { type: 'text/csv;charset=utf-8' });
+      const file = new File([blob], buildExportFileName(), { type: 'text/csv;charset=utf-8' });
       try {
         if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
           await navigator.share({ title: 'Bon de réception - retours location', text: 'Export des SN scannés', files: [file] });
@@ -623,11 +574,7 @@
       exportCsv();
     }
 
-    function stopPrimeStream() {
-      try { if (activePrimeStream && activePrimeStream.getTracks) activePrimeStream.getTracks().forEach(t => t.stop()); } catch (_) {}
-      activePrimeStream = null;
-    }
-
+    function stopPrimeStream() { try { if (activePrimeStream && activePrimeStream.getTracks) activePrimeStream.getTracks().forEach(t => t.stop()); } catch (_) {} activePrimeStream = null; }
     async function primeCameraPermission() {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error('API caméra non disponible sur ce navigateur.');
       setStatus('Demande de permission caméra…', 'scan');
@@ -636,7 +583,6 @@
       const video = document.createElement('video'); video.muted = true; video.playsInline = true; video.srcObject = stream;
       await video.play().catch(() => null); await new Promise(resolve => setTimeout(resolve, 180)); stopPrimeStream(); permissionPrimed = true;
     }
-
     async function loadQuagga() {
       if (engineLoaded && window.Quagga) return;
       await new Promise((resolve, reject) => {
@@ -651,14 +597,12 @@
         script.onerror = () => reject(new Error('Impossible de charger Quagga2 (connexion Internet requise).'));
       });
     }
-
     function getActiveVideoTrack() {
       const video = scannerEl.querySelector('video');
       if (!video || !video.srcObject || !video.srcObject.getVideoTracks) return null;
       const tracks = video.srcObject.getVideoTracks();
       return tracks && tracks.length ? tracks[0] : null;
     }
-
     function syncTorchAvailability(attempt = 0) {
       const track = getActiveVideoTrack();
       if (!track) { if (attempt < 12) setTimeout(() => syncTorchAvailability(attempt + 1), 180); return; }
@@ -666,7 +610,6 @@
       try { if (typeof track.getCapabilities === 'function') { const caps = track.getCapabilities() || {}; supported = !!caps.torch; } } catch (_) {}
       torchCapable = supported; if (!supported) torchEnabled = false; btnTorch.disabled = !started || !torchCapable; btnTorch.textContent = torchEnabled ? 'Torche ON' : 'Torche';
     }
-
     async function toggleTorch() {
       const track = getActiveVideoTrack();
       if (!track || !torchCapable) { setStatus('Torche non disponible.', 'ko'); return; }
@@ -679,7 +622,6 @@
         console.error(error); torchEnabled = false; btnTorch.textContent = 'Torche'; setStatus('Impossible d\'activer la torche.', 'ko');
       }
     }
-
     function stopScanner() {
       try { if (window.Quagga && onDetectedHandler) window.Quagga.offDetected(onDetectedHandler); } catch (_) {}
       try { if (window.Quagga && onProcessedHandler) window.Quagga.offProcessed(onProcessedHandler); } catch (_) {}
@@ -690,7 +632,6 @@
       try { if (video && video.srcObject && video.srcObject.getTracks) video.srcObject.getTracks().forEach(t => t.stop()); } catch (_) {}
       scannerEl.innerHTML = ''; stopPrimeStream();
     }
-
     async function startScanner() {
       clearOverlay();
       if (started) return;
@@ -701,13 +642,8 @@
         await loadQuagga(); setStatus('Scanner actif…', 'scan');
         await new Promise((resolve, reject) => {
           window.Quagga.init({
-            inputStream: {
-              name: 'Live', type: 'LiveStream', target: scannerEl,
-              constraints: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 }, aspectRatio: { ideal: 0.75 }, frameRate: { ideal: 30, max: 60 } },
-              area: { top: '43%', right: '5%', left: '5%', bottom: '43%' }, singleChannel: false
-            },
-            locator: { patchSize: 'medium', halfSample: true }, numOfWorkers: 2, frequency: 20, locate: false,
-            decoder: { readers: ['code_128_reader'], multiple: false }
+            inputStream: { name: 'Live', type: 'LiveStream', target: scannerEl, constraints: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 }, aspectRatio: { ideal: 0.75 }, frameRate: { ideal: 30, max: 60 } }, area: { top: '43%', right: '5%', left: '5%', bottom: '43%' }, singleChannel: false },
+            locator: { patchSize: 'medium', halfSample: true }, numOfWorkers: 2, frequency: 20, locate: false, decoder: { readers: ['code_128_reader'], multiple: false }
           }, err => err ? reject(err) : resolve());
         });
         onDetectedHandler = data => {
@@ -733,11 +669,7 @@
         console.error(error); stopScanner(); setStatus(error.message || 'Erreur de démarrage du scanner.', 'ko');
       } finally { btnStart.disabled = false; }
     }
-
-    async function launchNextScan() {
-      clearOverlay();
-      await startScanner();
-    }
+    async function launchNextScan() { clearOverlay(); await startScanner(); }
 
     fileBjong.addEventListener('change', async e => { await handleRefFile(e.target.files && e.target.files[0], 'BJONG'); });
     fileBattery.addEventListener('change', async e => { await handleRefFile(e.target.files && e.target.files[0], 'BATTERIE'); });
@@ -760,9 +692,15 @@
     btnFlush.addEventListener('click', flushScanned);
     btnClearRefs.addEventListener('click', clearReferences);
     searchInput.addEventListener('input', renderHistory);
+    clientNameInput.addEventListener('input', saveMeta);
+    receiptNameInput.addEventListener('input', saveMeta);
     document.addEventListener('visibilitychange', () => { if (document.hidden) stopScanner(); });
     window.addEventListener('beforeunload', stopScanner);
 
+    const loadedMeta = loadMeta();
+    clientNameInput.value = loadedMeta.client;
+    receiptNameInput.value = loadedMeta.receipt;
+    updateExportNamePreview();
     updateSourceTags(); updateCounters(); renderHistory(); setStatus('Prêt. Charge BJONG / Batteries puis scanne.', 'ok');
   </script>
 </body>
