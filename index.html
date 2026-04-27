@@ -112,13 +112,7 @@
     <div class="card">
       <h1 class="title">Contrôle réception - Scan BJONG + Batteries</h1>
       <p class="subtitle">Scanner et transmettre la liste.</p>
-      <div class="pillbar">
-        <span class="pill">Quagga2</span>
-        <span class="pill">Code 128</span>
-        <span class="pill">Colonnes auto-détectées</span>
-        <span class="pill">Dates FR/US</span>
-        <span class="pill">Seuil personnalisable</span>
-        <span class="pill">Flush / vider refs corrigés</span>
+
       </div>
     </div>
 
@@ -127,12 +121,12 @@
         <div class="filebox">
           <label for="fileBjong">Charger fichier BJONG</label>
           <input id="fileBjong" type="file" accept=".csv,.txt,.xlsx,.xls" />
-          <div class="small">Lecture multi-feuilles. Colonnes détectées automatiquement.</div>
+          <div class="small">A charger depuis Sharepoint.</div>
         </div>
         <div class="filebox">
           <label for="fileBattery">Charger fichier Batteries</label>
           <input id="fileBattery" type="file" accept=".csv,.txt,.xlsx,.xls" />
-          <div class="small">Compatible exports Microsoft Forms (NS Batterie + Heure de début) et feuilles NS / DATE.</div>
+          <div class="small">A charger depuis Sharepoint.</div>
         </div>
       </div>
       <div class="pillbar">
@@ -182,7 +176,6 @@
           <button id="btnNext" class="btn-secondary">Scanner suivant</button>
           <button id="btnUndoLast" class="btn-neutral">Annuler dernier scan</button>
         </div>
-        <div class="small">Le commentaire peut être saisi directement dans l'écran rouge / vert. Le bouton <strong>RAS</strong> remplit automatiquement la note.</div>
       </div>
 
       <div class="card">
@@ -214,7 +207,6 @@
           <button id="btnFlush" class="btn-danger">Flush base scannée</button>
           <button id="btnClearRefs" class="btn-neutral">Vider références</button>
         </div>
-        <div class="small">Flush vide immédiatement la liste scannée. Vider références décharge immédiatement les fichiers de contrôle et remet les sélecteurs de fichier à zéro.</div>
       </div>
     </div>
 
@@ -222,7 +214,6 @@
       <div class="input-row" style="grid-template-columns:1fr 280px; align-items:center;">
         <div>
           <h2 class="title" style="font-size:1.15rem; margin-bottom:4px;">Archivage des scans</h2>
-          <p class="subtitle">Archive complète avec date de contrôle, âge du contrôle et motif.</p>
         </div>
         <input id="searchInput" type="text" placeholder="Rechercher SN, motif, date..." />
       </div>
