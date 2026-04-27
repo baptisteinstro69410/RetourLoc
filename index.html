@@ -1,669 +1,151 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <title>Contrôle SN &lt; 300 jours</title>
-  <style>
-    :root{
-      --bg:#0b1220; --panel:#111a2b; --panel2:#17233a; --txt:#eef4ff; --muted:#9fb0cf;
-      --ok:#0f9d58; --ok2:#0a7e46; --ko:#c62828; --ko2:#9f1f1f; --warn:#d98e04; --line:#24324f;
-      --accent:#3b82f6;
-    }
-    *{box-sizing:border-box}
-    html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
-    body{min-height:100vh}
-    .wrap{max-width:980px;margin:0 auto;padding:14px 14px 120px}
-    h1{margin:0 0 8px;font-size:1.45rem}
-    .sub{color:var(--muted);font-size:.95rem;margin-bottom:12px}
-    .grid{display:grid;grid-template-columns:1fr;gap:12px}
-    @media (min-width:900px){.grid{grid-template-columns:1.05fr .95fr}}
-    .card{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,.18)}
-    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-    .row>*{min-width:0}
-    .grow{flex:1 1 220px}
-    label{display:block;font-size:.88rem;color:var(--muted);margin-bottom:6px}
-    input[type="text"], input[type="file"]{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:#0c1526;color:var(--txt)}
-    input::placeholder{color:#7f93b6}
-    .btn{appearance:none;border:none;border-radius:12px;padding:12px 14px;background:#1f2c47;color:var(--txt);font-weight:700;cursor:pointer}
-    .btn:hover{filter:brightness(1.08)}
-    .btn:disabled{opacity:.5;cursor:not-allowed}
-    .btn.primary{background:var(--accent)}
-    .btn.ok{background:var(--ok)}
-    .btn.ko{background:var(--ko)}
-    .btn.warn{background:var(--warn); color:#111}
-    .status{margin-top:10px;padding:10px 12px;border-radius:12px;background:#0c1526;border:1px solid var(--line);font-size:.95rem}
-    .status.ok{border-color:#1f7a47;background:rgba(15,157,88,.13)}
-    .status.ko{border-color:#7d2323;background:rgba(198,40,40,.14)}
-    .status.info{border-color:#35507d;background:rgba(59,130,246,.12)}
-    .hero{position:relative;overflow:hidden;border-radius:18px;aspect-ratio:16/10;background:#050a12;border:1px solid var(--line)}
-    video{width:100%;height:100%;object-fit:cover;background:#000}
-    .hero-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-    .meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-    .meta .pill{padding:10px 12px;border-radius:12px;background:#0c1526;border:1px solid var(--line)}
-    .pill b{display:block;font-size:1.15rem;margin-top:2px}
-    .overlay{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(6,10,18,.72);backdrop-filter:blur(2px);z-index:50}
-    .overlay.show{display:flex}
-    .overlay-card{width:min(96vw,760px);min-height:52vh;border-radius:24px;padding:18px;display:flex;flex-direction:column;justify-content:space-between;border:2px solid rgba(255,255,255,.12);box-shadow:0 18px 40px rgba(0,0,0,.35)}
-    .overlay-card.ok{background:linear-gradient(180deg,#109d59,#0c7d47)}
-    .overlay-card.ko{background:linear-gradient(180deg,#d23434,#9f2323)}
-    .overlay-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
-    .overlay-badge{font-size:1.1rem;font-weight:900;letter-spacing:.04em;background:rgba(255,255,255,.16);padding:8px 12px;border-radius:999px}
-    .overlay-sn{font-size:clamp(2rem,7vw,4rem);font-weight:900;line-height:1.02;word-break:break-word;margin:12px 0}
-    .overlay-info{font-size:clamp(1.05rem,2.4vw,1.25rem);line-height:1.4}
-    .overlay-note{margin-top:14px}
-    .overlay-note input{background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.24)}
-    .overlay-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:16px}
-    .overlay-actions .btn{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.24)}
-    .overlay-actions .btn.primary{background:#fff;color:#12233d}
-    .history{margin-top:10px;display:flex;flex-direction:column;gap:8px;max-height:380px;overflow:auto}
-    .item{border:1px solid var(--line);background:#0c1526;border-radius:14px;padding:10px 12px}
-    .item.ok{border-color:#1f7a47}
-    .item.ko{border-color:#7d2323}
-    .item-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
-    .item-sn{font-weight:900;font-size:1.1rem}
-    .item small,.muted{color:var(--muted)}
-    .toolbar{display:flex;gap:8px;flex-wrap:wrap}
-    .footerbar{position:fixed;left:0;right:0;bottom:0;padding:10px 12px;background:rgba(11,18,32,.94);backdrop-filter:blur(8px);border-top:1px solid var(--line);z-index:40}
-    .footerbar .inner{max-width:980px;margin:0 auto;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
-    code{background:#0c1526;padding:2px 6px;border-radius:8px}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Contrôle périodique – Scan SN</title>
+
+<style>
+:root{
+  --ok:#22c55e;
+  --ko:#ef4444;
+  --bg:#0b1220;
+}
+body{
+  margin:0;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto;
+  background:var(--bg);
+  color:#fff;
+}
+.wrap{max-width:900px;margin:auto;padding:12px}
+.card{background:#111827;border-radius:14px;padding:14px;margin-bottom:12px}
+button{padding:14px;border-radius:12px;border:0;font-weight:700}
+.ok{background:var(--ok)}
+.ko{background:var(--ko)}
+#scanner{width:100%;aspect-ratio:3/4;background:#000;border-radius:14px;overflow:hidden}
+#overlay{
+  position:fixed;inset:0;display:none;
+  align-items:center;justify-content:center;
+  text-align:center;font-weight:900;
+}
+#overlay.ok{background:rgba(34,197,94,.85)}
+#overlay.ko{background:rgba(239,68,68,.85)}
+.big{font-size:clamp(3rem,8vw,6rem)}
+.small{font-size:1.2rem;margin-top:12px}
+</style>
 </head>
+
 <body>
-  <div class="wrap">
-    <h1>Contrôle SN &lt; 300 jours</h1>
-    <div class="sub">Scan Code 128, lecture des fichiers de contrôle, affichage vert/rouge selon date de contrôle &le; / &gt; 300 jours.</div>
 
-    <div class="grid">
-      <section class="card">
-        <div class="row">
-          <div class="grow">
-            <label for="controlFiles">Fichiers de contrôle (Excel / CSV / TXT)</label>
-            <input id="controlFiles" type="file" accept=".xlsx,.xls,.csv,.txt" multiple />
-          </div>
-        </div>
-        <div class="row" style="margin-top:10px">
-          <div class="grow">
-            <label for="clientName">Client</label>
-            <input id="clientName" type="text" placeholder="Ex : Métropole X" />
-          </div>
-          <div class="grow">
-            <label for="receiptName">Bon de réception</label>
-            <input id="receiptName" type="text" placeholder="Ex : BR-2026-041" />
-          </div>
-        </div>
-        <div class="row" style="margin-top:10px">
-          <div class="grow">
-            <label for="manualInput">Saisie manuelle SN</label>
-            <input id="manualInput" type="text" placeholder="Scanner ou saisir un SN" autocomplete="off" autocapitalize="off" spellcheck="false" />
-          </div>
-          <button id="btnManualAdd" class="btn primary">Valider</button>
-        </div>
-        <div class="row" style="margin-top:10px">
-          <button id="btnLoadFiles" class="btn">Charger fichiers</button>
-          <button id="btnExport" class="btn ok">Exporter CSV</button>
-          <button id="btnClearHistory" class="btn ko">Vider historique</button>
-        </div>
-        <div id="statusBox" class="status info">Charge les fichiers de contrôle puis lance le scan.</div>
-        <div class="meta" style="margin-top:12px">
-          <div class="pill"><span class="muted">Références chargées</span><b id="countKnown">0</b></div>
-          <div class="pill"><span class="muted">Scans enregistrés</span><b id="countScanned">0</b></div>
-        </div>
-        <div style="margin-top:10px" class="muted">
-          Colonnes attendues : <code>B</code> = date contrôle, <code>F</code> = SN.<br>
-          Format date attendu : <code>20/01/2026  15:20:46</code>.
-        </div>
-      </section>
-
-      <section class="card">
-        <div class="hero">
-          <video id="video" playsinline muted></video>
-        </div>
-        <div class="hero-actions">
-          <button id="btnStart" class="btn primary">Démarrer scan</button>
-          <button id="btnStop" class="btn">Stop</button>
-          <button id="btnTorch" class="btn warn" disabled>Torche</button>
-        </div>
-        <div class="status info" style="margin-top:10px">
-          Conseil : rapproche-toi, stabilise 0,5 s, évite les reflets, et centre le Code 128 dans l’image.
-        </div>
-      </section>
-    </div>
-
-    <section class="card" style="margin-top:12px">
-      <div class="row" style="justify-content:space-between;align-items:center">
-        <h2 style="margin:0;font-size:1.1rem">Historique</h2>
-        <div class="toolbar">
-          <button id="btnUndo" class="btn">Annuler dernier</button>
-        </div>
-      </div>
-      <div id="history" class="history"></div>
-    </section>
+<div id="overlay">
+  <div>
+    <div id="overlayTitle" class="big"></div>
+    <div id="overlaySub" class="small"></div>
+    <button onclick="startScan()">Scanner suivant</button>
   </div>
+</div>
 
-  <div id="overlay" class="overlay" aria-hidden="true">
-    <div id="overlayCard" class="overlay-card ok">
-      <div>
-        <div class="overlay-top">
-          <div class="overlay-badge" id="overlayBadge">OK</div>
-          <div id="overlayWhen" class="overlay-badge"></div>
-        </div>
-        <div id="overlaySN" class="overlay-sn">SN</div>
-        <div id="overlayInfo" class="overlay-info">Informations</div>
-        <div class="overlay-note">
-          <label for="overlayNotes" style="color:#fff">Commentaire</label>
-          <input id="overlayNotes" type="text" placeholder="Ajouter un commentaire" />
-        </div>
-      </div>
-      <div class="overlay-actions">
-        <button id="btnRAS" class="btn">RAS</button>
-        <button id="btnSaveNote" class="btn primary">Valider commentaire</button>
-        <button id="btnCancelLast" class="btn">Annuler ce scan</button>
-        <button id="btnNextScan" class="btn">Scanner suivant</button>
-      </div>
-    </div>
-  </div>
+<div class="wrap">
 
-  <div class="footerbar">
-    <div class="inner">
-      <div class="muted">App locale HTML autonome. Données et historique stockés dans le navigateur.</div>
-      <div class="muted">Vert = contrôle &le; 300 j • Rouge = contrôle &gt; 300 j ou invalide</div>
-    </div>
-  </div>
+<div class="card">
+  <h2>Fichiers de contrôle</h2>
+  <input type="file" id="files" multiple accept=".xlsx,.xls,.csv,.txt">
+  <div id="info"></div>
+</div>
 
-  https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.5/umd/zxing-browser.min.js
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script>
-    const STORAGE_HISTORY = 'sn_control_history_v1';
-    const STORAGE_CLIENT = 'sn_control_client_v1';
-    const STORAGE_RECEIPT = 'sn_control_receipt_v1';
-    const MAX_AGE_DAYS = 300;
+<div class="card">
+  <div id="scanner"></div>
+  <button onclick="startScan()">Scanner</button>
+</div>
 
-    const els = {
-      controlFiles: document.getElementById('controlFiles'),
-      clientName: document.getElementById('clientName'),
-      receiptName: document.getElementById('receiptName'),
-      manualInput: document.getElementById('manualInput'),
-      btnManualAdd: document.getElementById('btnManualAdd'),
-      btnLoadFiles: document.getElementById('btnLoadFiles'),
-      btnExport: document.getElementById('btnExport'),
-      btnClearHistory: document.getElementById('btnClearHistory'),
-      btnUndo: document.getElementById('btnUndo'),
-      statusBox: document.getElementById('statusBox'),
-      countKnown: document.getElementById('countKnown'),
-      countScanned: document.getElementById('countScanned'),
-      video: document.getElementById('video'),
-      btnStart: document.getElementById('btnStart'),
-      btnStop: document.getElementById('btnStop'),
-      btnTorch: document.getElementById('btnTorch'),
-      history: document.getElementById('history'),
-      overlay: document.getElementById('overlay'),
-      overlayCard: document.getElementById('overlayCard'),
-      overlayBadge: document.getElementById('overlayBadge'),
-      overlayWhen: document.getElementById('overlayWhen'),
-      overlaySN: document.getElementById('overlaySN'),
-      overlayInfo: document.getElementById('overlayInfo'),
-      overlayNotes: document.getElementById('overlayNotes'),
-      btnRAS: document.getElementById('btnRAS'),
-      btnSaveNote: document.getElementById('btnSaveNote'),
-      btnCancelLast: document.getElementById('btnCancelLast'),
-      btnNextScan: document.getElementById('btnNextScan')
-    };
+</div>
 
-    let knownMap = new Map();
-    let scanned = loadHistory();
-    let reader = null;
-    let controls = null;
-    let stream = null;
-    let lastScanAt = 0;
-    let torchOn = false;
-    let currentTrack = null;
-    let isScannerPaused = false;
-    let lastEntryId = null;
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://unpkg.com/@ericblade/quagga2@1.8.4/dist/quagga.min.js"></script>
 
-    function setStatus(msg, kind='info') {
-      els.statusBox.className = 'status ' + kind;
-      els.statusBox.textContent = msg;
-    }
+<script>
+const MAX_DAYS = 300;
+const controls = new Map();
+let scanning=false;
 
-    function normalizeSpaces(s) {
-      return String(s || '').replace(/\s+/g, ' ').trim();
-    }
+function parseDateFR(v){
+  if(!v) return null;
+  const m=v.match(/(\\d{2})\\/(\\d{2})\\/(\\d{4})/);
+  if(!m) return null;
+  return new Date(m[3],m[2]-1,m[1]);
+}
 
-    function canonicalSN(raw) {
-      let s = normalizeSpaces(raw).toUpperCase().replace(/[^A-Z0-9]/g, '');
-      if (!s) return '';
-      if (s.startsWith('V') && s.length > 1) s = s.slice(1);
-      return s;
-    }
-
-    function displaySN(raw) {
-      return normalizeSpaces(raw).toUpperCase();
-    }
-
-    function parseFrenchControlDate(value) {
-      if (value === null || value === undefined) return null;
-      const s = String(value).trim();
-      if (!s) return null;
-      const m = s.match(/^(\d{2})\/(\d{2})\/(\d{4})(?:\s+(\d{2}):(\d{2})(?::(\d{2}))?)?$/);
-      if (m) {
-        const dd = Number(m[1]);
-        const mm = Number(m[2]);
-        const yyyy = Number(m[3]);
-        const hh = Number(m[4] || 0);
-        const mi = Number(m[5] || 0);
-        const ss = Number(m[6] || 0);
-        const d = new Date(yyyy, mm - 1, dd, hh, mi, ss);
-        return Number.isNaN(d.getTime()) ? null : d;
-      }
-      const n = Number(s);
-      if (!Number.isNaN(n) && n > 30000 && n < 60000) {
-        const excelEpoch = new Date(Date.UTC(1899, 11, 30));
-        const d = new Date(excelEpoch.getTime() + n * 86400000);
-        return Number.isNaN(d.getTime()) ? null : d;
-      }
-      const d = new Date(s);
-      return Number.isNaN(d.getTime()) ? null : d;
-    }
-
-    function daysSince(dateObj) {
-      if (!dateObj) return null;
-      const now = new Date();
-      const ms = now.getTime() - dateObj.getTime();
-      return Math.floor(ms / 86400000);
-    }
-
-    function formatDate(dateObj) {
-      if (!dateObj || Number.isNaN(dateObj.getTime())) return '';
-      return dateObj.toLocaleString('fr-FR');
-    }
-
-    function escapeCsv(v) {
-      const s = String(v ?? '');
-      return '"' + s.replace(/"/g, '""') + '"';
-    }
-
-    function loadHistory() {
-      try {
-        const raw = localStorage.getItem(STORAGE_HISTORY);
-        return raw ? JSON.parse(raw) : [];
-      } catch { return []; }
-    }
-
-    function saveHistory() {
-      localStorage.setItem(STORAGE_HISTORY, JSON.stringify(scanned));
-      updateCounts();
-      renderHistory();
-    }
-
-    function updateCounts() {
-      els.countKnown.textContent = String(knownMap.size);
-      els.countScanned.textContent = String(scanned.length);
-    }
-
-    function renderHistory() {
-      if (!scanned.length) {
-        els.history.innerHTML = '<div class="muted">Aucun scan enregistré.</div>';
-        return;
-      }
-      els.history.innerHTML = scanned.map(item => {
-        const cls = item.status === 'OK' ? 'ok' : 'ko';
-        const ageTxt = item.ageDays === '' || item.ageDays === null || item.ageDays === undefined ? 'n/a' : item.ageDays + ' j';
-        return `
-          <div class="item ${cls}">
-            <div class="item-top">
-              <div>
-                <div class="item-sn">${escapeHtml(item.snDisplay || item.scannedRaw || '')}</div>
-                <small>Scan réel : ${escapeHtml(item.scannedRaw || '')}</small>
-              </div>
-              <div><b>${escapeHtml(item.status || '')}</b></div>
-            </div>
-            <div class="muted" style="margin-top:6px">Source : ${escapeHtml(item.source || 'INCONNU')} • Contrôle : ${escapeHtml(item.controlDateText || 'absent')} • Âge : ${escapeHtml(String(ageTxt))}</div>
-            <div class="muted" style="margin-top:4px">Motif : ${escapeHtml(item.reason || '')}</div>
-            ${item.notes ? `<div style="margin-top:6px">Note : ${escapeHtml(item.notes)}</div>` : ''}
-            <small>${escapeHtml(item.scanDateText || '')}</small>
-          </div>`;
-      }).join('');
-    }
-
-    function escapeHtml(s) {
-      return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-    }
-
-    async function loadControlFiles() {
-      const files = Array.from(els.controlFiles.files || []);
-      if (!files.length) {
-        setStatus('Aucun fichier sélectionné.', 'ko');
-        return;
-      }
-      const merged = new Map();
-      let added = 0;
-      for (const file of files) {
-        const rows = await readRowsFromFile(file);
-        for (let i = 0; i < rows.length; i++) {
-          const row = rows[i];
-          if (!Array.isArray(row)) continue;
-          const snRaw = row[5] !== undefined ? String(row[5]).trim() : '';
-          const controlRaw = row[1] !== undefined ? String(row[1]).trim() : '';
-          const key = canonicalSN(snRaw);
-          if (!key) continue;
-          if (i === 0) {
-            const head = canonicalSN(snRaw);
-            if (['SN','SERIAL','SERIALNUMBER','NUMERODESERIE','NSERIE'].includes(head)) continue;
-          }
-          if (!merged.has(key)) {
-            const dt = parseFrenchControlDate(controlRaw);
-            merged.set(key, {
-              key,
-              snDisplay: displaySN(snRaw) || key,
-              source: file.name,
-              controlDate: dt,
-              controlDateText: dt ? formatDate(dt) : normalizeSpaces(controlRaw)
-            });
-            added++;
-          }
-        }
-      }
-      knownMap = merged;
-      updateCounts();
-      setStatus(`${added} référence(s) chargée(s) depuis ${files.length} fichier(s).`, 'ok');
-    }
-
-    async function readRowsFromFile(file) {
-      const ext = (file.name.split('.').pop() || '').toLowerCase();
-      if (ext === 'csv' || ext === 'txt') {
-        const text = await file.text();
-        return String(text || '').split(/\r?
-/).map(line => splitDelimitedLine(line));
-      }
-      const buf = await file.arrayBuffer();
-      const wb = XLSX.read(buf, { type: 'array', cellDates: false });
-      const ws = wb.Sheets[wb.SheetNames[0]];
-      return XLSX.utils.sheet_to_json(ws, { header: 1, raw: false, defval: '' });
-    }
-
-    function splitDelimitedLine(line) {
-      const s = String(line || '');
-      if (s.includes(';')) return s.split(';');
-      if (s.includes('\t')) return s.split('\t');
-      return s.split(',');
-    }
-
-    function playBeep(kind) {
-      try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const sequence = kind === 'ok' ? [880] : [440, 440];
-        let t = ctx.currentTime;
-        sequence.forEach((freq, idx) => {
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.type = 'sine'; osc.frequency.value = freq;
-          gain.gain.setValueAtTime(0.001, t);
-          gain.gain.exponentialRampToValueAtTime(0.15, t + 0.01);
-          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.13);
-          osc.connect(gain); gain.connect(ctx.destination);
-          osc.start(t); osc.stop(t + 0.14);
-          t += idx === sequence.length - 1 ? 0.14 : 0.18;
-        });
-      } catch {}
-    }
-
-    function openOverlay(entry) {
-      const isOk = entry.status === 'OK';
-      els.overlayCard.className = 'overlay-card ' + (isOk ? 'ok' : 'ko');
-      els.overlayBadge.textContent = isOk ? 'OK' : 'A CONTRÔLER';
-      els.overlayWhen.textContent = entry.scanDateText || '';
-      els.overlaySN.textContent = entry.snDisplay || entry.scannedRaw || '';
-      const ageTxt = entry.ageDays === null || entry.ageDays === '' || entry.ageDays === undefined ? 'n/a' : entry.ageDays + ' j';
-      els.overlayInfo.innerHTML = `Source : <b>${escapeHtml(entry.source || 'INCONNU')}</b><br>Contrôle : <b>${escapeHtml(entry.controlDateText || 'absent')}</b><br>Âge : <b>${escapeHtml(String(ageTxt))}</b><br>Motif : <b>${escapeHtml(entry.reason || '')}</b>`;
-      els.overlayNotes.value = entry.notes || '';
-      els.overlay.classList.add('show');
-      els.overlay.setAttribute('aria-hidden', 'false');
-    }
-
-    function closeOverlay() {
-      els.overlay.classList.remove('show');
-      els.overlay.setAttribute('aria-hidden', 'true');
-    }
-
-    function buildEntry(snRaw) {
-      const now = new Date();
-      const key = canonicalSN(snRaw);
-      const ref = knownMap.get(key) || null;
-      let status = 'A CONTRÔLER';
-      let reason = 'SN inconnu';
-      let controlDate = null;
-      let controlDateText = '';
-      let source = 'INCONNU';
-      let snDisplay = displaySN(snRaw) || key;
-      if (ref) {
-        source = ref.source || 'INCONNU';
-        controlDate = ref.controlDate || null;
-        controlDateText = ref.controlDateText || '';
-        snDisplay = ref.snDisplay || snDisplay;
-        const age = daysSince(controlDate);
-        if (!controlDate) {
-          reason = 'Date contrôle absente ou invalide';
-        } else if (age > MAX_AGE_DAYS) {
-          reason = `Contrôle expiré : ${age} jours`;
-        } else if (age < 0) {
-          status = 'OK';
-          reason = `Date future / incohérente : ${age} jours`;
-        } else {
-          status = 'OK';
-          reason = `Contrôle valide : ${age} jours`;
-        }
-      }
-      const ageDays = controlDate ? daysSince(controlDate) : null;
-      return {
-        id: String(Date.now()) + '_' + Math.random().toString(36).slice(2),
-        canonical: key,
-        scannedRaw: displaySN(snRaw),
-        snDisplay,
-        status,
-        reason,
-        source,
-        controlDateText,
-        ageDays,
-        notes: '',
-        scanDateText: now.toLocaleString('fr-FR')
-      };
-    }
-
-    function commitScan(snRaw, openResult=true) {
-      const key = canonicalSN(snRaw);
-      if (!key) {
-        setStatus('SN vide ou invalide.', 'ko');
-        return;
-      }
-      const nowTs = Date.now();
-      if (nowTs - lastScanAt < 1200) return;
-      lastScanAt = nowTs;
-      const entry = buildEntry(snRaw);
-      scanned.unshift(entry);
-      lastEntryId = entry.id;
-      saveHistory();
-      openOverlay(entry);
-      setStatus((entry.status === 'OK' ? 'OK' : 'A contrôler') + ' : ' + entry.snDisplay, entry.status === 'OK' ? 'ok' : 'ko');
-      playBeep(entry.status === 'OK' ? 'ok' : 'ko');
-      isScannerPaused = true;
-      if (openResult) stopScan(false);
-    }
-
-    async function startScan() {
-      if (!window.ZXingBrowser) {
-        setStatus('Librairie scanner indisponible.', 'ko');
-        return;
-      }
-      try {
-        await stopScan(true);
-        reader = new ZXingBrowser.BrowserMultiFormatReader();
-        const constraints = {
-          audio: false,
-          video: {
-            facingMode: { ideal: 'environment' },
-            width: { ideal: 1920 },
-            height: { ideal: 1080 }
-          }
-        };
-        stream = await navigator.mediaDevices.getUserMedia(constraints);
-        els.video.srcObject = stream;
-        currentTrack = stream.getVideoTracks()[0] || null;
-        await els.video.play();
-        updateTorchAvailability();
-        controls = reader.decodeFromVideoElementContinuously(els.video, (result) => {
-          if (isScannerPaused) return;
-          if (result && result.text) {
-            const text = String(result.text || '').trim();
-            commitScan(text, true);
-          }
-        });
-        isScannerPaused = false;
-        setStatus('Scanner démarré.', 'ok');
-      } catch (e) {
-        console.error(e);
-        setStatus('Impossible de démarrer la caméra / le scan.', 'ko');
-      }
-    }
-
-    async function stopScan(resetPause=true) {
-      try { if (controls && typeof controls.stop === 'function') controls.stop(); } catch {}
-      controls = null;
-      try { if (reader && typeof reader.reset === 'function') reader.reset(); } catch {}
-      reader = null;
-      if (stream) {
-        for (const tr of stream.getTracks()) tr.stop();
-      }
-      stream = null;
-      currentTrack = null;
-      els.video.srcObject = null;
-      els.btnTorch.disabled = true;
-      torchOn = false;
-      if (resetPause) isScannerPaused = false;
-    }
-
-    async function updateTorchAvailability() {
-      try {
-        if (!currentTrack) { els.btnTorch.disabled = true; return; }
-        const caps = currentTrack.getCapabilities ? currentTrack.getCapabilities() : {};
-        els.btnTorch.disabled = !(caps && caps.torch);
-      } catch {
-        els.btnTorch.disabled = true;
-      }
-    }
-
-    async function toggleTorch() {
-      if (!currentTrack) return;
-      try {
-        torchOn = !torchOn;
-        await currentTrack.applyConstraints({ advanced: [{ torch: torchOn }] });
-        els.btnTorch.textContent = torchOn ? 'Torche ON' : 'Torche';
-      } catch {
-        torchOn = false;
-        els.btnTorch.textContent = 'Torche';
-        setStatus('Torche non disponible sur cet appareil.', 'ko');
-      }
-    }
-
-    function updateLastEntryNotes(note) {
-      if (!lastEntryId) return;
-      const idx = scanned.findIndex(x => x.id === lastEntryId);
-      if (idx < 0) return;
-      scanned[idx].notes = note;
-      saveHistory();
-      openOverlay(scanned[idx]);
-    }
-
-    function cancelLastEntry() {
-      if (!lastEntryId) return;
-      const before = scanned.length;
-      scanned = scanned.filter(x => x.id !== lastEntryId);
-      if (scanned.length !== before) {
-        saveHistory();
-        setStatus('Dernier scan annulé.', 'info');
-      }
-      lastEntryId = null;
-      closeOverlay();
-    }
-
-    function nextScan() {
-      closeOverlay();
-      isScannerPaused = false;
-      startScan();
-    }
-
-    function exportCsv() {
-      const header = [
-        'Client','Bon de réception','SN référence','Barcode réel scanné','Statut','Source',
-        'Date contrôle','Âge contrôle (jours)','Motif','Date scan','Notes'
-      ];
-      const client = els.clientName.value.trim();
-      const receipt = els.receiptName.value.trim();
-      const rows = scanned.map(r => [
-        client, receipt, r.snDisplay || '', r.scannedRaw || '', r.status || '', r.source || '',
-        r.controlDateText || '', r.ageDays ?? '', r.reason || '', r.scanDateText || '', r.notes || ''
-      ].map(escapeCsv).join(';'));
-      const content = [header.map(escapeCsv).join(';'), ...rows].join('
-');
-      const blob = new Blob(['\uFEFF' + content], { type:'text/csv;charset=utf-8' });
-      const a = document.createElement('a');
-      const url = URL.createObjectURL(blob);
-      const parts = ['retour'];
-      if (client) parts.push(client.replace(/[^a-z0-9-_]+/gi,'_'));
-      if (receipt) parts.push(receipt.replace(/[^a-z0-9-_]+/gi,'_'));
-      parts.push(new Date().toISOString().slice(0,19).replace(/[:T]/g,'-'));
-      a.href = url;
-      a.download = parts.join('_') + '.csv';
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-    }
-
-    function restoreForm() {
-      els.clientName.value = localStorage.getItem(STORAGE_CLIENT) || '';
-      els.receiptName.value = localStorage.getItem(STORAGE_RECEIPT) || '';
-    }
-
-    function persistForm() {
-      localStorage.setItem(STORAGE_CLIENT, els.clientName.value.trim());
-      localStorage.setItem(STORAGE_RECEIPT, els.receiptName.value.trim());
-    }
-
-    els.btnLoadFiles.addEventListener('click', loadControlFiles);
-    els.btnExport.addEventListener('click', exportCsv);
-    els.btnClearHistory.addEventListener('click', () => {
-      scanned = [];
-      lastEntryId = null;
-      saveHistory();
-      setStatus('Historique vidé.', 'info');
+document.getElementById("files").addEventListener("change",async e=>{
+  controls.clear();
+  for(const f of e.target.files){
+    const buf=await f.arrayBuffer();
+    const wb=XLSX.read(buf,{type:"array"});
+    const ws=wb.Sheets[wb.SheetNames[0]];
+    const rows=XLSX.utils.sheet_to_json(ws,{header:1,raw:false});
+    rows.forEach(r=>{
+      const sn=String(r[5]||"").trim().replace(/^V/,"");
+      const d=parseDateFR(String(r[1]||""));
+      if(!sn||!d) return;
+      const prev=controls.get(sn);
+      if(!prev||d>prev) controls.set(sn,d);
     });
-    els.btnUndo.addEventListener('click', () => {
-      if (!scanned.length) return;
-      scanned.shift();
-      saveHistory();
-      setStatus('Dernière ligne supprimée.', 'info');
-    });
-    els.btnManualAdd.addEventListener('click', () => commitScan(els.manualInput.value.trim(), false));
-    els.manualInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') commitScan(els.manualInput.value.trim(), false);
-    });
-    els.btnStart.addEventListener('click', startScan);
-    els.btnStop.addEventListener('click', () => stopScan(true));
-    els.btnTorch.addEventListener('click', toggleTorch);
-    els.btnRAS.addEventListener('click', () => updateLastEntryNotes('RAS'));
-    els.btnSaveNote.addEventListener('click', () => updateLastEntryNotes(els.overlayNotes.value.trim()));
-    els.btnCancelLast.addEventListener('click', cancelLastEntry);
-    els.btnNextScan.addEventListener('click', nextScan);
-    els.clientName.addEventListener('input', persistForm);
-    els.receiptName.addEventListener('input', persistForm);
+  }
+  document.getElementById("info").textContent =
+    controls.size+" SN de contrôle chargés";
+});
 
-    restoreForm();
-    updateCounts();
-    renderHistory();
-    setStatus('App prête. Sélectionne les fichiers de contrôle, puis clique sur « Charger fichiers ».', 'info');
-  </script>
+function showResult(ok,sn,msg){
+  const o=document.getElementById("overlay");
+  o.className=ok?"ok":"ko";
+  o.style.display="flex";
+  document.getElementById("overlayTitle").textContent=
+    ok?"OK":"A CONTRÔLER";
+  document.getElementById("overlaySub").textContent=
+    sn+" — "+msg;
+  beep(ok);
+}
+
+function beep(ok){
+  const a=new AudioContext();
+  const o=a.createOscillator(),g=a.createGain();
+  o.connect(g);g.connect(a.destination);
+  o.frequency.value=ok?1000:600;
+  o.start();
+  g.gain.exponentialRampToValueAtTime(.0001,a.currentTime+.15);
+  o.stop(a.currentTime+.18);
+  if(!ok){
+    setTimeout(()=>beep(true),200);
+  }
+}
+
+function startScan(){
+  document.getElementById("overlay").style.display="none";
+  if(scanning) return;
+  Quagga.init({
+    inputStream:{type:"LiveStream",target:"#scanner",
+      constraints:{facingMode:"environment"}},
+    decoder:{readers:["code_128_reader"]}
+  },err=>{
+    if(err) return;
+    scanning=true;
+    Quagga.start();
+  });
+
+  Quagga.onDetected(d=>{
+    if(!scanning) return;
+    scanning=false;
+    Quagga.stop();
+    const sn=d.codeResult.code.replace(/^V/,"");
+    const dc=controls.get(sn);
+    if(!dc){
+      showResult(false,sn,"jamais contrôlé");
+      return;
+    }
+    const days=(Date.now()-dc)/86400000;
+    showResult(days<=MAX_DAYS,sn,
+      Math.round(days)+" jours depuis contrôle");
+  });
+}
+</script>
 </body>
 </html>
