@@ -140,10 +140,16 @@
     .overlay.show { display: flex; }
     .overlay.ok { background: rgba(34, 197, 94, .80); }
     .overlay.ko { background: rgba(239, 68, 68, .84); }
-    .overlay-box { max-width: 860px; color: white; text-shadow: 0 4px 12px rgba(0, 0, 0, .4); }
+    .overlay-box { max-width: 860px; color: white; text-shadow: 0 4px 12px rgba(0, 0, 0, .4); width: 100%; }
     .overlay-title { font-size: clamp(3rem, 10vw, 7rem); font-weight: 900; line-height: 1; margin: 0 0 10px; }
     .overlay-sub { font-size: clamp(1rem, 2.6vw, 1.6rem); font-weight: 700; margin: 0; }
     .overlay-sn { font-size: clamp(1.2rem, 3vw, 2rem); font-weight: 800; margin-top: 10px; word-break: break-all; }
+    .overlay-comment-wrap { margin: 18px auto 0; max-width: 720px; text-align: left; pointer-events: auto; }
+    .overlay-comment-label { display: block; margin-bottom: 8px; font-size: .95rem; font-weight: 800; color: white; }
+    .overlay-comment {
+      width: 100%; min-height: 56px; border-radius: 16px; border: 0; padding: 14px 16px; font-size: 16px;
+      background: rgba(255,255,255,.96); color: #0f172a; box-shadow: 0 10px 26px rgba(0,0,0,.18);
+    }
     .overlay-actions { margin-top: 18px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; pointer-events: auto; }
     .overlay button { box-shadow: 0 8px 18px rgba(0,0,0,.22); }
     @media (max-width: 640px) { .overlay-actions { grid-template-columns: 1fr; } }
@@ -155,6 +161,12 @@
       <div id="overlayTitle" class="overlay-title">PRÊT</div>
       <p id="overlaySub" class="overlay-sub">Le résultat du dernier scan reste affiché jusqu'au prochain scan.</p>
       <div id="overlaySN" class="overlay-sn"></div>
+
+      <div class="overlay-comment-wrap">
+        <label for="overlayCommentInput" class="overlay-comment-label">Commentaire rapide</label>
+        <input id="overlayCommentInput" class="overlay-comment" type="text" placeholder="Ajouter un commentaire pour ce SN (état, câble, choc, manquant, etc.)" />
+      </div>
+
       <div class="overlay-actions">
         <button id="overlayNextBtn" class="btn-primary">Scanner suivant</button>
         <button id="overlayUndoBtn" class="btn-neutral">Annuler ce scan</button>
@@ -165,13 +177,13 @@
   <div class="wrap">
     <div class="card">
       <h1 class="title">Retour location - Scan BJONG + Batteries</h1>
-      <p class="subtitle">App HTML autonome prête pour GitHub Pages. Scan Code 128 avec Quagga2, références lues en colonne F, gestion du "V" initial optionnel, résultat plein écran vert / rouge conservé jusqu'au prochain scan, archivage local, notes, export CSV et partage.</p>
+      <p class="subtitle">App HTML autonome prête pour GitHub Pages. Scan Code 128 avec Quagga2, références lues en colonne F, gestion du "V" initial optionnel, résultat plein écran vert / rouge conservé jusqu'au prochain scan, commentaire directement saisissable dans l'écran rouge / vert, archivage local, export CSV et partage.</p>
       <div class="pillbar">
         <span class="pill">Quagga2</span>
         <span class="pill">Code 128</span>
         <span class="pill">Colonne F</span>
         <span class="pill">V initial optionnel</span>
-        <span class="pill">Notes</span>
+        <span class="pill">Commentaire overlay</span>
         <span class="pill">Undo / Flush</span>
       </div>
     </div>
@@ -219,7 +231,7 @@
           <button id="btnUndoLast" class="btn-neutral">Annuler dernier scan</button>
         </div>
 
-        <div class="note">Le plein écran persistant reste présent, mais le bouton « Scanner suivant » le ferme immédiatement et relance la caméra.</div>
+        <div class="note">Le commentaire peut maintenant être saisi directement dans l'écran rouge / vert, sans revenir en arrière.</div>
       </div>
 
       <div class="card">
@@ -269,7 +281,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script>
-    const STORAGE_SCANNED = 'retourloc_scanned_v3';
+    const STORAGE_SCANNED = 'retourloc_scanned_v4';
     const scannerEl = document.getElementById('scanner');
     const statusEl = document.getElementById('status');
     const statusTextEl = document.getElementById('statusText');
@@ -285,6 +297,7 @@
     const btnClearRefs = document.getElementById('btnClearRefs');
     const overlayNextBtn = document.getElementById('overlayNextBtn');
     const overlayUndoBtn = document.getElementById('overlayUndoBtn');
+    const overlayCommentInput = document.getElementById('overlayCommentInput');
     const barcodeInput = document.getElementById('barcodeInput');
     const notesInput = document.getElementById('notesInput');
     const fileBjong = document.getElementById('fileBjong');
@@ -322,20 +335,16 @@
     function normalize(v) {
       return String(v || '').trim().toUpperCase().replace(/\s+/g, '');
     }
-
     function canonicalSN(v) {
       const s = normalize(v);
       return s.replace(/^V(?=.+)/, '');
     }
-
     function displaySN(v) {
       return normalize(v);
     }
-
     function escapeHtml(v) {
       return String(v ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
     }
-
     function escapeCsv(v) {
       return '"' + String(v ?? '').replace(/"/g, '""') + '"';
     }
@@ -345,14 +354,9 @@
         const raw = localStorage.getItem(STORAGE_SCANNED);
         const arr = raw ? JSON.parse(raw) : [];
         return Array.isArray(arr) ? arr : [];
-      } catch {
-        return [];
-      }
+      } catch { return []; }
     }
-
-    function saveScanned() {
-      localStorage.setItem(STORAGE_SCANNED, JSON.stringify(scanned));
-    }
+    function saveScanned() { localStorage.setItem(STORAGE_SCANNED, JSON.stringify(scanned)); }
 
     function setStatus(text, mode = 'idle') {
       statusEl.className = 'status';
@@ -362,11 +366,23 @@
       statusTextEl.textContent = text;
     }
 
+    function getLastEntry() {
+      return scanned.length ? scanned[0] : null;
+    }
+
+    function syncOverlayComment() {
+      const last = getLastEntry();
+      overlayCommentInput.value = last ? (last.notes || '') : '';
+      overlayCommentInput.disabled = !last;
+    }
+
     function setOverlay(state, sn = '', source = '', notes = '') {
       overlayEl.className = 'overlay show ' + (state === 'ok' ? 'ok' : 'ko');
       overlayTitleEl.textContent = state === 'ok' ? 'OK' : 'A CONTRÔLER';
       overlaySubEl.textContent = source ? ('Source : ' + source + (notes ? ' • Note : ' + notes : '')) : 'Le résultat reste affiché jusqu’au prochain scan.';
       overlaySNEl.textContent = sn || '';
+      syncOverlayComment();
+      setTimeout(() => { if (overlayEl.classList.contains('show')) overlayCommentInput.focus(); }, 50);
     }
 
     function clearOverlay() {
@@ -374,6 +390,7 @@
       overlayTitleEl.textContent = 'PRÊT';
       overlaySubEl.textContent = 'Le résultat du dernier scan reste affiché jusqu\'au prochain scan.';
       overlaySNEl.textContent = '';
+      overlayCommentInput.value = '';
     }
 
     function updateSourceTags() {
@@ -396,6 +413,7 @@
       btnFlush.disabled = scanned.length === 0;
       btnUndoLast.disabled = scanned.length === 0;
       overlayUndoBtn.disabled = scanned.length === 0;
+      syncOverlayComment();
     }
 
     function renderHistory() {
@@ -424,7 +442,7 @@
         input.addEventListener('change', () => {
           const id = input.getAttribute('data-note-id');
           const row = scanned.find(x => String(x.id) === String(id));
-          if (row) { row.notes = input.value.trim(); saveScanned(); }
+          if (row) { row.notes = input.value.trim(); saveScanned(); syncOverlayComment(); }
         });
       });
     }
@@ -446,9 +464,7 @@
           const key = canonicalSN(raw);
           if (!key) return;
           if (idx === 0 && ['SN', 'SERIAL', 'SERIALNUMBER', 'NUMERO DE SERIE', 'N° SERIE'].includes(key)) return;
-          if (!map.has(key)) {
-            map.set(key, { source: sourceName, display: raw || key });
-          }
+          if (!map.has(key)) map.set(key, { source: sourceName, display: raw || key });
         });
         return map;
       }
@@ -459,13 +475,11 @@
       const rows = XLSX.utils.sheet_to_json(ws, { header: 1, raw: false, defval: '' });
       rows.forEach((row, idx) => {
         if (!Array.isArray(row)) return;
-        const raw = displaySN(row[5]); // colonne F uniquement
+        const raw = displaySN(row[5]);
         const key = canonicalSN(raw);
         if (!key) return;
         if (idx === 0 && ['SN', 'SERIAL', 'SERIALNUMBER', 'NUMERO DE SERIE', 'N° SERIE'].includes(key)) return;
-        if (!map.has(key)) {
-          map.set(key, { source: sourceName, display: raw || key });
-        }
+        if (!map.has(key)) map.set(key, { source: sourceName, display: raw || key });
       });
       return map;
     }
@@ -508,6 +522,17 @@
       barcodeInput.value = ''; notesInput.value = '';
       setOverlay(status === 'OK' ? 'ok' : 'ko', entry.sn, source, note);
       setStatus((fromScan ? 'Scan enregistré : ' : 'Saisie enregistrée : ') + entry.sn, status === 'OK' ? 'ok' : 'ko');
+    }
+
+    function updateLastScanComment(value) {
+      const last = getLastEntry();
+      if (!last) return;
+      last.notes = value.trim();
+      saveScanned();
+      renderHistory();
+      if (overlayEl.classList.contains('show')) {
+        overlaySubEl.textContent = last.source ? ('Source : ' + last.source + (last.notes ? ' • Note : ' + last.notes : '')) : 'Le résultat reste affiché jusqu’au prochain scan.';
+      }
     }
 
     function undoLast() {
@@ -682,6 +707,9 @@
     btnTorch.addEventListener('click', toggleTorch);
     btnValidateManual.addEventListener('click', () => { clearOverlay(); addEntry(barcodeInput.value, false); });
     barcodeInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); clearOverlay(); addEntry(barcodeInput.value, false); } });
+    notesInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); clearOverlay(); addEntry(barcodeInput.value, false); } });
+    overlayCommentInput.addEventListener('input', () => { updateLastScanComment(overlayCommentInput.value); });
+    overlayCommentInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); launchNextScan(); } });
     btnUndoLast.addEventListener('click', undoLast);
     overlayUndoBtn.addEventListener('click', () => { undoLast(); clearOverlay(); });
     btnExport.addEventListener('click', exportCsv);
