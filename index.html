@@ -30,7 +30,7 @@
     }
     body { min-height: 100vh; }
     .wrap {
-      max-width: 1120px;
+      max-width: 1180px;
       margin: 0 auto;
       padding: max(14px, env(safe-area-inset-top)) 14px calc(16px + env(safe-area-inset-bottom));
     }
@@ -86,10 +86,11 @@
       50% { transform: scale(1.35); opacity: .65; }
       100% { transform: scale(1); opacity: 1; }
     }
-    .btnrow, .btnrow2 { display: grid; gap: 10px; margin-top: 12px; }
+    .btnrow, .btnrow2, .btnrow3 { display: grid; gap: 10px; margin-top: 12px; }
     .btnrow { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     .btnrow2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    @media (max-width: 640px) { .btnrow, .btnrow2 { grid-template-columns: 1fr; } }
+    .btnrow3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    @media (max-width: 700px) { .btnrow, .btnrow2, .btnrow3 { grid-template-columns: 1fr; } }
     button { min-height: 50px; border: 0; border-radius: 14px; font-size: .98rem; font-weight: 760; cursor: pointer; padding: 13px 12px; }
     button:disabled { opacity: .55; cursor: not-allowed; }
     .btn-primary { background: linear-gradient(180deg, #38bdf8 0%, #0ea5e9 100%); color: #082f49; }
@@ -98,6 +99,7 @@
     .btn-danger { background: linear-gradient(180deg, #f87171 0%, #ef4444 100%); color: #450a0a; }
     .btn-success { background: linear-gradient(180deg, #4ade80 0%, #22c55e 100%); color: #052e16; }
     .btn-neutral { background: #1e293b; color: #e2e8f0; }
+    .btn-ras { background: linear-gradient(180deg, #e2e8f0 0%, #cbd5e1 100%); color: #0f172a; }
     .field { margin-top: 12px; }
     label { display: block; margin-bottom: 8px; font-size: .92rem; font-weight: 700; }
     input[type='text'], input[type='file'] {
@@ -118,11 +120,12 @@
     @media (max-width: 760px) { .search-row { grid-template-columns: 1fr; } }
     .history-list { display: grid; gap: 10px; margin-top: 12px; }
     .history-item {
-      border-radius: 16px; border: 1px solid var(--line); padding: 12px; display: grid; grid-template-columns: 1.1fr .9fr .9fr 1fr auto; gap: 10px;
+      border-radius: 16px; border: 1px solid var(--line); padding: 12px; display: grid;
+      grid-template-columns: 1fr 1fr .85fr .85fr 1fr auto; gap: 10px;
     }
     .history-item.ok { background: rgba(34, 197, 94, 0.14); }
     .history-item.ko { background: rgba(239, 68, 68, 0.16); }
-    @media (max-width: 900px) { .history-item { grid-template-columns: 1fr; } }
+    @media (max-width: 980px) { .history-item { grid-template-columns: 1fr; } }
     .empty {
       border-radius: 16px; border: 1px dashed rgba(148, 163, 184, 0.25); background: rgba(15, 23, 42, 0.62); color: var(--muted);
       padding: 24px; text-align: center; margin-top: 12px;
@@ -150,9 +153,9 @@
       width: 100%; min-height: 56px; border-radius: 16px; border: 0; padding: 14px 16px; font-size: 16px;
       background: rgba(255,255,255,.96); color: #0f172a; box-shadow: 0 10px 26px rgba(0,0,0,.18);
     }
-    .overlay-actions { margin-top: 18px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; pointer-events: auto; }
+    .overlay-actions { margin-top: 18px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; pointer-events: auto; }
     .overlay button { box-shadow: 0 8px 18px rgba(0,0,0,.22); }
-    @media (max-width: 640px) { .overlay-actions { grid-template-columns: 1fr; } }
+    @media (max-width: 700px) { .overlay-actions { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
@@ -169,6 +172,7 @@
 
       <div class="overlay-actions">
         <button id="overlayNextBtn" class="btn-primary">Scanner suivant</button>
+        <button id="overlayRasBtn" class="btn-ras">RAS</button>
         <button id="overlayUndoBtn" class="btn-neutral">Annuler ce scan</button>
       </div>
     </div>
@@ -177,14 +181,15 @@
   <div class="wrap">
     <div class="card">
       <h1 class="title">Retour location - Scan BJONG + Batteries</h1>
-      <p class="subtitle">App HTML autonome prête pour GitHub Pages. Scan Code 128 avec Quagga2, références lues en colonne F, gestion du "V" initial optionnel, résultat plein écran vert / rouge conservé jusqu'au prochain scan, commentaire directement saisissable dans l'écran rouge / vert, archivage local, export CSV et partage.</p>
+      <p class="subtitle">App HTML autonome prête pour GitHub Pages. Scan Code 128 avec Quagga2, références lues en colonne F, gestion du "V" initial optionnel, résultat plein écran vert / rouge conservé jusqu'au prochain scan, commentaire directement saisissable dans l'écran rouge / vert, bip sonore au scan, archive détaillée avec le barcode réel scanné, export CSV et partage.</p>
       <div class="pillbar">
         <span class="pill">Quagga2</span>
         <span class="pill">Code 128</span>
         <span class="pill">Colonne F</span>
         <span class="pill">V initial optionnel</span>
-        <span class="pill">Commentaire overlay</span>
-        <span class="pill">Undo / Flush</span>
+        <span class="pill">Bip sonore</span>
+        <span class="pill">Bouton RAS</span>
+        <span class="pill">Barcode réel exporté</span>
       </div>
     </div>
 
@@ -231,7 +236,7 @@
           <button id="btnUndoLast" class="btn-neutral">Annuler dernier scan</button>
         </div>
 
-        <div class="note">Le commentaire peut maintenant être saisi directement dans l'écran rouge / vert, sans revenir en arrière.</div>
+        <div class="note">Le commentaire peut être saisi directement dans l'écran rouge / vert. Le bouton <strong>RAS</strong> remplit automatiquement la note.</div>
       </div>
 
       <div class="card">
@@ -245,7 +250,10 @@
 
         <div class="field">
           <label for="notesInput">Notes</label>
-          <input id="notesInput" type="text" placeholder="Commentaire sur le SN scanné (état, câble, choc, manquant, etc.)" />
+          <div class="input-row">
+            <input id="notesInput" type="text" placeholder="Commentaire sur le SN scanné (état, câble, choc, manquant, etc.)" />
+            <button id="btnRasMain" class="btn-ras">RAS</button>
+          </div>
         </div>
 
         <div class="stats">
@@ -271,9 +279,9 @@
       <div class="search-row">
         <div>
           <h2 class="title" style="font-size:1.15rem; margin-bottom:4px;">Archivage des scans</h2>
-          <p class="subtitle">Liste prête à être utilisée pour le bon de réception.</p>
+          <p class="subtitle">Archive complète avec le SN de référence et le barcode réel scanné / saisi.</p>
         </div>
-        <input id="searchInput" type="text" placeholder="Rechercher SN, source, note, date..." />
+        <input id="searchInput" type="text" placeholder="Rechercher SN, barcode réel, source, note, date..." />
       </div>
       <div id="historyList" class="history-list"></div>
     </div>
@@ -281,7 +289,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script>
-    const STORAGE_SCANNED = 'retourloc_scanned_v4';
+    const STORAGE_SCANNED = 'retourloc_scanned_v5';
     const scannerEl = document.getElementById('scanner');
     const statusEl = document.getElementById('status');
     const statusTextEl = document.getElementById('statusText');
@@ -295,8 +303,10 @@
     const btnShare = document.getElementById('btnShare');
     const btnFlush = document.getElementById('btnFlush');
     const btnClearRefs = document.getElementById('btnClearRefs');
+    const btnRasMain = document.getElementById('btnRasMain');
     const overlayNextBtn = document.getElementById('overlayNextBtn');
     const overlayUndoBtn = document.getElementById('overlayUndoBtn');
+    const overlayRasBtn = document.getElementById('overlayRasBtn');
     const overlayCommentInput = document.getElementById('overlayCommentInput');
     const barcodeInput = document.getElementById('barcodeInput');
     const notesInput = document.getElementById('notesInput');
@@ -331,6 +341,7 @@
     let torchCapable = false;
     let lastDetected = '';
     let lastDetectedAt = 0;
+    let audioCtx = null;
 
     function normalize(v) {
       return String(v || '').trim().toUpperCase().replace(/\s+/g, '');
@@ -347,6 +358,26 @@
     }
     function escapeCsv(v) {
       return '"' + String(v ?? '').replace(/"/g, '""') + '"';
+    }
+
+    function playBeep(type = 'ok') {
+      try {
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        if (!Ctx) return;
+        if (!audioCtx) audioCtx = new Ctx();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = type === 'ok' ? 1046 : 740;
+        gain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.18, audioCtx.currentTime + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.18);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.2);
+      } catch (_) {}
     }
 
     function loadScanned() {
@@ -418,14 +449,15 @@
 
     function renderHistory() {
       const q = searchInput.value.trim().toLowerCase();
-      const filtered = !q ? scanned : scanned.filter(r => [r.sn, r.status, r.source, r.date, r.notes].some(v => String(v || '').toLowerCase().includes(q)));
+      const filtered = !q ? scanned : scanned.filter(r => [r.sn, r.realScanned, r.status, r.source, r.date, r.notes].some(v => String(v || '').toLowerCase().includes(q)));
       if (!filtered.length) {
         historyListEl.innerHTML = '<div class="empty">Aucun scan archivé.</div>';
         return;
       }
       historyListEl.innerHTML = filtered.map(r => `
         <div class="history-item ${r.status === 'OK' ? 'ok' : 'ko'}">
-          <div><div class="k">SN</div><div style="font-weight:800; word-break:break-all;">${escapeHtml(r.sn)}</div><div class="small">${escapeHtml(r.date)}</div></div>
+          <div><div class="k">SN référence</div><div style="font-weight:800; word-break:break-all;">${escapeHtml(r.sn)}</div><div class="small">${escapeHtml(r.date)}</div></div>
+          <div><div class="k">Barcode réel</div><div style="font-weight:700; word-break:break-all;">${escapeHtml(r.realScanned || r.scannedInput || '')}</div></div>
           <div><div class="k">Statut</div><div>${escapeHtml(r.status)}</div></div>
           <div><div class="k">Source</div><div>${escapeHtml(r.source)}</div></div>
           <div><div class="k">Notes</div><input type="text" data-note-id="${r.id}" value="${escapeHtml(r.notes || '')}" placeholder="Ajouter une note" /></div>
@@ -510,6 +542,7 @@
       const entry = {
         id: Date.now() + Math.random(),
         sn: ref ? ref.display : scannedDisplay,
+        realScanned: scannedDisplay,
         scannedInput: scannedDisplay,
         canonical: key,
         status,
@@ -520,6 +553,7 @@
       scanned.unshift(entry);
       saveScanned(); updateCounters(); renderHistory();
       barcodeInput.value = ''; notesInput.value = '';
+      if (fromScan) playBeep(status === 'OK' ? 'ok' : 'ko');
       setOverlay(status === 'OK' ? 'ok' : 'ko', entry.sn, source, note);
       setStatus((fromScan ? 'Scan enregistré : ' : 'Saisie enregistrée : ') + entry.sn, status === 'OK' ? 'ok' : 'ko');
     }
@@ -533,6 +567,13 @@
       if (overlayEl.classList.contains('show')) {
         overlaySubEl.textContent = last.source ? ('Source : ' + last.source + (last.notes ? ' • Note : ' + last.notes : '')) : 'Le résultat reste affiché jusqu’au prochain scan.';
       }
+    }
+
+    function applyRAS(target) {
+      target.value = 'RAS';
+      target.dispatchEvent(new Event('input', { bubbles: true }));
+      target.dispatchEvent(new Event('change', { bubbles: true }));
+      target.focus();
     }
 
     function undoLast() {
@@ -553,8 +594,8 @@
     }
 
     function exportCsvBlob() {
-      const header = ['SN', 'Saisi / scanné', 'Statut', 'Source', 'Date', 'Notes'];
-      const rows = scanned.map(r => [r.sn, r.scannedInput || r.sn, r.status, r.source, r.date, r.notes].map(escapeCsv).join(';'));
+      const header = ['SN référence', 'Barcode réel scanné', 'Saisi / scanné', 'Statut', 'Source', 'Date', 'Notes'];
+      const rows = scanned.map(r => [r.sn, r.realScanned || r.scannedInput || '', r.scannedInput || r.realScanned || '', r.status, r.source, r.date, r.notes].map(escapeCsv).join(';'));
       const content = [header.map(escapeCsv).join(';'), ...rows].join('\n');
       return new Blob(['\uFEFF' + content], { type: 'text/csv;charset=utf-8' });
     }
@@ -706,6 +747,8 @@
     btnStop.addEventListener('click', () => { stopScanner(); setStatus('Scan arrêté.', 'ok'); });
     btnTorch.addEventListener('click', toggleTorch);
     btnValidateManual.addEventListener('click', () => { clearOverlay(); addEntry(barcodeInput.value, false); });
+    btnRasMain.addEventListener('click', () => applyRAS(notesInput));
+    overlayRasBtn.addEventListener('click', () => applyRAS(overlayCommentInput));
     barcodeInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); clearOverlay(); addEntry(barcodeInput.value, false); } });
     notesInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); clearOverlay(); addEntry(barcodeInput.value, false); } });
     overlayCommentInput.addEventListener('input', () => { updateLastScanComment(overlayCommentInput.value); });
