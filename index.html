@@ -111,14 +111,14 @@
   <div class="wrap">
     <div class="card">
       <h1 class="title">Contrôle périodique - Scan BJONG + Batteries</h1>
-      <p class="subtitle">Version corrigée et validée. Lecture multi-feuilles, détection automatique des colonnes SN / date, dates FR/US, seuil personnalisable, scan Code 128, historique, RAS, flush, vidage références, export CSV.</p>
+      <p class="subtitle">Version corrigée. Détection automatique des colonnes SN / date dans plusieurs feuilles, dates FR/US, seuil personnalisable, scan Code 128, historique, RAS, flush immédiat, vidage immédiat des références, export CSV.</p>
       <div class="pillbar">
         <span class="pill">Quagga2</span>
         <span class="pill">Code 128</span>
         <span class="pill">Colonnes auto-détectées</span>
         <span class="pill">Dates FR/US</span>
         <span class="pill">Seuil personnalisable</span>
-        <span class="pill">CSV enrichi</span>
+        <span class="pill">Flush / vider refs corrigés</span>
       </div>
     </div>
 
@@ -214,7 +214,7 @@
           <button id="btnFlush" class="btn-danger">Flush base scannée</button>
           <button id="btnClearRefs" class="btn-neutral">Vider références</button>
         </div>
-        <div class="small">Flush vide la liste scannée. Vider références décharge les fichiers de contrôle.</div>
+        <div class="small">Flush vide immédiatement la liste scannée. Vider références décharge immédiatement les fichiers de contrôle et remet les sélecteurs de fichier à zéro.</div>
       </div>
     </div>
 
@@ -233,7 +233,7 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://unpkg.com/@ericblade/quagga2@1.8.4/dist/quagga.min.js"></script>
   <script>
-    const STORAGE_SCANNED = 'controle_periodique_scanned_v2';
+    const STORAGE_SCANNED = 'controle_periodique_scanned_v3';
     const STORAGE_META = 'controle_periodique_meta_v1';
 
     const scannerEl = document.getElementById('scanner');
@@ -314,33 +314,21 @@
           const d = new Date(y, month - 1, day, hh, mi, ss);
           if (!Number.isNaN(d.getTime()) && d.getDate() === day && d.getMonth() === month - 1 && d.getFullYear() === y) candidates.push(d);
         };
-        add(a, b); // dd/mm
-        add(b, a); // mm/dd
+        add(a, b); add(b, a);
         if (candidates.length === 1) return candidates[0];
         if (candidates.length === 2) {
           const now = new Date();
           const nonFuture = candidates.filter(d => d.getTime() <= now.getTime());
-          if (nonFuture.length >= 1) {
-            nonFuture.sort((x, y2) => Math.abs(now - x) - Math.abs(now - y2));
-            return nonFuture[0];
-          }
-          candidates.sort((x, y2) => x - y2);
-          return candidates[0];
+          if (nonFuture.length >= 1) { nonFuture.sort((x, y2) => Math.abs(now - x) - Math.abs(now - y2)); return nonFuture[0]; }
+          candidates.sort((x, y2) => x - y2); return candidates[0];
         }
       }
       const d = new Date(s);
       return Number.isNaN(d.getTime()) ? null : d;
     }
 
-    function formatControlDate(date) {
-      if (!(date instanceof Date) || Number.isNaN(date.getTime())) return '';
-      return date.toLocaleString('fr-FR');
-    }
-    function getControlAgeDays(date) {
-      if (!(date instanceof Date) || Number.isNaN(date.getTime())) return null;
-      return Math.floor((Date.now() - date.getTime()) / 86400000);
-    }
-
+    function formatControlDate(date) { return (!(date instanceof Date) || Number.isNaN(date.getTime())) ? '' : date.toLocaleString('fr-FR'); }
+    function getControlAgeDays(date) { return (!(date instanceof Date) || Number.isNaN(date.getTime())) ? null : Math.floor((Date.now() - date.getTime()) / 86400000); }
     function buildControlAssessment(ref) {
       if (!ref) return { status: 'A CONTRÔLER', motif: 'SN inconnu dans les fichiers de contrôle', controlDateText: '', controlAgeDays: null, source: 'INCONNU' };
       if (!ref.controlDate) return { status: 'A CONTRÔLER', motif: 'Date de contrôle absente', controlDateText: ref.controlDateText || '', controlAgeDays: null, source: ref.source || 'INCONNU' };
@@ -349,7 +337,6 @@
       if (age > controlThresholdDays) return { status: 'A CONTRÔLER', motif: 'Contrôle expiré (' + age + ' jours > ' + controlThresholdDays + ')', controlDateText: ref.controlDateText || formatControlDate(ref.controlDate), controlAgeDays: age, source: ref.source || 'INCONNU' };
       return { status: 'OK', motif: 'Contrôle valide (' + age + ' jours ≤ ' + controlThresholdDays + ')', controlDateText: ref.controlDateText || formatControlDate(ref.controlDate), controlAgeDays: age, source: ref.source || 'INCONNU' };
     }
-
     function buildOverlaySub(entry) {
       if (!entry) return 'Le résultat reste affiché jusqu’au prochain scan.';
       const parts = [];
@@ -362,36 +349,15 @@
     }
 
     function loadMeta() {
-      try {
-        const raw = localStorage.getItem(STORAGE_META);
-        const obj = raw ? JSON.parse(raw) : {};
-        return { client: String(obj.client || ''), receipt: String(obj.receipt || '') };
-      } catch { return { client: '', receipt: '' }; }
+      try { const raw = localStorage.getItem(STORAGE_META); const obj = raw ? JSON.parse(raw) : {}; return { client: String(obj.client || ''), receipt: String(obj.receipt || '') }; }
+      catch { return { client: '', receipt: '' }; }
     }
-    function saveMeta() {
-      localStorage.setItem(STORAGE_META, JSON.stringify({ client: clientNameInput.value.trim(), receipt: receiptNameInput.value.trim() }));
-      updateExportNamePreview();
-    }
+    function saveMeta() { localStorage.setItem(STORAGE_META, JSON.stringify({ client: clientNameInput.value.trim(), receipt: receiptNameInput.value.trim() })); updateExportNamePreview(); }
     function slugifyName(v) { return String(v || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zA-Z0-9_-]+/g, '_').replace(/^_+|_+$/g, '').replace(/_+/g, '_'); }
-    function buildExportFileName() {
-      const date = new Date().toISOString().slice(0, 10);
-      const client = slugifyName(clientNameInput.value.trim());
-      const receipt = slugifyName(receiptNameInput.value.trim());
-      const parts = ['retours_location'];
-      if (client) parts.push(client);
-      if (receipt) parts.push(receipt);
-      parts.push(date);
-      return parts.join('_') + '.csv';
-    }
+    function buildExportFileName() { const date = new Date().toISOString().slice(0, 10); const client = slugifyName(clientNameInput.value.trim()); const receipt = slugifyName(receiptNameInput.value.trim()); const parts = ['retours_location']; if (client) parts.push(client); if (receipt) parts.push(receipt); parts.push(date); return parts.join('_') + '.csv'; }
     function updateExportNamePreview() { exportNamePreview.textContent = buildExportFileName(); }
 
-    function loadScanned() {
-      try {
-        const raw = localStorage.getItem(STORAGE_SCANNED);
-        const arr = raw ? JSON.parse(raw) : [];
-        return Array.isArray(arr) ? arr : [];
-      } catch { return []; }
-    }
+    function loadScanned() { try { const raw = localStorage.getItem(STORAGE_SCANNED); const arr = raw ? JSON.parse(raw) : []; return Array.isArray(arr) ? arr : []; } catch { return []; } }
     function saveScanned() { localStorage.setItem(STORAGE_SCANNED, JSON.stringify(scanned)); }
 
     function setStatus(text, mode = 'idle') {
@@ -411,8 +377,7 @@
         const scheduleBeep = (freq, startOffset, duration) => {
           const osc = audioCtx.createOscillator();
           const gain = audioCtx.createGain();
-          osc.type = 'sine';
-          osc.frequency.value = freq;
+          osc.type = 'sine'; osc.frequency.value = freq;
           const t0 = audioCtx.currentTime + startOffset;
           gain.gain.setValueAtTime(0.0001, t0);
           gain.gain.exponentialRampToValueAtTime(0.18, t0 + 0.01);
@@ -424,11 +389,7 @@
     }
 
     function getLastEntry() { return scanned.length ? scanned[0] : null; }
-    function syncOverlayComment() {
-      const last = getLastEntry();
-      overlayCommentInput.value = last ? (last.notes || '') : '';
-      overlayCommentInput.disabled = !last;
-    }
+    function syncOverlayComment() { const last = getLastEntry(); overlayCommentInput.value = last ? (last.notes || '') : ''; overlayCommentInput.disabled = !last; }
     function setOverlay(state, entry = null) {
       overlayEl.className = 'overlay show ' + (state === 'ok' ? 'ok' : 'ko');
       overlayTitleEl.textContent = state === 'ok' ? 'OK' : 'A CONTRÔLER';
@@ -437,13 +398,7 @@
       syncOverlayComment();
       setTimeout(() => { if (overlayEl.classList.contains('show')) overlayCommentInput.focus(); }, 50);
     }
-    function clearOverlay() {
-      overlayEl.className = 'overlay';
-      overlayTitleEl.textContent = 'PRÊT';
-      overlaySubEl.textContent = 'Le résultat du dernier scan reste affiché jusqu\'au prochain scan.';
-      overlaySNEl.textContent = '';
-      overlayCommentInput.value = '';
-    }
+    function clearOverlay() { overlayEl.className = 'overlay'; overlayTitleEl.textContent = 'PRÊT'; overlaySubEl.textContent = 'Le résultat du dernier scan reste affiché jusqu\'au prochain scan.'; overlaySNEl.textContent = ''; overlayCommentInput.value = ''; }
 
     function updateSourceTags() {
       tagBjong.className = 'tag ' + (bjongLoaded ? 'ok' : 'neutral');
@@ -459,21 +414,14 @@
       countOKEl.textContent = String(ok);
       countKOEl.textContent = String(ko);
       countExportEl.textContent = String(scanned.length);
-      btnExport.disabled = scanned.length === 0;
-      btnShare.disabled = scanned.length === 0;
-      btnFlush.disabled = scanned.length === 0;
-      btnUndoLast.disabled = scanned.length === 0;
-      overlayUndoBtn.disabled = scanned.length === 0;
+      btnExport.disabled = scanned.length === 0; btnShare.disabled = scanned.length === 0; btnFlush.disabled = scanned.length === 0; btnUndoLast.disabled = scanned.length === 0; overlayUndoBtn.disabled = scanned.length === 0;
       syncOverlayComment();
     }
 
     function renderHistory() {
       const q = searchInput.value.trim().toLowerCase();
       const filtered = !q ? scanned : scanned.filter(r => [r.sn, r.realScanned, r.status, r.source, r.date, r.notes, r.controlDateText, r.controlAgeDays, r.motif].some(v => String(v || '').toLowerCase().includes(q)));
-      if (!filtered.length) {
-        historyListEl.innerHTML = '<div class="empty">Aucun scan archivé.</div>';
-        return;
-      }
+      if (!filtered.length) { historyListEl.innerHTML = '<div class="empty">Aucun scan archivé.</div>'; return; }
       historyListEl.innerHTML = filtered.map(r => `
         <div class="history-item ${r.status === 'OK' ? 'ok' : 'ko'}">
           <div><div class="k">SN référence</div><div style="font-weight:800; word-break:break-all;">${escapeHtml(r.sn)}</div><div class="small">${escapeHtml(r.date)}</div></div>
@@ -487,8 +435,7 @@
       historyListEl.querySelectorAll('[data-delete-id]').forEach(btn => btn.addEventListener('click', () => {
         const id = btn.getAttribute('data-delete-id');
         scanned = scanned.filter(x => String(x.id) !== String(id));
-        saveScanned(); updateCounters(); renderHistory();
-        setStatus('Scan supprimé.', 'ok');
+        saveScanned(); updateCounters(); renderHistory(); setStatus('Scan supprimé.', 'ok');
       }));
       historyListEl.querySelectorAll('[data-note-id]').forEach(input => input.addEventListener('change', () => {
         const id = input.getAttribute('data-note-id');
@@ -513,10 +460,7 @@
     }
     function extractSNFromDelimitedLine(line) {
       const cols = String(line || '').split(/[,;\t]/);
-      return {
-        rawSN: displaySN(cols[5] !== undefined ? cols[5] : (cols[2] !== undefined ? cols[2] : '')),
-        rawControlDate: String(cols[1] !== undefined ? cols[1] : (cols[0] !== undefined ? cols[0] : '')).trim()
-      };
+      return { rawSN: displaySN(cols[5] !== undefined ? cols[5] : (cols[2] !== undefined ? cols[2] : '')), rawControlDate: String(cols[1] !== undefined ? cols[1] : (cols[0] !== undefined ? cols[0] : '')).trim() };
     }
 
     async function parseFileToKnownMap(file, sourceName) {
@@ -578,21 +522,7 @@
       const ref = knownMap.get(key) || null;
       const assessment = buildControlAssessment(ref);
       const note = notesInput.value.trim();
-      const entry = {
-        id: Date.now() + Math.random(),
-        sn: ref ? ref.display : scannedDisplay,
-        realScanned: scannedDisplay,
-        scannedInput: scannedDisplay,
-        canonical: key,
-        status: assessment.status,
-        source: assessment.source,
-        date: new Date().toLocaleString('fr-FR'),
-        notes: note,
-        controlDateText: assessment.controlDateText || '',
-        controlAgeDays: assessment.controlAgeDays,
-        motif: assessment.motif,
-        thresholdDays: controlThresholdDays
-      };
+      const entry = { id: Date.now() + Math.random(), sn: ref ? ref.display : scannedDisplay, realScanned: scannedDisplay, scannedInput: scannedDisplay, canonical: key, status: assessment.status, source: assessment.source, date: new Date().toLocaleString('fr-FR'), notes: note, controlDateText: assessment.controlDateText || '', controlAgeDays: assessment.controlAgeDays, motif: assessment.motif, thresholdDays: controlThresholdDays };
       scanned.unshift(entry);
       saveScanned(); updateCounters(); renderHistory();
       barcodeInput.value = ''; notesInput.value = '';
@@ -602,39 +532,22 @@
     }
 
     function updateLastScanComment(value) {
-      const last = getLastEntry();
-      if (!last) return;
-      last.notes = value.trim();
-      saveScanned();
-      renderHistory();
-      if (overlayEl.classList.contains('show')) overlaySubEl.textContent = buildOverlaySub(last);
+      const last = getLastEntry(); if (!last) return; last.notes = value.trim(); saveScanned(); renderHistory(); if (overlayEl.classList.contains('show')) overlaySubEl.textContent = buildOverlaySub(last);
     }
-    function applyRAS(target) {
-      if (!target) return;
-      target.value = 'RAS';
-      target.dispatchEvent(new Event('input', { bubbles: true }));
-      target.dispatchEvent(new Event('change', { bubbles: true }));
-      target.focus();
-    }
-    function undoLast() {
-      if (!scanned.length) return;
-      scanned.shift();
-      saveScanned(); updateCounters(); renderHistory(); clearOverlay();
-      setStatus('Dernier scan annulé.', 'ok');
-    }
+    function applyRAS(target) { if (!target) return; target.value = 'RAS'; target.dispatchEvent(new Event('input', { bubbles: true })); target.dispatchEvent(new Event('change', { bubbles: true })); target.focus(); }
+    function undoLast() { if (!scanned.length) return; scanned.shift(); saveScanned(); updateCounters(); renderHistory(); clearOverlay(); setStatus('Dernier scan annulé.', 'ok'); }
     function flushScanned() {
-      if (!confirm('Vider la base scannée ?')) return;
       scanned = [];
-      saveScanned(); updateCounters(); renderHistory(); clearOverlay();
+      localStorage.removeItem(STORAGE_SCANNED);
+      updateCounters(); renderHistory(); clearOverlay();
       setStatus('Base scannée vidée.', 'ok');
     }
     function clearReferences() {
-      if (!confirm('Décharger les références BJONG / Batteries ?')) return;
       knownMap = new Map();
       bjongLoaded = false; batteryLoaded = false;
       if (fileBjong) fileBjong.value = '';
       if (fileBattery) fileBattery.value = '';
-      updateSourceTags();
+      updateSourceTags(); clearOverlay();
       setStatus('Références déchargées.', 'ok');
     }
 
@@ -644,25 +557,11 @@
       const content = [header.map(escapeCsv).join(';'), ...rows].join('\n');
       return new Blob(['\uFEFF' + content], { type: 'text/csv;charset=utf-8' });
     }
-    function exportCsv() {
-      if (!scanned.length) return;
-      const blob = exportCsvBlob();
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob); a.download = buildExportFileName();
-      document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-      setStatus('CSV exporté.', 'ok');
-    }
+    function exportCsv() { if (!scanned.length) return; const blob = exportCsvBlob(); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = buildExportFileName(); document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); setStatus('CSV exporté.', 'ok'); }
     async function shareCsv() {
       if (!scanned.length) return;
-      const blob = exportCsvBlob();
-      const file = new File([blob], buildExportFileName(), { type: 'text/csv;charset=utf-8' });
-      try {
-        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-          await navigator.share({ title: 'Contrôle périodique', text: 'Export des SN scannés', files: [file] });
-          setStatus('Partage lancé.', 'ok');
-          return;
-        }
-      } catch (_) {}
+      const blob = exportCsvBlob(); const file = new File([blob], buildExportFileName(), { type: 'text/csv;charset=utf-8' });
+      try { if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ title:'Contrôle périodique', text:'Export des SN scannés', files:[file] }); setStatus('Partage lancé.', 'ok'); return; } } catch (_) {}
       exportCsv();
     }
 
@@ -670,9 +569,8 @@
     async function primeCameraPermission() {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error('API caméra non disponible sur ce navigateur.');
       setStatus('Demande de permission caméra…', 'scan');
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 }, frameRate: { ideal: 30, max: 60 } } });
-      activePrimeStream = stream;
-      const video = document.createElement('video'); video.muted = true; video.playsInline = true; video.srcObject = stream;
+      const stream = await navigator.mediaDevices.getUserMedia({ audio:false, video:{ facingMode:{ ideal:'environment' }, width:{ ideal:1280 }, height:{ ideal:720 }, frameRate:{ ideal:30, max:60 } } });
+      activePrimeStream = stream; const video = document.createElement('video'); video.muted = true; video.playsInline = true; video.srcObject = stream;
       await video.play().catch(() => null); await new Promise(resolve => setTimeout(resolve, 180)); stopPrimeStream(); permissionPrimed = true;
     }
     async function loadQuagga() {
@@ -681,10 +579,7 @@
         const existing = document.querySelector('script[data-quagga="1"]');
         if (existing && window.Quagga) { engineLoaded = true; resolve(); return; }
         const script = existing || document.createElement('script');
-        if (!existing) {
-          script.src = 'https://unpkg.com/@ericblade/quagga2@1.8.4/dist/quagga.min.js';
-          script.async = true; script.defer = true; script.dataset.quagga = '1'; document.head.appendChild(script);
-        }
+        if (!existing) { script.src = 'https://unpkg.com/@ericblade/quagga2@1.8.4/dist/quagga.min.js'; script.async = true; script.defer = true; script.dataset.quagga = '1'; document.head.appendChild(script); }
         script.onload = () => { engineLoaded = true; resolve(); };
         script.onerror = () => reject(new Error('Impossible de charger Quagga2 (connexion Internet requise).'));
       });
@@ -692,27 +587,19 @@
     function getActiveVideoTrack() {
       const video = scannerEl.querySelector('video');
       if (!video || !video.srcObject || !video.srcObject.getVideoTracks) return null;
-      const tracks = video.srcObject.getVideoTracks();
-      return tracks && tracks.length ? tracks[0] : null;
+      const tracks = video.srcObject.getVideoTracks(); return tracks && tracks.length ? tracks[0] : null;
     }
     function syncTorchAvailability(attempt = 0) {
       const track = getActiveVideoTrack();
       if (!track) { if (attempt < 12) setTimeout(() => syncTorchAvailability(attempt + 1), 180); return; }
-      let supported = false;
-      try { if (typeof track.getCapabilities === 'function') supported = !!(track.getCapabilities() || {}).torch; } catch (_) {}
-      torchCapable = supported; if (!supported) torchEnabled = false;
-      btnTorch.disabled = !started || !torchCapable; btnTorch.textContent = torchEnabled ? 'Torche ON' : 'Torche';
+      let supported = false; try { if (typeof track.getCapabilities === 'function') supported = !!(track.getCapabilities() || {}).torch; } catch (_) {}
+      torchCapable = supported; if (!supported) torchEnabled = false; btnTorch.disabled = !started || !torchCapable; btnTorch.textContent = torchEnabled ? 'Torche ON' : 'Torche';
     }
     async function toggleTorch() {
-      const track = getActiveVideoTrack();
-      if (!track || !torchCapable) { setStatus('Torche non disponible.', 'ko'); return; }
+      const track = getActiveVideoTrack(); if (!track || !torchCapable) { setStatus('Torche non disponible.', 'ko'); return; }
       const next = !torchEnabled;
-      try {
-        await track.applyConstraints({ advanced: [{ torch: next }] });
-        torchEnabled = next; btnTorch.textContent = torchEnabled ? 'Torche ON' : 'Torche';
-      } catch (e) {
-        console.error(e); torchEnabled = false; btnTorch.textContent = 'Torche'; setStatus('Impossible d\'activer la torche.', 'ko');
-      }
+      try { await track.applyConstraints({ advanced: [{ torch: next }] }); torchEnabled = next; btnTorch.textContent = torchEnabled ? 'Torche ON' : 'Torche'; }
+      catch (e) { console.error(e); torchEnabled = false; btnTorch.textContent = 'Torche'; setStatus('Impossible d\'activer la torche.', 'ko'); }
     }
     function stopScanner() {
       try { if (window.Quagga && onDetectedHandler) window.Quagga.offDetected(onDetectedHandler); } catch (_) {}
@@ -734,20 +621,15 @@
         await loadQuagga(); setStatus('Scanner actif…', 'scan');
         await new Promise((resolve, reject) => {
           window.Quagga.init({
-            inputStream: {
-              name: 'Live', type: 'LiveStream', target: scannerEl,
-              constraints: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 }, aspectRatio: { ideal: 0.75 }, frameRate: { ideal: 30, max: 60 } },
-              area: { top: '43%', right: '5%', left: '5%', bottom: '43%' }, singleChannel: false
-            },
-            locator: { patchSize: 'medium', halfSample: true }, numOfWorkers: 2, frequency: 20, locate: false,
-            decoder: { readers: ['code_128_reader'], multiple: false }
+            inputStream: { name:'Live', type:'LiveStream', target:scannerEl, constraints:{ facingMode:'environment', width:{ ideal:1280 }, height:{ ideal:720 }, aspectRatio:{ ideal:0.75 }, frameRate:{ ideal:30, max:60 } }, area:{ top:'43%', right:'5%', left:'5%', bottom:'43%' }, singleChannel:false },
+            locator: { patchSize:'medium', halfSample:true }, numOfWorkers:2, frequency:20, locate:false,
+            decoder: { readers:['code_128_reader'], multiple:false }
           }, err => err ? reject(err) : resolve());
         });
         onDetectedHandler = data => {
           const code = data && data.codeResult && data.codeResult.code ? String(data.codeResult.code).trim() : '';
           if (!code) return;
-          const now = Date.now();
-          const canonical = canonicalSN(code);
+          const now = Date.now(); const canonical = canonicalSN(code);
           if (canonical === lastDetected && (now - lastDetectedAt) < 1200) return;
           lastDetected = canonical; lastDetectedAt = now; if (navigator.vibrate) navigator.vibrate(120);
           barcodeInput.value = displaySN(code); addEntry(code, true); stopScanner();
@@ -757,7 +639,7 @@
           const video = scannerEl.querySelector('video');
           if (video) { video.setAttribute('playsinline', 'true'); video.style.objectFit = 'cover'; }
           const track = video && video.srcObject && video.srcObject.getVideoTracks ? video.srcObject.getVideoTracks()[0] : null;
-          if (track && typeof track.applyConstraints === 'function') track.applyConstraints({ advanced: [{ focusMode: 'continuous' }] }).catch(() => {});
+          if (track && typeof track.applyConstraints === 'function') track.applyConstraints({ advanced:[{ focusMode:'continuous' }] }).catch(() => {});
           if (started && !torchCapable) syncTorchAvailability();
         };
         window.Quagga.onDetected(onDetectedHandler); window.Quagga.onProcessed(onProcessedHandler); window.Quagga.start();
@@ -778,12 +660,7 @@
     btnValidateManual.addEventListener('click', () => { clearOverlay(); addEntry(barcodeInput.value, false); });
     btnRasMain.addEventListener('click', () => applyRAS(notesInput));
     overlayRasBtn.addEventListener('click', () => applyRAS(overlayCommentInput));
-    btnApplyThreshold.addEventListener('click', () => {
-      controlThresholdDays = Math.max(1, parseInt(controlThresholdInput.value, 10) || 300);
-      controlThresholdInput.value = String(controlThresholdDays);
-      setStatus('Seuil contrôle appliqué : ' + controlThresholdDays + ' jours.', 'ok');
-      renderHistory();
-    });
+    btnApplyThreshold.addEventListener('click', () => { controlThresholdDays = Math.max(1, parseInt(controlThresholdInput.value, 10) || 300); controlThresholdInput.value = String(controlThresholdDays); setStatus('Seuil contrôle appliqué : ' + controlThresholdDays + ' jours.', 'ok'); renderHistory(); });
     controlThresholdInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); btnApplyThreshold.click(); } });
     barcodeInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); clearOverlay(); addEntry(barcodeInput.value, false); } });
     notesInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); clearOverlay(); addEntry(barcodeInput.value, false); } });
