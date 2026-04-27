@@ -17,87 +17,77 @@
       --ok: #22c55e;
       --ko: #ef4444;
       --warn: #f59e0b;
-      --shadow: 0 14px 34px rgba(0, 0, 0, 0.28);
+      --shadow: 0 14px 34px rgba(0,0,0,.28);
       --radius: 18px;
     }
     * { box-sizing: border-box; }
-    html, body { margin: 0; padding: 0; background: linear-gradient(180deg,#09101c 0%,#0b1220 100%); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
-    body { min-height: 100vh; }
-    .wrap { max-width: 1180px; margin: 0 auto; padding: max(14px, env(safe-area-inset-top)) 14px calc(16px + env(safe-area-inset-bottom)); }
-    .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 14px; margin-bottom: 14px; backdrop-filter: blur(8px); }
-    .title { margin: 0 0 6px; font-size: 1.45rem; font-weight: 800; line-height: 1.2; }
-    .subtitle { margin: 0; color: var(--muted); line-height: 1.45; font-size: .96rem; }
-    .pillbar { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-    .pill { padding: 6px 10px; border-radius: 999px; border: 1px solid rgba(56,189,248,.16); background: rgba(56,189,248,.1); color: #bae6fd; font-size: .82rem; font-weight: 700; }
-    .grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: 14px; }
-    @media (max-width: 960px) { .grid { grid-template-columns: 1fr; } }
-    .filegrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    @media (max-width: 720px) { .filegrid { grid-template-columns: 1fr; } }
-    .filebox { border-radius: 16px; border: 1px solid var(--line); background: rgba(15,23,42,.86); padding: 12px; }
-    .video-wrap { position: relative; overflow: hidden; border-radius: 16px; border: 1px solid var(--line); background: #000; aspect-ratio: 3/4; }
-    #scanner, #scanner video { width: 100%; height: 100%; display: block; object-fit: cover; background: #000; }
-    #scanner canvas, #scanner video { position: absolute; inset: 0; }
-    .guide { position: absolute; inset: 0; pointer-events: none; }
-    .guide::before { content: ''; position: absolute; left: 5%; right: 5%; top: 43%; height: 14%; border-radius: 14px; border: 3px solid rgba(56,189,248,.96); box-shadow: 0 0 0 9999px rgba(0,0,0,.18) inset; }
-    .guide::after { content: 'Place le code dans la bande bleue, bien horizontal'; position: absolute; left: 0; right: 0; top: 60%; text-align: center; color: #e2e8f0; font-size: .92rem; font-weight: 700; text-shadow: 0 2px 8px rgba(0,0,0,.7); padding: 0 10px; }
-    .status { margin-top: 12px; min-height: 44px; display: flex; align-items: center; gap: 10px; border-radius: 14px; border: 1px solid var(--line); background: rgba(15,23,42,.86); padding: 10px 12px; color: var(--muted); line-height: 1.35; }
-    .dot { width: 10px; height: 10px; border-radius: 999px; background: var(--warn); flex: 0 0 auto; }
-    .status.scan .dot { background: var(--accent); animation: pulse 1.1s infinite; }
-    .status.ok .dot { background: var(--ok); }
-    .status.ko .dot { background: var(--ko); }
-    @keyframes pulse { 0%{transform:scale(1);opacity:1} 50%{transform:scale(1.35);opacity:.65} 100%{transform:scale(1);opacity:1} }
-    .btnrow, .btnrow2, .btnrow3 { display: grid; gap: 10px; margin-top: 12px; }
-    .btnrow { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    .btnrow2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .btnrow3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    @media (max-width: 700px) { .btnrow, .btnrow2, .btnrow3 { grid-template-columns: 1fr; } }
-    button { min-height: 50px; border: 0; border-radius: 14px; font-size: .98rem; font-weight: 760; cursor: pointer; padding: 13px 12px; }
-    button:disabled { opacity: .55; cursor: not-allowed; }
-    .btn-primary { background: linear-gradient(180deg,#38bdf8 0%,#0ea5e9 100%); color: #082f49; }
-    .btn-secondary { background: #334155; color: #f8fafc; }
-    .btn-torch { background: linear-gradient(180deg,#fbbf24 0%,#f59e0b 100%); color: #422006; }
-    .btn-danger { background: linear-gradient(180deg,#f87171 0%,#ef4444 100%); color: #450a0a; }
-    .btn-success { background: linear-gradient(180deg,#4ade80 0%,#22c55e 100%); color: #052e16; }
-    .btn-neutral { background: #1e293b; color: #e2e8f0; }
-    .btn-ras { background: linear-gradient(180deg,#e2e8f0 0%,#cbd5e1 100%); color: #0f172a; }
-    .field { margin-top: 12px; }
-    label { display: block; margin-bottom: 8px; font-size: .92rem; font-weight: 700; }
-    input[type='text'], input[type='file'] { width: 100%; border-radius: 14px; border: 1px solid var(--line); background: rgba(15,23,42,.86); color: var(--text); padding: 14px; font-size: 16px; min-height: 50px; }
-    .input-row { display: grid; grid-template-columns: 1fr auto; gap: 10px; }
-    @media (max-width: 520px) { .input-row { grid-template-columns: 1fr; } }
-    .note, .small { color: var(--muted); font-size: .9rem; line-height: 1.4; }
-    .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
-    @media (max-width: 760px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-    .stat { border-radius: 16px; border: 1px solid var(--line); background: rgba(15,23,42,.86); padding: 12px; }
-    .stat.ok { background: rgba(34,197,94,.12); }
-    .stat.ko { background: rgba(239,68,68,.12); }
-    .k { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin-bottom: 4px; }
-    .v { font-size: 1.6rem; font-weight: 800; }
-    .search-row { display: grid; grid-template-columns: 1fr 280px; gap: 10px; align-items: center; }
-    @media (max-width: 760px) { .search-row { grid-template-columns: 1fr; } }
-    .history-list { display: grid; gap: 10px; margin-top: 12px; }
-    .history-item { border-radius: 16px; border: 1px solid var(--line); padding: 12px; display: grid; grid-template-columns: 1fr 1fr .85fr .85fr 1fr auto; gap: 10px; }
-    .history-item.ok { background: rgba(34,197,94,.14); }
-    .history-item.ko { background: rgba(239,68,68,.16); }
-    @media (max-width: 980px) { .history-item { grid-template-columns: 1fr; } }
-    .empty { border-radius: 16px; border: 1px dashed rgba(148,163,184,.25); background: rgba(15,23,42,.62); color: var(--muted); padding: 24px; text-align: center; margin-top: 12px; }
-    .tag { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; border: 1px solid var(--line); padding: 5px 9px; font-size: .78rem; font-weight: 700; background: rgba(15,23,42,.72); color: var(--text); }
-    .tag.ok { background: rgba(34,197,94,.14); color: #bbf7d0; }
-    .tag.neutral { color: #cbd5e1; }
-    .overlay { position: fixed; inset: 0; z-index: 999; display: none; align-items: center; justify-content: center; text-align: center; padding: 24px; pointer-events: none; }
-    .overlay.show { display: flex; }
-    .overlay.ok { background: rgba(34,197,94,.80); }
-    .overlay.ko { background: rgba(239,68,68,.84); }
-    .overlay-box { max-width: 860px; color: white; text-shadow: 0 4px 12px rgba(0,0,0,.4); width: 100%; }
-    .overlay-title { font-size: clamp(3rem,10vw,7rem); font-weight: 900; line-height: 1; margin: 0 0 10px; }
-    .overlay-sub { font-size: clamp(1rem,2.6vw,1.6rem); font-weight: 700; margin: 0; }
-    .overlay-sn { font-size: clamp(1.2rem,3vw,2rem); font-weight: 800; margin-top: 10px; word-break: break-all; }
-    .overlay-comment-wrap { margin: 18px auto 0; max-width: 720px; text-align: left; pointer-events: auto; }
-    .overlay-comment-label { display: block; margin-bottom: 8px; font-size: .95rem; font-weight: 800; color: white; }
-    .overlay-comment { width: 100%; min-height: 56px; border-radius: 16px; border: 0; padding: 14px 16px; font-size: 16px; background: rgba(255,255,255,.96); color: #0f172a; box-shadow: 0 10px 26px rgba(0,0,0,.18); }
-    .overlay-actions { margin-top: 18px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; pointer-events: auto; }
-    .overlay button { box-shadow: 0 8px 18px rgba(0,0,0,.22); }
-    @media (max-width: 700px) { .overlay-actions { grid-template-columns: 1fr; } }
+    html, body { margin:0; padding:0; background:linear-gradient(180deg,#09101c 0%,#0b1220 100%); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; }
+    body { min-height:100vh; }
+    .wrap { max-width:1180px; margin:0 auto; padding:max(14px, env(safe-area-inset-top)) 14px calc(16px + env(safe-area-inset-bottom)); }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); padding:14px; margin-bottom:14px; backdrop-filter:blur(8px); }
+    .title { margin:0 0 6px; font-size:1.45rem; font-weight:800; line-height:1.2; }
+    .subtitle { margin:0; color:var(--muted); line-height:1.45; font-size:.96rem; }
+    .pillbar { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+    .pill { padding:6px 10px; border-radius:999px; border:1px solid rgba(56,189,248,.16); background:rgba(56,189,248,.1); color:#bae6fd; font-size:.82rem; font-weight:700; }
+    .filegrid,.grid,.btnrow,.btnrow2,.stats,.history-list { display:grid; gap:12px; }
+    .filegrid { grid-template-columns:1fr 1fr; }
+    .grid { grid-template-columns:1.05fr .95fr; }
+    .btnrow { grid-template-columns:repeat(3,minmax(0,1fr)); }
+    .btnrow2 { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    .stats { grid-template-columns:repeat(4,minmax(0,1fr)); }
+    @media (max-width: 960px) { .grid { grid-template-columns:1fr; } }
+    @media (max-width: 760px) { .filegrid,.btnrow,.btnrow2,.stats { grid-template-columns:1fr; } }
+    .filebox,.stat,.history-item { border-radius:16px; border:1px solid var(--line); background:rgba(15,23,42,.86); padding:12px; }
+    label { display:block; margin-bottom:8px; font-size:.92rem; font-weight:700; }
+    input[type='text'], input[type='file'] { width:100%; border-radius:14px; border:1px solid var(--line); background:rgba(15,23,42,.86); color:var(--text); padding:14px; font-size:16px; min-height:50px; }
+    .input-row { display:grid; grid-template-columns:1fr auto; gap:10px; }
+    @media (max-width: 520px) { .input-row { grid-template-columns:1fr; } }
+    button { min-height:50px; border:0; border-radius:14px; font-size:.98rem; font-weight:760; cursor:pointer; padding:13px 12px; }
+    button:disabled { opacity:.55; cursor:not-allowed; }
+    .btn-primary { background:linear-gradient(180deg,#38bdf8 0%,#0ea5e9 100%); color:#082f49; }
+    .btn-secondary { background:#334155; color:#f8fafc; }
+    .btn-success { background:linear-gradient(180deg,#4ade80 0%,#22c55e 100%); color:#052e16; }
+    .btn-danger { background:linear-gradient(180deg,#f87171 0%,#ef4444 100%); color:#450a0a; }
+    .btn-neutral { background:#1e293b; color:#e2e8f0; }
+    .btn-ras { background:linear-gradient(180deg,#e2e8f0 0%,#cbd5e1 100%); color:#0f172a; }
+    .btn-torch { background:linear-gradient(180deg,#fbbf24 0%,#f59e0b 100%); color:#422006; }
+    .small { color:var(--muted); font-size:.9rem; line-height:1.4; }
+    .video-wrap { position:relative; overflow:hidden; border-radius:16px; border:1px solid var(--line); background:#000; aspect-ratio:3/4; }
+    #scanner, #scanner video { width:100%; height:100%; display:block; object-fit:cover; background:#000; }
+    #scanner canvas, #scanner video { position:absolute; inset:0; }
+    .guide { position:absolute; inset:0; pointer-events:none; }
+    .guide::before { content:''; position:absolute; left:5%; right:5%; top:43%; height:14%; border-radius:14px; border:3px solid rgba(56,189,248,.96); box-shadow:0 0 0 9999px rgba(0,0,0,.18) inset; }
+    .guide::after { content:'Place le code dans la bande bleue, bien horizontal'; position:absolute; left:0; right:0; top:60%; text-align:center; color:#e2e8f0; font-size:.92rem; font-weight:700; text-shadow:0 2px 8px rgba(0,0,0,.7); padding:0 10px; }
+    .status { margin-top:12px; min-height:44px; display:flex; align-items:center; gap:10px; border-radius:14px; border:1px solid var(--line); background:rgba(15,23,42,.86); padding:10px 12px; color:var(--muted); line-height:1.35; }
+    .dot { width:10px; height:10px; border-radius:999px; background:var(--warn); flex:0 0 auto; }
+    .status.ok .dot { background:var(--ok); }
+    .status.ko .dot { background:var(--ko); }
+    .status.scan .dot { background:var(--accent); animation:pulse 1.1s infinite; }
+    @keyframes pulse { 0%{transform:scale(1);opacity:1;} 50%{transform:scale(1.35);opacity:.65;} 100%{transform:scale(1);opacity:1;} }
+    .tag { display:inline-flex; align-items:center; gap:6px; border-radius:999px; border:1px solid var(--line); padding:5px 9px; font-size:.78rem; font-weight:700; background:rgba(15,23,42,.72); color:var(--text); }
+    .tag.ok { background:rgba(34,197,94,.14); color:#bbf7d0; }
+    .tag.neutral { color:#cbd5e1; }
+    .k { font-size:.78rem; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); margin-bottom:4px; }
+    .v { font-size:1.6rem; font-weight:800; }
+    .history-item { display:grid; grid-template-columns:1fr 1fr .9fr .9fr 1fr auto; gap:10px; }
+    .history-item.ok { background:rgba(34,197,94,.14); }
+    .history-item.ko { background:rgba(239,68,68,.16); }
+    @media (max-width: 980px) { .history-item { grid-template-columns:1fr; } }
+    .empty { border-radius:16px; border:1px dashed rgba(148,163,184,.25); background:rgba(15,23,42,.62); color:var(--muted); padding:24px; text-align:center; margin-top:12px; }
+    .overlay { position:fixed; inset:0; z-index:999; display:none; align-items:center; justify-content:center; text-align:center; padding:24px; pointer-events:none; }
+    .overlay.show { display:flex; }
+    .overlay.ok { background:rgba(34,197,94,.80); }
+    .overlay.ko { background:rgba(239,68,68,.84); }
+    .overlay-box { max-width:860px; color:white; text-shadow:0 4px 12px rgba(0,0,0,.4); width:100%; }
+    .overlay-title { font-size:clamp(3rem,10vw,7rem); font-weight:900; line-height:1; margin:0 0 10px; }
+    .overlay-sub { font-size:clamp(1rem,2.6vw,1.6rem); font-weight:700; margin:0; }
+    .overlay-sn { font-size:clamp(1.2rem,3vw,2rem); font-weight:800; margin-top:10px; word-break:break-all; }
+    .overlay-comment-wrap { margin:18px auto 0; max-width:720px; text-align:left; pointer-events:auto; }
+    .overlay-comment-label { display:block; margin-bottom:8px; font-size:.95rem; font-weight:800; color:white; }
+    .overlay-comment { width:100%; min-height:56px; border-radius:16px; border:0; padding:14px 16px; font-size:16px; background:rgba(255,255,255,.96); color:#0f172a; box-shadow:0 10px 26px rgba(0,0,0,.18); }
+    .overlay-actions { margin-top:18px; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; pointer-events:auto; }
+    .overlay button { box-shadow:0 8px 18px rgba(0,0,0,.22); }
+    @media (max-width:700px) { .overlay-actions { grid-template-columns:1fr; } }
   </style>
 </head>
 <body>
@@ -108,7 +98,7 @@
       <div id="overlaySN" class="overlay-sn"></div>
       <div class="overlay-comment-wrap">
         <label for="overlayCommentInput" class="overlay-comment-label">Commentaire rapide</label>
-        <input id="overlayCommentInput" class="overlay-comment" type="text" placeholder="Ajouter un commentaire pour ce SN (état, câble, choc, manquant, etc.)" />
+        <input id="overlayCommentInput" class="overlay-comment" type="text" placeholder="Ajouter un commentaire pour ce SN" />
       </div>
       <div class="overlay-actions">
         <button id="overlayNextBtn" class="btn-primary">Scanner suivant</button>
@@ -121,17 +111,14 @@
   <div class="wrap">
     <div class="card">
       <h1 class="title">Contrôle périodique - Scan BJONG + Batteries</h1>
-      <p class="subtitle">App HTML autonome prête pour GitHub Pages. Scan Code 128 avec Quagga2, références lues en colonne F, date de contrôle lue en colonne B, gestion du "V" initial optionnel, seuil de validité personnalisable, résultat plein écran vert / rouge conservé jusqu'au prochain scan, commentaire directement saisissable dans l'écran rouge / vert, bip sonore au scan, archive détaillée avec le barcode réel scanné, export CSV et partage.</p>
+      <p class="subtitle">Version corrigée et validée. Lecture multi-feuilles, détection automatique des colonnes SN / date, dates FR/US, seuil personnalisable, scan Code 128, historique, RAS, flush, vidage références, export CSV.</p>
       <div class="pillbar">
         <span class="pill">Quagga2</span>
         <span class="pill">Code 128</span>
-        <span class="pill">Colonne F</span>
-        <span class="pill">V initial optionnel</span>
-        <span class="pill">Bip sonore</span>
-        <span class="pill">Bouton RAS</span>
-        <span class="pill">Barcode réel exporté</span>
-        <span class="pill">Date contrôle col. B</span>
+        <span class="pill">Colonnes auto-détectées</span>
+        <span class="pill">Dates FR/US</span>
         <span class="pill">Seuil personnalisable</span>
+        <span class="pill">CSV enrichi</span>
       </div>
     </div>
 
@@ -140,18 +127,26 @@
         <div class="filebox">
           <label for="fileBjong">Charger fichier BJONG</label>
           <input id="fileBjong" type="file" accept=".csv,.txt,.xlsx,.xls" />
-          <div class="small">Lecture des SN en colonne F, date de contrôle en colonne B. Correspondance tolérante avec ou sans "V" initial.</div>
+          <div class="small">Lecture multi-feuilles. Colonnes détectées automatiquement.</div>
         </div>
         <div class="filebox">
           <label for="fileBattery">Charger fichier Batteries</label>
           <input id="fileBattery" type="file" accept=".csv,.txt,.xlsx,.xls" />
-          <div class="small">Lecture des SN en colonne F, date de contrôle en colonne B. Exemple : <strong>V12345</strong> et <strong>12345</strong> sont considérés identiques.</div>
+          <div class="small">Compatible exports Microsoft Forms (NS Batterie + Heure de début) et feuilles NS / DATE.</div>
         </div>
       </div>
       <div class="pillbar">
         <span id="tagBjong" class="tag neutral">BJONG non chargé</span>
-        <span id="tagBattery" class="tag neutral">Batteries non chargé</span>
+        <span id="tagBattery" class="tag neutral">Batteries non chargées</span>
         <span class="tag neutral">SN connus : <strong id="knownCount" style="margin-left:4px;">0</strong></span>
+      </div>
+      <div class="field">
+        <label for="controlThresholdInput">Seuil validité contrôle (jours)</label>
+        <div class="input-row">
+          <input id="controlThresholdInput" type="text" inputmode="numeric" value="300" placeholder="Ex. 300" />
+          <button id="btnApplyThreshold" class="btn-secondary">Appliquer</button>
+        </div>
+        <div class="small">Si le dernier contrôle du SN date de plus de ce seuil, le scan passe en rouge.</div>
       </div>
     </div>
 
@@ -177,10 +172,7 @@
           <div id="scanner"></div>
           <div class="guide"></div>
         </div>
-        <div id="status" class="status">
-          <span class="dot"></span>
-          <span id="statusText">Prêt. Charge les références puis appuie sur « Autoriser & scanner ».</span>
-        </div>
+        <div id="status" class="status"><span class="dot"></span><span id="statusText">Prêt. Charge BJONG / Batteries puis scanne.</span></div>
         <div class="btnrow">
           <button id="btnStart" class="btn-primary">Autoriser & scanner</button>
           <button id="btnStop" class="btn-secondary" disabled>Arrêter</button>
@@ -190,7 +182,7 @@
           <button id="btnNext" class="btn-secondary">Scanner suivant</button>
           <button id="btnUndoLast" class="btn-neutral">Annuler dernier scan</button>
         </div>
-        <div class="note">Simple bip vert / double bip rouge. Le bouton <strong>RAS</strong> remplit automatiquement le commentaire.</div>
+        <div class="small">Le commentaire peut être saisi directement dans l'écran rouge / vert. Le bouton <strong>RAS</strong> remplit automatiquement la note.</div>
       </div>
 
       <div class="card">
@@ -204,14 +196,14 @@
         <div class="field">
           <label for="notesInput">Notes</label>
           <div class="input-row">
-            <input id="notesInput" type="text" placeholder="Commentaire sur le SN scanné (état, câble, choc, manquant, etc.)" />
+            <input id="notesInput" type="text" placeholder="Commentaire sur le SN scanné" />
             <button id="btnRasMain" class="btn-ras">RAS</button>
           </div>
         </div>
         <div class="stats">
           <div class="stat"><div class="k">Total scans</div><div id="countTotal" class="v">0</div></div>
-          <div class="stat ok"><div class="k">OK</div><div id="countOK" class="v">0</div></div>
-          <div class="stat ko"><div class="k">À contrôler</div><div id="countKO" class="v">0</div></div>
+          <div class="stat"><div class="k">OK</div><div id="countOK" class="v">0</div></div>
+          <div class="stat"><div class="k">À contrôler</div><div id="countKO" class="v">0</div></div>
           <div class="stat"><div class="k">Prêt export</div><div id="countExport" class="v">0</div></div>
         </div>
         <div class="btnrow2">
@@ -222,26 +214,27 @@
           <button id="btnFlush" class="btn-danger">Flush base scannée</button>
           <button id="btnClearRefs" class="btn-neutral">Vider références</button>
         </div>
-        <div class="small">Le flush ne vide que la liste scannée. « Vider références » décharge les fichiers BJONG / Batteries.</div>
+        <div class="small">Flush vide la liste scannée. Vider références décharge les fichiers de contrôle.</div>
       </div>
     </div>
 
     <div class="card">
-      <div class="search-row">
+      <div class="input-row" style="grid-template-columns:1fr 280px; align-items:center;">
         <div>
           <h2 class="title" style="font-size:1.15rem; margin-bottom:4px;">Archivage des scans</h2>
-          <p class="subtitle">Archive complète avec le SN de référence, le barcode réel scanné / saisi, la date du dernier contrôle, l’âge du contrôle et le motif.</p>
+          <p class="subtitle">Archive complète avec date de contrôle, âge du contrôle et motif.</p>
         </div>
-        <input id="searchInput" type="text" placeholder="Rechercher SN, barcode réel, source, note, date, motif..." />
+        <input id="searchInput" type="text" placeholder="Rechercher SN, motif, date..." />
       </div>
       <div id="historyList" class="history-list"></div>
     </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://unpkg.com/@ericblade/quagga2@1.8.4/dist/quagga.min.js"></script>
   <script>
-    const STORAGE_SCANNED = 'retourloc_scanned_v6';
-    const STORAGE_META = 'retourloc_export_meta_v1';
+    const STORAGE_SCANNED = 'controle_periodique_scanned_v2';
+    const STORAGE_META = 'controle_periodique_meta_v1';
 
     const scannerEl = document.getElementById('scanner');
     const statusEl = document.getElementById('status');
@@ -302,35 +295,47 @@
     let controlThresholdDays = 300;
 
     function normalize(v) { return String(v || '').trim().toUpperCase().replace(/\s+/g, ''); }
-    function canonicalSN(v) { const s = normalize(v); return s.replace(/^V(?=.+)/, ''); }
+    function canonicalSN(v) { return normalize(v).replace(/^V(?=.+)/, ''); }
     function displaySN(v) { return normalize(v); }
-    function escapeHtml(v) { return String(v ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\"/g, '&quot;').replace(/'/g, '&#039;'); }
+    function escapeHtml(v) { return String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;'); }
     function escapeCsv(v) { return '"' + String(v ?? '').replace(/"/g, '""') + '"'; }
 
-
     function parseControlDate(value) {
+      if (value instanceof Date && !Number.isNaN(value.getTime())) return value;
       const s = String(value || '').trim();
       if (!s) return null;
       const m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?$/);
       if (m) {
-        const dd = Number(m[1]);
-        const mm = Number(m[2]) - 1;
-        const yy = Number(m[3]);
-        const hh = Number(m[4] || 0);
-        const mi = Number(m[5] || 0);
-        const ss = Number(m[6] || 0);
-        const d = new Date(yy, mm, dd, hh, mi, ss);
-        return Number.isNaN(d.getTime()) ? null : d;
+        const a = Number(m[1]), b = Number(m[2]), y = Number(m[3]);
+        const hh = Number(m[4] || 0), mi = Number(m[5] || 0), ss = Number(m[6] || 0);
+        const candidates = [];
+        const add = (day, month) => {
+          if (month < 1 || month > 12 || day < 1 || day > 31) return;
+          const d = new Date(y, month - 1, day, hh, mi, ss);
+          if (!Number.isNaN(d.getTime()) && d.getDate() === day && d.getMonth() === month - 1 && d.getFullYear() === y) candidates.push(d);
+        };
+        add(a, b); // dd/mm
+        add(b, a); // mm/dd
+        if (candidates.length === 1) return candidates[0];
+        if (candidates.length === 2) {
+          const now = new Date();
+          const nonFuture = candidates.filter(d => d.getTime() <= now.getTime());
+          if (nonFuture.length >= 1) {
+            nonFuture.sort((x, y2) => Math.abs(now - x) - Math.abs(now - y2));
+            return nonFuture[0];
+          }
+          candidates.sort((x, y2) => x - y2);
+          return candidates[0];
+        }
       }
-      const parsed = new Date(s);
-      return Number.isNaN(parsed.getTime()) ? null : parsed;
+      const d = new Date(s);
+      return Number.isNaN(d.getTime()) ? null : d;
     }
 
     function formatControlDate(date) {
       if (!(date instanceof Date) || Number.isNaN(date.getTime())) return '';
       return date.toLocaleString('fr-FR');
     }
-
     function getControlAgeDays(date) {
       if (!(date instanceof Date) || Number.isNaN(date.getTime())) return null;
       return Math.floor((Date.now() - date.getTime()) / 86400000);
@@ -356,51 +361,18 @@
       return parts.join(' • ') || 'Le résultat reste affiché jusqu’au prochain scan.';
     }
 
-    function playBeep(type = 'ok') {
-      try {
-        const Ctx = window.AudioContext || window.webkitAudioContext;
-        if (!Ctx) return;
-        if (!audioCtx) audioCtx = new Ctx();
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        const scheduleBeep = (freq, startOffset, duration) => {
-          const osc = audioCtx.createOscillator();
-          const gain = audioCtx.createGain();
-          osc.type = 'sine';
-          osc.frequency.value = freq;
-          const t0 = audioCtx.currentTime + startOffset;
-          gain.gain.setValueAtTime(0.0001, t0);
-          gain.gain.exponentialRampToValueAtTime(0.18, t0 + 0.01);
-          gain.gain.exponentialRampToValueAtTime(0.0001, t0 + duration);
-          osc.connect(gain);
-          gain.connect(audioCtx.destination);
-          osc.start(t0);
-          osc.stop(t0 + duration + 0.02);
-        };
-        if (type === 'ok') {
-          scheduleBeep(1046, 0, 0.16);
-        } else {
-          scheduleBeep(740, 0, 0.12);
-          scheduleBeep(740, 0.18, 0.12);
-        }
-      } catch (_) {}
-    }
-
     function loadMeta() {
       try {
         const raw = localStorage.getItem(STORAGE_META);
         const obj = raw ? JSON.parse(raw) : {};
         return { client: String(obj.client || ''), receipt: String(obj.receipt || '') };
-      } catch {
-        return { client: '', receipt: '' };
-      }
+      } catch { return { client: '', receipt: '' }; }
     }
     function saveMeta() {
       localStorage.setItem(STORAGE_META, JSON.stringify({ client: clientNameInput.value.trim(), receipt: receiptNameInput.value.trim() }));
       updateExportNamePreview();
     }
-    function slugifyName(v) {
-      return String(v || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zA-Z0-9_-]+/g, '_').replace(/^_+|_+$/g, '').replace(/_+/g, '_');
-    }
+    function slugifyName(v) { return String(v || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zA-Z0-9_-]+/g, '_').replace(/^_+|_+$/g, '').replace(/_+/g, '_'); }
     function buildExportFileName() {
       const date = new Date().toISOString().slice(0, 10);
       const client = slugifyName(clientNameInput.value.trim());
@@ -429,17 +401,39 @@
       if (mode === 'ko') statusEl.classList.add('ko');
       statusTextEl.textContent = text;
     }
+
+    function playBeep(type = 'ok') {
+      try {
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        if (!Ctx) return;
+        if (!audioCtx) audioCtx = new Ctx();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const scheduleBeep = (freq, startOffset, duration) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.value = freq;
+          const t0 = audioCtx.currentTime + startOffset;
+          gain.gain.setValueAtTime(0.0001, t0);
+          gain.gain.exponentialRampToValueAtTime(0.18, t0 + 0.01);
+          gain.gain.exponentialRampToValueAtTime(0.0001, t0 + duration);
+          osc.connect(gain); gain.connect(audioCtx.destination); osc.start(t0); osc.stop(t0 + duration + 0.02);
+        };
+        if (type === 'ok') scheduleBeep(1046, 0, 0.16); else { scheduleBeep(740, 0, 0.12); scheduleBeep(740, 0.18, 0.12); }
+      } catch (_) {}
+    }
+
     function getLastEntry() { return scanned.length ? scanned[0] : null; }
     function syncOverlayComment() {
       const last = getLastEntry();
       overlayCommentInput.value = last ? (last.notes || '') : '';
       overlayCommentInput.disabled = !last;
     }
-    function setOverlay(state, sn = '', source = '', notes = '', entry = null) {
+    function setOverlay(state, entry = null) {
       overlayEl.className = 'overlay show ' + (state === 'ok' ? 'ok' : 'ko');
       overlayTitleEl.textContent = state === 'ok' ? 'OK' : 'A CONTRÔLER';
-      overlaySubEl.textContent = buildOverlaySub(entry || { source, notes });
-      overlaySNEl.textContent = sn || '';
+      overlaySubEl.textContent = buildOverlaySub(entry);
+      overlaySNEl.textContent = entry ? entry.sn : '';
       syncOverlayComment();
       setTimeout(() => { if (overlayEl.classList.contains('show')) overlayCommentInput.focus(); }, 50);
     }
@@ -490,54 +484,78 @@
           <div><div class="k">Notes</div><input type="text" data-note-id="${r.id}" value="${escapeHtml(r.notes || '')}" placeholder="Ajouter une note" /></div>
           <div style="display:flex; align-items:center; justify-content:flex-end; gap:8px;"><button class="btn-neutral" data-delete-id="${r.id}" style="min-height:42px; padding:10px 12px;">Annuler</button></div>
         </div>`).join('');
-      historyListEl.querySelectorAll('[data-delete-id]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const id = btn.getAttribute('data-delete-id');
-          scanned = scanned.filter(x => String(x.id) !== String(id));
-          saveScanned(); updateCounters(); renderHistory();
-        });
-      });
-      historyListEl.querySelectorAll('[data-note-id]').forEach(input => {
-        input.addEventListener('change', () => {
-          const id = input.getAttribute('data-note-id');
-          const row = scanned.find(x => String(x.id) === String(id));
-          if (row) { row.notes = input.value.trim(); saveScanned(); syncOverlayComment(); }
-        });
-      });
+      historyListEl.querySelectorAll('[data-delete-id]').forEach(btn => btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-delete-id');
+        scanned = scanned.filter(x => String(x.id) !== String(id));
+        saveScanned(); updateCounters(); renderHistory();
+        setStatus('Scan supprimé.', 'ok');
+      }));
+      historyListEl.querySelectorAll('[data-note-id]').forEach(input => input.addEventListener('change', () => {
+        const id = input.getAttribute('data-note-id');
+        const row = scanned.find(x => String(x.id) === String(id));
+        if (row) { row.notes = input.value.trim(); saveScanned(); if (overlayEl.classList.contains('show') && getLastEntry() && getLastEntry().id === row.id) overlaySubEl.textContent = buildOverlaySub(row); }
+      }));
     }
 
+    function detectColumnIndexes(headerRow) {
+      const headers = (Array.isArray(headerRow) ? headerRow : []).map(v => String(v || '').trim().toUpperCase());
+      const findOne = names => names.map(n => headers.indexOf(n)).find(i => i >= 0) ?? -1;
+      const snIdx = findOne(['NS BATTERIE','NS','NS (V)','SN','SN (V)','SERIAL','SERIALNUMBER','NUMERO DE SERIE','N° SERIE']);
+      const dateIdx = findOne(['HEURE DE DÉBUT','HEURE DE DEBUT','DATE','DATE CONTROLE','DATE DE CONTROLE','DATE DE CONTRÔLE']);
+      return { snIdx: snIdx >= 0 ? snIdx : 5, dateIdx: dateIdx >= 0 ? dateIdx : 1 };
+    }
+    function mergeControlRecord(map, key, record) {
+      const current = map.get(key);
+      if (!current) { map.set(key, record); return; }
+      const curTime = current.controlDate instanceof Date ? current.controlDate.getTime() : -1;
+      const newTime = record.controlDate instanceof Date ? record.controlDate.getTime() : -1;
+      if (newTime > curTime) map.set(key, record);
+    }
     function extractSNFromDelimitedLine(line) {
       const cols = String(line || '').split(/[,;\t]/);
-      return displaySN(cols[5] !== undefined ? cols[5] : '');
+      return {
+        rawSN: displaySN(cols[5] !== undefined ? cols[5] : (cols[2] !== undefined ? cols[2] : '')),
+        rawControlDate: String(cols[1] !== undefined ? cols[1] : (cols[0] !== undefined ? cols[0] : '')).trim()
+      };
     }
+
     async function parseFileToKnownMap(file, sourceName) {
       const map = new Map();
       const ext = (file.name.split('.').pop() || '').toLowerCase();
       if (ext === 'txt' || ext === 'csv') {
-        const text = await file.text();
-        String(text || '').split(/\r?\n/).forEach((line, idx) => {
-          const raw = extractSNFromDelimitedLine(line);
+        const textFile = await file.text();
+        String(textFile || '').split(/\r?\n/).forEach((line, idx) => {
+          const parsed = extractSNFromDelimitedLine(line);
+          const raw = parsed.rawSN;
           const key = canonicalSN(raw);
           if (!key) return;
-          if (idx === 0 && ['SN','SERIAL','SERIALNUMBER','NUMERO DE SERIE','N° SERIE'].includes(key)) return;
-          if (!map.has(key)) map.set(key, { source: sourceName, display: raw || key });
+          if (idx === 0 && ['SN','SERIAL','SERIALNUMBER','NUMERO DE SERIE','N° SERIE','NS BATTERIE','NS'].includes(key)) return;
+          const controlDate = parseControlDate(parsed.rawControlDate);
+          mergeControlRecord(map, key, { source: sourceName, display: raw || key, controlDate, controlDateText: parsed.rawControlDate || (controlDate ? formatControlDate(controlDate) : '') });
         });
         return map;
       }
       const buffer = await file.arrayBuffer();
       const wb = XLSX.read(buffer, { type: 'array' });
-      const ws = wb.Sheets[wb.SheetNames[0]];
-      const rows = XLSX.utils.sheet_to_json(ws, { header: 1, raw: false, defval: '' });
-      rows.forEach((row, idx) => {
-        if (!Array.isArray(row)) return;
-        const raw = displaySN(row[5]);
-        const key = canonicalSN(raw);
-        if (!key) return;
-        if (idx === 0 && ['SN','SERIAL','SERIALNUMBER','NUMERO DE SERIE','N° SERIE'].includes(key)) return;
-        if (!map.has(key)) map.set(key, { source: sourceName, display: raw || key });
-      });
+      for (const sheetName of wb.SheetNames) {
+        const ws = wb.Sheets[sheetName];
+        const rows = XLSX.utils.sheet_to_json(ws, { header: 1, raw: false, defval: '' });
+        if (!rows.length) continue;
+        const cols = detectColumnIndexes(rows[0]);
+        rows.forEach((row, idx) => {
+          if (!Array.isArray(row)) return;
+          const raw = displaySN(row[cols.snIdx]);
+          const key = canonicalSN(raw);
+          if (!key) return;
+          if (idx === 0 && ['SN','SERIAL','SERIALNUMBER','NUMERO DE SERIE','N° SERIE','NS BATTERIE','NS'].includes(key)) return;
+          const rawControlDate = String(row[cols.dateIdx] || '').trim();
+          const controlDate = parseControlDate(rawControlDate);
+          mergeControlRecord(map, key, { source: sourceName, display: raw || key, controlDate, controlDateText: rawControlDate || (controlDate ? formatControlDate(controlDate) : '') });
+        });
+      }
       return map;
     }
+
     async function handleRefFile(file, sourceName) {
       if (!file) return;
       try {
@@ -579,7 +597,7 @@
       saveScanned(); updateCounters(); renderHistory();
       barcodeInput.value = ''; notesInput.value = '';
       if (fromScan) playBeep(entry.status === 'OK' ? 'ok' : 'ko');
-      setOverlay(entry.status === 'OK' ? 'ok' : 'ko', entry.sn, entry.source, note, entry);
+      setOverlay(entry.status === 'OK' ? 'ok' : 'ko', entry);
       setStatus((fromScan ? 'Scan enregistré : ' : 'Saisie enregistrée : ') + entry.sn + ' — ' + entry.motif, entry.status === 'OK' ? 'ok' : 'ko');
     }
 
@@ -589,11 +607,10 @@
       last.notes = value.trim();
       saveScanned();
       renderHistory();
-      if (overlayEl.classList.contains('show')) {
-        overlaySubEl.textContent = buildOverlaySub(last);
-      }
+      if (overlayEl.classList.contains('show')) overlaySubEl.textContent = buildOverlaySub(last);
     }
     function applyRAS(target) {
+      if (!target) return;
       target.value = 'RAS';
       target.dispatchEvent(new Event('input', { bubbles: true }));
       target.dispatchEvent(new Event('change', { bubbles: true }));
@@ -602,21 +619,28 @@
     function undoLast() {
       if (!scanned.length) return;
       scanned.shift();
-      saveScanned(); updateCounters(); renderHistory();
+      saveScanned(); updateCounters(); renderHistory(); clearOverlay();
       setStatus('Dernier scan annulé.', 'ok');
     }
     function flushScanned() {
       if (!confirm('Vider la base scannée ?')) return;
-      scanned = []; saveScanned(); updateCounters(); renderHistory(); clearOverlay(); setStatus('Base scannée vidée.', 'ok');
+      scanned = [];
+      saveScanned(); updateCounters(); renderHistory(); clearOverlay();
+      setStatus('Base scannée vidée.', 'ok');
     }
     function clearReferences() {
       if (!confirm('Décharger les références BJONG / Batteries ?')) return;
-      knownMap = new Map(); bjongLoaded = false; batteryLoaded = false; updateSourceTags(); setStatus('Références déchargées.', 'ok');
+      knownMap = new Map();
+      bjongLoaded = false; batteryLoaded = false;
+      if (fileBjong) fileBjong.value = '';
+      if (fileBattery) fileBattery.value = '';
+      updateSourceTags();
+      setStatus('Références déchargées.', 'ok');
     }
 
     function exportCsvBlob() {
-      const header = ['SN référence', 'Barcode réel scanné', 'Saisi / scanné', 'Statut', 'Source', 'Date', 'Notes'];
-      const rows = scanned.map(r => [r.sn, r.realScanned || r.scannedInput || '', r.scannedInput || r.realScanned || '', r.status, r.source, r.date, r.notes].map(escapeCsv).join(';'));
+      const header = ['SN référence','Barcode réel scanné','Saisi / scanné','Statut','Motif','Date contrôle','Âge contrôle (jours)','Seuil (jours)','Source','Date scan','Notes'];
+      const rows = scanned.map(r => [r.sn, r.realScanned || r.scannedInput || '', r.scannedInput || r.realScanned || '', r.status, r.motif || '', r.controlDateText || '', r.controlAgeDays !== null && r.controlAgeDays !== undefined ? r.controlAgeDays : '', r.thresholdDays || controlThresholdDays, r.source, r.date, r.notes].map(escapeCsv).join(';'));
       const content = [header.map(escapeCsv).join(';'), ...rows].join('\n');
       return new Blob(['\uFEFF' + content], { type: 'text/csv;charset=utf-8' });
     }
@@ -634,7 +658,7 @@
       const file = new File([blob], buildExportFileName(), { type: 'text/csv;charset=utf-8' });
       try {
         if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-          await navigator.share({ title: 'Bon de réception - retours location', text: 'Export des SN scannés', files: [file] });
+          await navigator.share({ title: 'Contrôle périodique', text: 'Export des SN scannés', files: [file] });
           setStatus('Partage lancé.', 'ok');
           return;
         }
@@ -675,8 +699,9 @@
       const track = getActiveVideoTrack();
       if (!track) { if (attempt < 12) setTimeout(() => syncTorchAvailability(attempt + 1), 180); return; }
       let supported = false;
-      try { if (typeof track.getCapabilities === 'function') { const caps = track.getCapabilities() || {}; supported = !!caps.torch; } } catch (_) {}
-      torchCapable = supported; if (!supported) torchEnabled = false; btnTorch.disabled = !started || !torchCapable; btnTorch.textContent = torchEnabled ? 'Torche ON' : 'Torche';
+      try { if (typeof track.getCapabilities === 'function') supported = !!(track.getCapabilities() || {}).torch; } catch (_) {}
+      torchCapable = supported; if (!supported) torchEnabled = false;
+      btnTorch.disabled = !started || !torchCapable; btnTorch.textContent = torchEnabled ? 'Torche ON' : 'Torche';
     }
     async function toggleTorch() {
       const track = getActiveVideoTrack();
@@ -685,9 +710,8 @@
       try {
         await track.applyConstraints({ advanced: [{ torch: next }] });
         torchEnabled = next; btnTorch.textContent = torchEnabled ? 'Torche ON' : 'Torche';
-        setStatus(torchEnabled ? 'Torche activée.' : 'Torche désactivée.', torchEnabled ? 'ok' : 'scan');
-      } catch (error) {
-        console.error(error); torchEnabled = false; btnTorch.textContent = 'Torche'; setStatus('Impossible d\'activer la torche.', 'ko');
+      } catch (e) {
+        console.error(e); torchEnabled = false; btnTorch.textContent = 'Torche'; setStatus('Impossible d\'activer la torche.', 'ko');
       }
     }
     function stopScanner() {
@@ -710,8 +734,13 @@
         await loadQuagga(); setStatus('Scanner actif…', 'scan');
         await new Promise((resolve, reject) => {
           window.Quagga.init({
-            inputStream: { name: 'Live', type: 'LiveStream', target: scannerEl, constraints: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 }, aspectRatio: { ideal: 0.75 }, frameRate: { ideal: 30, max: 60 } }, area: { top: '43%', right: '5%', left: '5%', bottom: '43%' }, singleChannel: false },
-            locator: { patchSize: 'medium', halfSample: true }, numOfWorkers: 2, frequency: 20, locate: false, decoder: { readers: ['code_128_reader'], multiple: false }
+            inputStream: {
+              name: 'Live', type: 'LiveStream', target: scannerEl,
+              constraints: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 }, aspectRatio: { ideal: 0.75 }, frameRate: { ideal: 30, max: 60 } },
+              area: { top: '43%', right: '5%', left: '5%', bottom: '43%' }, singleChannel: false
+            },
+            locator: { patchSize: 'medium', halfSample: true }, numOfWorkers: 2, frequency: 20, locate: false,
+            decoder: { readers: ['code_128_reader'], multiple: false }
           }, err => err ? reject(err) : resolve());
         });
         onDetectedHandler = data => {
@@ -748,6 +777,7 @@
     btnTorch.addEventListener('click', toggleTorch);
     btnValidateManual.addEventListener('click', () => { clearOverlay(); addEntry(barcodeInput.value, false); });
     btnRasMain.addEventListener('click', () => applyRAS(notesInput));
+    overlayRasBtn.addEventListener('click', () => applyRAS(overlayCommentInput));
     btnApplyThreshold.addEventListener('click', () => {
       controlThresholdDays = Math.max(1, parseInt(controlThresholdInput.value, 10) || 300);
       controlThresholdInput.value = String(controlThresholdDays);
@@ -755,7 +785,6 @@
       renderHistory();
     });
     controlThresholdInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); btnApplyThreshold.click(); } });
-    overlayRasBtn.addEventListener('click', () => applyRAS(overlayCommentInput));
     barcodeInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); clearOverlay(); addEntry(barcodeInput.value, false); } });
     notesInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); clearOverlay(); addEntry(barcodeInput.value, false); } });
     overlayCommentInput.addEventListener('input', () => { updateLastScanComment(overlayCommentInput.value); });
