@@ -5,695 +5,665 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <title>Retour location - Scan BJONG + Batteries</title>
+  <title>Contrôle SN &lt; 300 jours</title>
   <style>
-    :root {
-      --bg: #0b1220;
-      --card: rgba(17, 24, 39, 0.92);
-      --line: rgba(148, 163, 184, 0.18);
-      --text: #f8fafc;
-      --muted: #cbd5e1;
-      --accent: #38bdf8;
-      --ok: #22c55e;
-      --ko: #ef4444;
-      --warn: #f59e0b;
-      --shadow: 0 14px 34px rgba(0, 0, 0, 0.28);
-      --radius: 18px;
+    :root{
+      --bg:#0b1220; --panel:#111a2b; --panel2:#17233a; --txt:#eef4ff; --muted:#9fb0cf;
+      --ok:#0f9d58; --ok2:#0a7e46; --ko:#c62828; --ko2:#9f1f1f; --warn:#d98e04; --line:#24324f;
+      --accent:#3b82f6;
     }
-    * { box-sizing: border-box; }
-    html, body { margin: 0; padding: 0; background: linear-gradient(180deg,#09101c 0%,#0b1220 100%); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
-    body { min-height: 100vh; }
-    .wrap { max-width: 1180px; margin: 0 auto; padding: max(14px, env(safe-area-inset-top)) 14px calc(16px + env(safe-area-inset-bottom)); }
-    .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 14px; margin-bottom: 14px; backdrop-filter: blur(8px); }
-    .title { margin: 0 0 6px; font-size: 1.45rem; font-weight: 800; line-height: 1.2; }
-    .subtitle { margin: 0; color: var(--muted); line-height: 1.45; font-size: .96rem; }
-    .pillbar { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-    .pill { padding: 6px 10px; border-radius: 999px; border: 1px solid rgba(56,189,248,.16); background: rgba(56,189,248,.1); color: #bae6fd; font-size: .82rem; font-weight: 700; }
-    .grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: 14px; }
-    @media (max-width: 960px) { .grid { grid-template-columns: 1fr; } }
-    .filegrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    @media (max-width: 720px) { .filegrid { grid-template-columns: 1fr; } }
-    .filebox { border-radius: 16px; border: 1px solid var(--line); background: rgba(15,23,42,.86); padding: 12px; }
-    .video-wrap { position: relative; overflow: hidden; border-radius: 16px; border: 1px solid var(--line); background: #000; aspect-ratio: 3/4; }
-    #scanner, #scanner video { width: 100%; height: 100%; display: block; object-fit: cover; background: #000; }
-    #scanner canvas, #scanner video { position: absolute; inset: 0; }
-    .guide { position: absolute; inset: 0; pointer-events: none; }
-    .guide::before { content: ''; position: absolute; left: 5%; right: 5%; top: 43%; height: 14%; border-radius: 14px; border: 3px solid rgba(56,189,248,.96); box-shadow: 0 0 0 9999px rgba(0,0,0,.18) inset; }
-    .guide::after { content: 'Place le code dans la bande bleue, bien horizontal'; position: absolute; left: 0; right: 0; top: 60%; text-align: center; color: #e2e8f0; font-size: .92rem; font-weight: 700; text-shadow: 0 2px 8px rgba(0,0,0,.7); padding: 0 10px; }
-    .status { margin-top: 12px; min-height: 44px; display: flex; align-items: center; gap: 10px; border-radius: 14px; border: 1px solid var(--line); background: rgba(15,23,42,.86); padding: 10px 12px; color: var(--muted); line-height: 1.35; }
-    .dot { width: 10px; height: 10px; border-radius: 999px; background: var(--warn); flex: 0 0 auto; }
-    .status.scan .dot { background: var(--accent); animation: pulse 1.1s infinite; }
-    .status.ok .dot { background: var(--ok); }
-    .status.ko .dot { background: var(--ko); }
-    @keyframes pulse { 0%{transform:scale(1);opacity:1} 50%{transform:scale(1.35);opacity:.65} 100%{transform:scale(1);opacity:1} }
-    .btnrow, .btnrow2, .btnrow3 { display: grid; gap: 10px; margin-top: 12px; }
-    .btnrow { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    .btnrow2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .btnrow3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    @media (max-width: 700px) { .btnrow, .btnrow2, .btnrow3 { grid-template-columns: 1fr; } }
-    button { min-height: 50px; border: 0; border-radius: 14px; font-size: .98rem; font-weight: 760; cursor: pointer; padding: 13px 12px; }
-    button:disabled { opacity: .55; cursor: not-allowed; }
-    .btn-primary { background: linear-gradient(180deg,#38bdf8 0%,#0ea5e9 100%); color: #082f49; }
-    .btn-secondary { background: #334155; color: #f8fafc; }
-    .btn-torch { background: linear-gradient(180deg,#fbbf24 0%,#f59e0b 100%); color: #422006; }
-    .btn-danger { background: linear-gradient(180deg,#f87171 0%,#ef4444 100%); color: #450a0a; }
-    .btn-success { background: linear-gradient(180deg,#4ade80 0%,#22c55e 100%); color: #052e16; }
-    .btn-neutral { background: #1e293b; color: #e2e8f0; }
-    .btn-ras { background: linear-gradient(180deg,#e2e8f0 0%,#cbd5e1 100%); color: #0f172a; }
-    .field { margin-top: 12px; }
-    label { display: block; margin-bottom: 8px; font-size: .92rem; font-weight: 700; }
-    input[type='text'], input[type='file'] { width: 100%; border-radius: 14px; border: 1px solid var(--line); background: rgba(15,23,42,.86); color: var(--text); padding: 14px; font-size: 16px; min-height: 50px; }
-    .input-row { display: grid; grid-template-columns: 1fr auto; gap: 10px; }
-    @media (max-width: 520px) { .input-row { grid-template-columns: 1fr; } }
-    .note, .small { color: var(--muted); font-size: .9rem; line-height: 1.4; }
-    .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
-    @media (max-width: 760px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-    .stat { border-radius: 16px; border: 1px solid var(--line); background: rgba(15,23,42,.86); padding: 12px; }
-    .stat.ok { background: rgba(34,197,94,.12); }
-    .stat.ko { background: rgba(239,68,68,.12); }
-    .k { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin-bottom: 4px; }
-    .v { font-size: 1.6rem; font-weight: 800; }
-    .search-row { display: grid; grid-template-columns: 1fr 280px; gap: 10px; align-items: center; }
-    @media (max-width: 760px) { .search-row { grid-template-columns: 1fr; } }
-    .history-list { display: grid; gap: 10px; margin-top: 12px; }
-    .history-item { border-radius: 16px; border: 1px solid var(--line); padding: 12px; display: grid; grid-template-columns: 1fr 1fr .85fr .85fr 1fr auto; gap: 10px; }
-    .history-item.ok { background: rgba(34,197,94,.14); }
-    .history-item.ko { background: rgba(239,68,68,.16); }
-    @media (max-width: 980px) { .history-item { grid-template-columns: 1fr; } }
-    .empty { border-radius: 16px; border: 1px dashed rgba(148,163,184,.25); background: rgba(15,23,42,.62); color: var(--muted); padding: 24px; text-align: center; margin-top: 12px; }
-    .tag { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; border: 1px solid var(--line); padding: 5px 9px; font-size: .78rem; font-weight: 700; background: rgba(15,23,42,.72); color: var(--text); }
-    .tag.ok { background: rgba(34,197,94,.14); color: #bbf7d0; }
-    .tag.neutral { color: #cbd5e1; }
-    .overlay { position: fixed; inset: 0; z-index: 999; display: none; align-items: center; justify-content: center; text-align: center; padding: 24px; pointer-events: none; }
-    .overlay.show { display: flex; }
-    .overlay.ok { background: rgba(34,197,94,.80); }
-    .overlay.ko { background: rgba(239,68,68,.84); }
-    .overlay-box { max-width: 860px; color: white; text-shadow: 0 4px 12px rgba(0,0,0,.4); width: 100%; }
-    .overlay-title { font-size: clamp(3rem,10vw,7rem); font-weight: 900; line-height: 1; margin: 0 0 10px; }
-    .overlay-sub { font-size: clamp(1rem,2.6vw,1.6rem); font-weight: 700; margin: 0; }
-    .overlay-sn { font-size: clamp(1.2rem,3vw,2rem); font-weight: 800; margin-top: 10px; word-break: break-all; }
-    .overlay-comment-wrap { margin: 18px auto 0; max-width: 720px; text-align: left; pointer-events: auto; }
-    .overlay-comment-label { display: block; margin-bottom: 8px; font-size: .95rem; font-weight: 800; color: white; }
-    .overlay-comment { width: 100%; min-height: 56px; border-radius: 16px; border: 0; padding: 14px 16px; font-size: 16px; background: rgba(255,255,255,.96); color: #0f172a; box-shadow: 0 10px 26px rgba(0,0,0,.18); }
-    .overlay-actions { margin-top: 18px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; pointer-events: auto; }
-    .overlay button { box-shadow: 0 8px 18px rgba(0,0,0,.22); }
-    @media (max-width: 700px) { .overlay-actions { grid-template-columns: 1fr; } }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+    body{min-height:100vh}
+    .wrap{max-width:980px;margin:0 auto;padding:14px 14px 120px}
+    h1{margin:0 0 8px;font-size:1.45rem}
+    .sub{color:var(--muted);font-size:.95rem;margin-bottom:12px}
+    .grid{display:grid;grid-template-columns:1fr;gap:12px}
+    @media (min-width:900px){.grid{grid-template-columns:1.05fr .95fr}}
+    .card{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,.18)}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .row>*{min-width:0}
+    .grow{flex:1 1 220px}
+    label{display:block;font-size:.88rem;color:var(--muted);margin-bottom:6px}
+    input[type="text"], input[type="file"]{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:#0c1526;color:var(--txt)}
+    input::placeholder{color:#7f93b6}
+    .btn{appearance:none;border:none;border-radius:12px;padding:12px 14px;background:#1f2c47;color:var(--txt);font-weight:700;cursor:pointer}
+    .btn:hover{filter:brightness(1.08)}
+    .btn:disabled{opacity:.5;cursor:not-allowed}
+    .btn.primary{background:var(--accent)}
+    .btn.ok{background:var(--ok)}
+    .btn.ko{background:var(--ko)}
+    .btn.warn{background:var(--warn); color:#111}
+    .status{margin-top:10px;padding:10px 12px;border-radius:12px;background:#0c1526;border:1px solid var(--line);font-size:.95rem}
+    .status.ok{border-color:#1f7a47;background:rgba(15,157,88,.13)}
+    .status.ko{border-color:#7d2323;background:rgba(198,40,40,.14)}
+    .status.info{border-color:#35507d;background:rgba(59,130,246,.12)}
+    .hero{position:relative;overflow:hidden;border-radius:18px;aspect-ratio:16/10;background:#050a12;border:1px solid var(--line)}
+    video{width:100%;height:100%;object-fit:cover;background:#000}
+    .hero-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+    .meta .pill{padding:10px 12px;border-radius:12px;background:#0c1526;border:1px solid var(--line)}
+    .pill b{display:block;font-size:1.15rem;margin-top:2px}
+    .overlay{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(6,10,18,.72);backdrop-filter:blur(2px);z-index:50}
+    .overlay.show{display:flex}
+    .overlay-card{width:min(96vw,760px);min-height:52vh;border-radius:24px;padding:18px;display:flex;flex-direction:column;justify-content:space-between;border:2px solid rgba(255,255,255,.12);box-shadow:0 18px 40px rgba(0,0,0,.35)}
+    .overlay-card.ok{background:linear-gradient(180deg,#109d59,#0c7d47)}
+    .overlay-card.ko{background:linear-gradient(180deg,#d23434,#9f2323)}
+    .overlay-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+    .overlay-badge{font-size:1.1rem;font-weight:900;letter-spacing:.04em;background:rgba(255,255,255,.16);padding:8px 12px;border-radius:999px}
+    .overlay-sn{font-size:clamp(2rem,7vw,4rem);font-weight:900;line-height:1.02;word-break:break-word;margin:12px 0}
+    .overlay-info{font-size:clamp(1.05rem,2.4vw,1.25rem);line-height:1.4}
+    .overlay-note{margin-top:14px}
+    .overlay-note input{background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.24)}
+    .overlay-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:16px}
+    .overlay-actions .btn{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.24)}
+    .overlay-actions .btn.primary{background:#fff;color:#12233d}
+    .history{margin-top:10px;display:flex;flex-direction:column;gap:8px;max-height:380px;overflow:auto}
+    .item{border:1px solid var(--line);background:#0c1526;border-radius:14px;padding:10px 12px}
+    .item.ok{border-color:#1f7a47}
+    .item.ko{border-color:#7d2323}
+    .item-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+    .item-sn{font-weight:900;font-size:1.1rem}
+    .item small,.muted{color:var(--muted)}
+    .toolbar{display:flex;gap:8px;flex-wrap:wrap}
+    .footerbar{position:fixed;left:0;right:0;bottom:0;padding:10px 12px;background:rgba(11,18,32,.94);backdrop-filter:blur(8px);border-top:1px solid var(--line);z-index:40}
+    .footerbar .inner{max-width:980px;margin:0 auto;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+    code{background:#0c1526;padding:2px 6px;border-radius:8px}
   </style>
 </head>
 <body>
-  <div id="resultOverlay" class="overlay" aria-hidden="true">
-    <div class="overlay-box">
-      <div id="overlayTitle" class="overlay-title">PRÊT</div>
-      <p id="overlaySub" class="overlay-sub">Le résultat du dernier scan reste affiché jusqu'au prochain scan.</p>
-      <div id="overlaySN" class="overlay-sn"></div>
-      <div class="overlay-comment-wrap">
-        <label for="overlayCommentInput" class="overlay-comment-label">Commentaire rapide</label>
-        <input id="overlayCommentInput" class="overlay-comment" type="text" placeholder="Ajouter un commentaire pour ce SN (état, câble, choc, manquant, etc.)" />
-      </div>
-      <div class="overlay-actions">
-        <button id="overlayNextBtn" class="btn-primary">Scanner suivant</button>
-        <button id="overlayRasBtn" class="btn-ras">RAS</button>
-        <button id="overlayUndoBtn" class="btn-neutral">Annuler ce scan</button>
-      </div>
-    </div>
-  </div>
-
   <div class="wrap">
-    <div class="card">
-      <h1 class="title">Retour location - Scan BJONG - Batteries</h1>
-      <p class="subtitle">Scanner les barcodes - Vert: contrôle simple - Rouge: contrôle complet.</p>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="filegrid">
-        <div class="filebox">
-          <label for="fileBjong">Charger fichier BJONG</label>
-          <input id="fileBjong" type="file" accept=".csv,.txt,.xlsx,.xls" />
-          <div class="small">Lecture des SN en colonne F. Correspondance tolérante avec ou sans "V" initial.</div>
-        </div>
-        <div class="filebox">
-          <label for="fileBattery">Charger fichier Batteries</label>
-          <input id="fileBattery" type="file" accept=".csv,.txt,.xlsx,.xls" />
-          <div class="small">Lecture des SN en colonne F. Exemple : <strong>V12345</strong> et <strong>12345</strong> sont considérés identiques.</div>
-        </div>
-      </div>
-      <div class="pillbar">
-        <span id="tagBjong" class="tag neutral">BJONG non chargé</span>
-        <span id="tagBattery" class="tag neutral">Batteries non chargé</span>
-        <span class="tag neutral">SN connus : <strong id="knownCount" style="margin-left:4px;">0</strong></span>
-      </div>
-    </div>
-
-    <div class="card">
-      <h2 class="title" style="font-size:1.15rem;">Informations d'export</h2>
-      <p class="subtitle">Ces champs servent à nommer le fichier exporté / partagé.</p>
-      <div class="filegrid" style="margin-top:12px;">
-        <div class="filebox">
-          <label for="clientNameInput">Client</label>
-          <input id="clientNameInput" type="text" placeholder="Nom du client" />
-        </div>
-        <div class="filebox">
-          <label for="receiptNameInput">Bon de réception</label>
-          <input id="receiptNameInput" type="text" placeholder="Ex. BR-2026-041" />
-        </div>
-      </div>
-      <div class="small" style="margin-top:10px;">Nom généré : <strong id="exportNamePreview">retours_location_YYYY-MM-DD.csv</strong></div>
-    </div>
+    <h1>Contrôle SN &lt; 300 jours</h1>
+    <div class="sub">Scan Code 128, lecture des fichiers de contrôle, affichage vert/rouge selon date de contrôle &le; / &gt; 300 jours.</div>
 
     <div class="grid">
-      <div class="card">
-        <div class="video-wrap">
-          <div id="scanner"></div>
-          <div class="guide"></div>
+      <section class="card">
+        <div class="row">
+          <div class="grow">
+            <label for="controlFiles">Fichiers de contrôle (Excel / CSV / TXT)</label>
+            <input id="controlFiles" type="file" accept=".xlsx,.xls,.csv,.txt" multiple />
+          </div>
         </div>
-        <div id="status" class="status">
-          <span class="dot"></span>
-          <span id="statusText">Prêt. Charge les références puis appuie sur « Autoriser & scanner ».</span>
+        <div class="row" style="margin-top:10px">
+          <div class="grow">
+            <label for="clientName">Client</label>
+            <input id="clientName" type="text" placeholder="Ex : Métropole X" />
+          </div>
+          <div class="grow">
+            <label for="receiptName">Bon de réception</label>
+            <input id="receiptName" type="text" placeholder="Ex : BR-2026-041" />
+          </div>
         </div>
-        <div class="btnrow">
-          <button id="btnStart" class="btn-primary">Autoriser & scanner</button>
-          <button id="btnStop" class="btn-secondary" disabled>Arrêter</button>
-          <button id="btnTorch" class="btn-torch" disabled>Torche</button>
+        <div class="row" style="margin-top:10px">
+          <div class="grow">
+            <label for="manualInput">Saisie manuelle SN</label>
+            <input id="manualInput" type="text" placeholder="Scanner ou saisir un SN" autocomplete="off" autocapitalize="off" spellcheck="false" />
+          </div>
+          <button id="btnManualAdd" class="btn primary">Valider</button>
         </div>
-        <div class="btnrow2">
-          <button id="btnNext" class="btn-secondary">Scanner suivant</button>
-          <button id="btnUndoLast" class="btn-neutral">Annuler dernier scan</button>
+        <div class="row" style="margin-top:10px">
+          <button id="btnLoadFiles" class="btn">Charger fichiers</button>
+          <button id="btnExport" class="btn ok">Exporter CSV</button>
+          <button id="btnClearHistory" class="btn ko">Vider historique</button>
         </div>
-        <div class="note">Simple bip vert / double bip rouge. Le bouton <strong>RAS</strong> remplit automatiquement le commentaire.</div>
-      </div>
+        <div id="statusBox" class="status info">Charge les fichiers de contrôle puis lance le scan.</div>
+        <div class="meta" style="margin-top:12px">
+          <div class="pill"><span class="muted">Références chargées</span><b id="countKnown">0</b></div>
+          <div class="pill"><span class="muted">Scans enregistrés</span><b id="countScanned">0</b></div>
+        </div>
+        <div style="margin-top:10px" class="muted">
+          Colonnes attendues : <code>B</code> = date contrôle, <code>F</code> = SN.<br>
+          Format date attendu : <code>20/01/2026  15:20:46</code>.
+        </div>
+      </section>
 
-      <div class="card">
-        <div class="field">
-          <label for="barcodeInput">Barcode</label>
-          <div class="input-row">
-            <input id="barcodeInput" type="text" autocomplete="off" spellcheck="false" placeholder="Scanner ou saisir le SN" />
-            <button id="btnValidateManual" class="btn-success">Valider manuel</button>
-          </div>
+      <section class="card">
+        <div class="hero">
+          <video id="video" playsinline muted></video>
         </div>
-        <div class="field">
-          <label for="notesInput">Notes</label>
-          <div class="input-row">
-            <input id="notesInput" type="text" placeholder="Commentaire sur le SN scanné (état, câble, choc, manquant, etc.)" />
-            <button id="btnRasMain" class="btn-ras">RAS</button>
-          </div>
+        <div class="hero-actions">
+          <button id="btnStart" class="btn primary">Démarrer scan</button>
+          <button id="btnStop" class="btn">Stop</button>
+          <button id="btnTorch" class="btn warn" disabled>Torche</button>
         </div>
-        <div class="stats">
-          <div class="stat"><div class="k">Total scans</div><div id="countTotal" class="v">0</div></div>
-          <div class="stat ok"><div class="k">OK</div><div id="countOK" class="v">0</div></div>
-          <div class="stat ko"><div class="k">À contrôler</div><div id="countKO" class="v">0</div></div>
-          <div class="stat"><div class="k">Prêt export</div><div id="countExport" class="v">0</div></div>
+        <div class="status info" style="margin-top:10px">
+          Conseil : rapproche-toi, stabilise 0,5 s, évite les reflets, et centre le Code 128 dans l’image.
         </div>
-        <div class="btnrow2">
-          <button id="btnExport" class="btn-secondary">Exporter CSV</button>
-          <button id="btnShare" class="btn-secondary">Partager</button>
-        </div>
-        <div class="btnrow2">
-          <button id="btnFlush" class="btn-danger">Flush base scannée</button>
-          <button id="btnClearRefs" class="btn-neutral">Vider références</button>
-        </div>
-        <div class="small">Le flush ne vide que la liste scannée. « Vider références » décharge les fichiers BJONG / Batteries.</div>
-      </div>
+      </section>
     </div>
 
-    <div class="card">
-      <div class="search-row">
-        <div>
-          <h2 class="title" style="font-size:1.15rem; margin-bottom:4px;">Archivage des scans</h2>
-          <p class="subtitle">Archive complète avec le SN de référence et le barcode réel scanné / saisi.</p>
+    <section class="card" style="margin-top:12px">
+      <div class="row" style="justify-content:space-between;align-items:center">
+        <h2 style="margin:0;font-size:1.1rem">Historique</h2>
+        <div class="toolbar">
+          <button id="btnUndo" class="btn">Annuler dernier</button>
         </div>
-        <input id="searchInput" type="text" placeholder="Rechercher SN, barcode réel, source, note, date..." />
       </div>
-      <div id="historyList" class="history-list"></div>
+      <div id="history" class="history"></div>
+    </section>
+  </div>
+
+  <div id="overlay" class="overlay" aria-hidden="true">
+    <div id="overlayCard" class="overlay-card ok">
+      <div>
+        <div class="overlay-top">
+          <div class="overlay-badge" id="overlayBadge">OK</div>
+          <div id="overlayWhen" class="overlay-badge"></div>
+        </div>
+        <div id="overlaySN" class="overlay-sn">SN</div>
+        <div id="overlayInfo" class="overlay-info">Informations</div>
+        <div class="overlay-note">
+          <label for="overlayNotes" style="color:#fff">Commentaire</label>
+          <input id="overlayNotes" type="text" placeholder="Ajouter un commentaire" />
+        </div>
+      </div>
+      <div class="overlay-actions">
+        <button id="btnRAS" class="btn">RAS</button>
+        <button id="btnSaveNote" class="btn primary">Valider commentaire</button>
+        <button id="btnCancelLast" class="btn">Annuler ce scan</button>
+        <button id="btnNextScan" class="btn">Scanner suivant</button>
+      </div>
     </div>
   </div>
 
+  <div class="footerbar">
+    <div class="inner">
+      <div class="muted">App locale HTML autonome. Données et historique stockés dans le navigateur.</div>
+      <div class="muted">Vert = contrôle &le; 300 j • Rouge = contrôle &gt; 300 j ou invalide</div>
+    </div>
+  </div>
+
+  https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.5/umd/zxing-browser.min.js
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script>
-    const STORAGE_SCANNED = 'retourloc_scanned_v6';
-    const STORAGE_META = 'retourloc_export_meta_v1';
+    const STORAGE_HISTORY = 'sn_control_history_v1';
+    const STORAGE_CLIENT = 'sn_control_client_v1';
+    const STORAGE_RECEIPT = 'sn_control_receipt_v1';
+    const MAX_AGE_DAYS = 300;
 
-    const scannerEl = document.getElementById('scanner');
-    const statusEl = document.getElementById('status');
-    const statusTextEl = document.getElementById('statusText');
-    const btnStart = document.getElementById('btnStart');
-    const btnStop = document.getElementById('btnStop');
-    const btnTorch = document.getElementById('btnTorch');
-    const btnNext = document.getElementById('btnNext');
-    const btnUndoLast = document.getElementById('btnUndoLast');
-    const btnValidateManual = document.getElementById('btnValidateManual');
-    const btnExport = document.getElementById('btnExport');
-    const btnShare = document.getElementById('btnShare');
-    const btnFlush = document.getElementById('btnFlush');
-    const btnClearRefs = document.getElementById('btnClearRefs');
-    const btnRasMain = document.getElementById('btnRasMain');
-    const overlayNextBtn = document.getElementById('overlayNextBtn');
-    const overlayUndoBtn = document.getElementById('overlayUndoBtn');
-    const overlayRasBtn = document.getElementById('overlayRasBtn');
-    const overlayCommentInput = document.getElementById('overlayCommentInput');
-    const barcodeInput = document.getElementById('barcodeInput');
-    const notesInput = document.getElementById('notesInput');
-    const fileBjong = document.getElementById('fileBjong');
-    const fileBattery = document.getElementById('fileBattery');
-    const tagBjong = document.getElementById('tagBjong');
-    const tagBattery = document.getElementById('tagBattery');
-    const knownCountEl = document.getElementById('knownCount');
-    const countTotalEl = document.getElementById('countTotal');
-    const countOKEl = document.getElementById('countOK');
-    const countKOEl = document.getElementById('countKO');
-    const countExportEl = document.getElementById('countExport');
-    const historyListEl = document.getElementById('historyList');
-    const searchInput = document.getElementById('searchInput');
-    const overlayEl = document.getElementById('resultOverlay');
-    const overlayTitleEl = document.getElementById('overlayTitle');
-    const overlaySubEl = document.getElementById('overlaySub');
-    const overlaySNEl = document.getElementById('overlaySN');
-    const clientNameInput = document.getElementById('clientNameInput');
-    const receiptNameInput = document.getElementById('receiptNameInput');
-    const exportNamePreview = document.getElementById('exportNamePreview');
+    const els = {
+      controlFiles: document.getElementById('controlFiles'),
+      clientName: document.getElementById('clientName'),
+      receiptName: document.getElementById('receiptName'),
+      manualInput: document.getElementById('manualInput'),
+      btnManualAdd: document.getElementById('btnManualAdd'),
+      btnLoadFiles: document.getElementById('btnLoadFiles'),
+      btnExport: document.getElementById('btnExport'),
+      btnClearHistory: document.getElementById('btnClearHistory'),
+      btnUndo: document.getElementById('btnUndo'),
+      statusBox: document.getElementById('statusBox'),
+      countKnown: document.getElementById('countKnown'),
+      countScanned: document.getElementById('countScanned'),
+      video: document.getElementById('video'),
+      btnStart: document.getElementById('btnStart'),
+      btnStop: document.getElementById('btnStop'),
+      btnTorch: document.getElementById('btnTorch'),
+      history: document.getElementById('history'),
+      overlay: document.getElementById('overlay'),
+      overlayCard: document.getElementById('overlayCard'),
+      overlayBadge: document.getElementById('overlayBadge'),
+      overlayWhen: document.getElementById('overlayWhen'),
+      overlaySN: document.getElementById('overlaySN'),
+      overlayInfo: document.getElementById('overlayInfo'),
+      overlayNotes: document.getElementById('overlayNotes'),
+      btnRAS: document.getElementById('btnRAS'),
+      btnSaveNote: document.getElementById('btnSaveNote'),
+      btnCancelLast: document.getElementById('btnCancelLast'),
+      btnNextScan: document.getElementById('btnNextScan')
+    };
 
     let knownMap = new Map();
-    let scanned = loadScanned();
-    let bjongLoaded = false;
-    let batteryLoaded = false;
-    let permissionPrimed = false;
-    let engineLoaded = false;
-    let activePrimeStream = null;
-    let started = false;
-    let onDetectedHandler = null;
-    let onProcessedHandler = null;
-    let torchEnabled = false;
-    let torchCapable = false;
-    let lastDetected = '';
-    let lastDetectedAt = 0;
-    let audioCtx = null;
+    let scanned = loadHistory();
+    let reader = null;
+    let controls = null;
+    let stream = null;
+    let lastScanAt = 0;
+    let torchOn = false;
+    let currentTrack = null;
+    let isScannerPaused = false;
+    let lastEntryId = null;
 
-    function normalize(v) { return String(v || '').trim().toUpperCase().replace(/\s+/g, ''); }
-    function canonicalSN(v) { const s = normalize(v); return s.replace(/^V(?=.+)/, ''); }
-    function displaySN(v) { return normalize(v); }
-    function escapeHtml(v) { return String(v ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\"/g, '&quot;').replace(/'/g, '&#039;'); }
-    function escapeCsv(v) { return '"' + String(v ?? '').replace(/"/g, '""') + '"'; }
-
-    function playBeep(type = 'ok') {
-      try {
-        const Ctx = window.AudioContext || window.webkitAudioContext;
-        if (!Ctx) return;
-        if (!audioCtx) audioCtx = new Ctx();
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        const scheduleBeep = (freq, startOffset, duration) => {
-          const osc = audioCtx.createOscillator();
-          const gain = audioCtx.createGain();
-          osc.type = 'sine';
-          osc.frequency.value = freq;
-          const t0 = audioCtx.currentTime + startOffset;
-          gain.gain.setValueAtTime(0.0001, t0);
-          gain.gain.exponentialRampToValueAtTime(0.18, t0 + 0.01);
-          gain.gain.exponentialRampToValueAtTime(0.0001, t0 + duration);
-          osc.connect(gain);
-          gain.connect(audioCtx.destination);
-          osc.start(t0);
-          osc.stop(t0 + duration + 0.02);
-        };
-        if (type === 'ok') {
-          scheduleBeep(1046, 0, 0.16);
-        } else {
-          scheduleBeep(740, 0, 0.12);
-          scheduleBeep(740, 0.18, 0.12);
-        }
-      } catch (_) {}
+    function setStatus(msg, kind='info') {
+      els.statusBox.className = 'status ' + kind;
+      els.statusBox.textContent = msg;
     }
 
-    function loadMeta() {
-      try {
-        const raw = localStorage.getItem(STORAGE_META);
-        const obj = raw ? JSON.parse(raw) : {};
-        return { client: String(obj.client || ''), receipt: String(obj.receipt || '') };
-      } catch {
-        return { client: '', receipt: '' };
+    function normalizeSpaces(s) {
+      return String(s || '').replace(/\s+/g, ' ').trim();
+    }
+
+    function canonicalSN(raw) {
+      let s = normalizeSpaces(raw).toUpperCase().replace(/[^A-Z0-9]/g, '');
+      if (!s) return '';
+      if (s.startsWith('V') && s.length > 1) s = s.slice(1);
+      return s;
+    }
+
+    function displaySN(raw) {
+      return normalizeSpaces(raw).toUpperCase();
+    }
+
+    function parseFrenchControlDate(value) {
+      if (value === null || value === undefined) return null;
+      const s = String(value).trim();
+      if (!s) return null;
+      const m = s.match(/^(\d{2})\/(\d{2})\/(\d{4})(?:\s+(\d{2}):(\d{2})(?::(\d{2}))?)?$/);
+      if (m) {
+        const dd = Number(m[1]);
+        const mm = Number(m[2]);
+        const yyyy = Number(m[3]);
+        const hh = Number(m[4] || 0);
+        const mi = Number(m[5] || 0);
+        const ss = Number(m[6] || 0);
+        const d = new Date(yyyy, mm - 1, dd, hh, mi, ss);
+        return Number.isNaN(d.getTime()) ? null : d;
       }
+      const n = Number(s);
+      if (!Number.isNaN(n) && n > 30000 && n < 60000) {
+        const excelEpoch = new Date(Date.UTC(1899, 11, 30));
+        const d = new Date(excelEpoch.getTime() + n * 86400000);
+        return Number.isNaN(d.getTime()) ? null : d;
+      }
+      const d = new Date(s);
+      return Number.isNaN(d.getTime()) ? null : d;
     }
-    function saveMeta() {
-      localStorage.setItem(STORAGE_META, JSON.stringify({ client: clientNameInput.value.trim(), receipt: receiptNameInput.value.trim() }));
-      updateExportNamePreview();
-    }
-    function slugifyName(v) {
-      return String(v || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zA-Z0-9_-]+/g, '_').replace(/^_+|_+$/g, '').replace(/_+/g, '_');
-    }
-    function buildExportFileName() {
-      const date = new Date().toISOString().slice(0, 10);
-      const client = slugifyName(clientNameInput.value.trim());
-      const receipt = slugifyName(receiptNameInput.value.trim());
-      const parts = ['retours_location'];
-      if (client) parts.push(client);
-      if (receipt) parts.push(receipt);
-      parts.push(date);
-      return parts.join('_') + '.csv';
-    }
-    function updateExportNamePreview() { exportNamePreview.textContent = buildExportFileName(); }
 
-    function loadScanned() {
+    function daysSince(dateObj) {
+      if (!dateObj) return null;
+      const now = new Date();
+      const ms = now.getTime() - dateObj.getTime();
+      return Math.floor(ms / 86400000);
+    }
+
+    function formatDate(dateObj) {
+      if (!dateObj || Number.isNaN(dateObj.getTime())) return '';
+      return dateObj.toLocaleString('fr-FR');
+    }
+
+    function escapeCsv(v) {
+      const s = String(v ?? '');
+      return '"' + s.replace(/"/g, '""') + '"';
+    }
+
+    function loadHistory() {
       try {
-        const raw = localStorage.getItem(STORAGE_SCANNED);
-        const arr = raw ? JSON.parse(raw) : [];
-        return Array.isArray(arr) ? arr : [];
+        const raw = localStorage.getItem(STORAGE_HISTORY);
+        return raw ? JSON.parse(raw) : [];
       } catch { return []; }
     }
-    function saveScanned() { localStorage.setItem(STORAGE_SCANNED, JSON.stringify(scanned)); }
 
-    function setStatus(text, mode = 'idle') {
-      statusEl.className = 'status';
-      if (mode === 'scan') statusEl.classList.add('scan');
-      if (mode === 'ok') statusEl.classList.add('ok');
-      if (mode === 'ko') statusEl.classList.add('ko');
-      statusTextEl.textContent = text;
-    }
-    function getLastEntry() { return scanned.length ? scanned[0] : null; }
-    function syncOverlayComment() {
-      const last = getLastEntry();
-      overlayCommentInput.value = last ? (last.notes || '') : '';
-      overlayCommentInput.disabled = !last;
-    }
-    function setOverlay(state, sn = '', source = '', notes = '') {
-      overlayEl.className = 'overlay show ' + (state === 'ok' ? 'ok' : 'ko');
-      overlayTitleEl.textContent = state === 'ok' ? 'OK' : 'A CONTRÔLER';
-      overlaySubEl.textContent = source ? ('Source : ' + source + (notes ? ' • Note : ' + notes : '')) : 'Le résultat reste affiché jusqu’au prochain scan.';
-      overlaySNEl.textContent = sn || '';
-      syncOverlayComment();
-      setTimeout(() => { if (overlayEl.classList.contains('show')) overlayCommentInput.focus(); }, 50);
-    }
-    function clearOverlay() {
-      overlayEl.className = 'overlay';
-      overlayTitleEl.textContent = 'PRÊT';
-      overlaySubEl.textContent = 'Le résultat du dernier scan reste affiché jusqu\'au prochain scan.';
-      overlaySNEl.textContent = '';
-      overlayCommentInput.value = '';
+    function saveHistory() {
+      localStorage.setItem(STORAGE_HISTORY, JSON.stringify(scanned));
+      updateCounts();
+      renderHistory();
     }
 
-    function updateSourceTags() {
-      tagBjong.className = 'tag ' + (bjongLoaded ? 'ok' : 'neutral');
-      tagBattery.className = 'tag ' + (batteryLoaded ? 'ok' : 'neutral');
-      tagBjong.textContent = bjongLoaded ? 'BJONG chargé' : 'BJONG non chargé';
-      tagBattery.textContent = batteryLoaded ? 'Batteries chargées' : 'Batteries non chargées';
-      knownCountEl.textContent = String(knownMap.size);
-    }
-    function updateCounters() {
-      const ok = scanned.filter(x => x.status === 'OK').length;
-      const ko = scanned.filter(x => x.status === 'A CONTRÔLER').length;
-      countTotalEl.textContent = String(scanned.length);
-      countOKEl.textContent = String(ok);
-      countKOEl.textContent = String(ko);
-      countExportEl.textContent = String(scanned.length);
-      btnExport.disabled = scanned.length === 0;
-      btnShare.disabled = scanned.length === 0;
-      btnFlush.disabled = scanned.length === 0;
-      btnUndoLast.disabled = scanned.length === 0;
-      overlayUndoBtn.disabled = scanned.length === 0;
-      syncOverlayComment();
+    function updateCounts() {
+      els.countKnown.textContent = String(knownMap.size);
+      els.countScanned.textContent = String(scanned.length);
     }
 
     function renderHistory() {
-      const q = searchInput.value.trim().toLowerCase();
-      const filtered = !q ? scanned : scanned.filter(r => [r.sn, r.realScanned, r.status, r.source, r.date, r.notes].some(v => String(v || '').toLowerCase().includes(q)));
-      if (!filtered.length) {
-        historyListEl.innerHTML = '<div class="empty">Aucun scan archivé.</div>';
+      if (!scanned.length) {
+        els.history.innerHTML = '<div class="muted">Aucun scan enregistré.</div>';
         return;
       }
-      historyListEl.innerHTML = filtered.map(r => `
-        <div class="history-item ${r.status === 'OK' ? 'ok' : 'ko'}">
-          <div><div class="k">SN référence</div><div style="font-weight:800; word-break:break-all;">${escapeHtml(r.sn)}</div><div class="small">${escapeHtml(r.date)}</div></div>
-          <div><div class="k">Barcode réel</div><div style="font-weight:700; word-break:break-all;">${escapeHtml(r.realScanned || r.scannedInput || '')}</div></div>
-          <div><div class="k">Statut</div><div>${escapeHtml(r.status)}</div></div>
-          <div><div class="k">Source</div><div>${escapeHtml(r.source)}</div></div>
-          <div><div class="k">Notes</div><input type="text" data-note-id="${r.id}" value="${escapeHtml(r.notes || '')}" placeholder="Ajouter une note" /></div></div>
-          <div style="display:flex; align-items:center; justify-content:flex-end; gap:8px;"><button class="btn-neutral" data-delete-id="${r.id}" style="min-height:42px; padding:10px 12px;">Annuler</button></div>
-        </div>`).join('');
-      historyListEl.querySelectorAll('[data-delete-id]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const id = btn.getAttribute('data-delete-id');
-          scanned = scanned.filter(x => String(x.id) !== String(id));
-          saveScanned(); updateCounters(); renderHistory();
-        });
-      });
-      historyListEl.querySelectorAll('[data-note-id]').forEach(input => {
-        input.addEventListener('change', () => {
-          const id = input.getAttribute('data-note-id');
-          const row = scanned.find(x => String(x.id) === String(id));
-          if (row) { row.notes = input.value.trim(); saveScanned(); syncOverlayComment(); }
-        });
-      });
+      els.history.innerHTML = scanned.map(item => {
+        const cls = item.status === 'OK' ? 'ok' : 'ko';
+        const ageTxt = item.ageDays === '' || item.ageDays === null || item.ageDays === undefined ? 'n/a' : item.ageDays + ' j';
+        return `
+          <div class="item ${cls}">
+            <div class="item-top">
+              <div>
+                <div class="item-sn">${escapeHtml(item.snDisplay || item.scannedRaw || '')}</div>
+                <small>Scan réel : ${escapeHtml(item.scannedRaw || '')}</small>
+              </div>
+              <div><b>${escapeHtml(item.status || '')}</b></div>
+            </div>
+            <div class="muted" style="margin-top:6px">Source : ${escapeHtml(item.source || 'INCONNU')} • Contrôle : ${escapeHtml(item.controlDateText || 'absent')} • Âge : ${escapeHtml(String(ageTxt))}</div>
+            <div class="muted" style="margin-top:4px">Motif : ${escapeHtml(item.reason || '')}</div>
+            ${item.notes ? `<div style="margin-top:6px">Note : ${escapeHtml(item.notes)}</div>` : ''}
+            <small>${escapeHtml(item.scanDateText || '')}</small>
+          </div>`;
+      }).join('');
     }
 
-    function extractSNFromDelimitedLine(line) {
-      const cols = String(line || '').split(/[,;\t]/);
-      return displaySN(cols[5] !== undefined ? cols[5] : '');
+    function escapeHtml(s) {
+      return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     }
-    async function parseFileToKnownMap(file, sourceName) {
-      const map = new Map();
+
+    async function loadControlFiles() {
+      const files = Array.from(els.controlFiles.files || []);
+      if (!files.length) {
+        setStatus('Aucun fichier sélectionné.', 'ko');
+        return;
+      }
+      const merged = new Map();
+      let added = 0;
+      for (const file of files) {
+        const rows = await readRowsFromFile(file);
+        for (let i = 0; i < rows.length; i++) {
+          const row = rows[i];
+          if (!Array.isArray(row)) continue;
+          const snRaw = row[5] !== undefined ? String(row[5]).trim() : '';
+          const controlRaw = row[1] !== undefined ? String(row[1]).trim() : '';
+          const key = canonicalSN(snRaw);
+          if (!key) continue;
+          if (i === 0) {
+            const head = canonicalSN(snRaw);
+            if (['SN','SERIAL','SERIALNUMBER','NUMERODESERIE','NSERIE'].includes(head)) continue;
+          }
+          if (!merged.has(key)) {
+            const dt = parseFrenchControlDate(controlRaw);
+            merged.set(key, {
+              key,
+              snDisplay: displaySN(snRaw) || key,
+              source: file.name,
+              controlDate: dt,
+              controlDateText: dt ? formatDate(dt) : normalizeSpaces(controlRaw)
+            });
+            added++;
+          }
+        }
+      }
+      knownMap = merged;
+      updateCounts();
+      setStatus(`${added} référence(s) chargée(s) depuis ${files.length} fichier(s).`, 'ok');
+    }
+
+    async function readRowsFromFile(file) {
       const ext = (file.name.split('.').pop() || '').toLowerCase();
-      if (ext === 'txt' || ext === 'csv') {
+      if (ext === 'csv' || ext === 'txt') {
         const text = await file.text();
-        String(text || '').split(/\r?\n/).forEach((line, idx) => {
-          const raw = extractSNFromDelimitedLine(line);
-          const key = canonicalSN(raw);
-          if (!key) return;
-          if (idx === 0 && ['SN','SERIAL','SERIALNUMBER','NUMERO DE SERIE','N° SERIE'].includes(key)) return;
-          if (!map.has(key)) map.set(key, { source: sourceName, display: raw || key });
-        });
-        return map;
+        return String(text || '').split(/\r?
+/).map(line => splitDelimitedLine(line));
       }
-      const buffer = await file.arrayBuffer();
-      const wb = XLSX.read(buffer, { type: 'array' });
+      const buf = await file.arrayBuffer();
+      const wb = XLSX.read(buf, { type: 'array', cellDates: false });
       const ws = wb.Sheets[wb.SheetNames[0]];
-      const rows = XLSX.utils.sheet_to_json(ws, { header: 1, raw: false, defval: '' });
-      rows.forEach((row, idx) => {
-        if (!Array.isArray(row)) return;
-        const raw = displaySN(row[5]);
-        const key = canonicalSN(raw);
-        if (!key) return;
-        if (idx === 0 && ['SN','SERIAL','SERIALNUMBER','NUMERO DE SERIE','N° SERIE'].includes(key)) return;
-        if (!map.has(key)) map.set(key, { source: sourceName, display: raw || key });
-      });
-      return map;
+      return XLSX.utils.sheet_to_json(ws, { header: 1, raw: false, defval: '' });
     }
-    async function handleRefFile(file, sourceName) {
-      if (!file) return;
+
+    function splitDelimitedLine(line) {
+      const s = String(line || '');
+      if (s.includes(';')) return s.split(';');
+      if (s.includes('\t')) return s.split('\t');
+      return s.split(',');
+    }
+
+    function playBeep(kind) {
       try {
-        const parsed = await parseFileToKnownMap(file, sourceName);
-        parsed.forEach((meta, canonical) => knownMap.set(canonical, meta));
-        if (sourceName === 'BJONG') bjongLoaded = true;
-        if (sourceName === 'BATTERIE') batteryLoaded = true;
-        updateSourceTags();
-        setStatus(sourceName + ' chargé (' + parsed.size + ' SN).', 'ok');
-      } catch (error) {
-        console.error(error);
-        setStatus('Erreur de lecture du fichier ' + sourceName + '.', 'ko');
-      }
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const sequence = kind === 'ok' ? [880] : [440, 440];
+        let t = ctx.currentTime;
+        sequence.forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine'; osc.frequency.value = freq;
+          gain.gain.setValueAtTime(0.001, t);
+          gain.gain.exponentialRampToValueAtTime(0.15, t + 0.01);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.13);
+          osc.connect(gain); gain.connect(ctx.destination);
+          osc.start(t); osc.stop(t + 0.14);
+          t += idx === sequence.length - 1 ? 0.14 : 0.18;
+        });
+      } catch {}
     }
 
-    function addEntry(snRaw, fromScan) {
-      const scannedDisplay = displaySN(snRaw);
+    function openOverlay(entry) {
+      const isOk = entry.status === 'OK';
+      els.overlayCard.className = 'overlay-card ' + (isOk ? 'ok' : 'ko');
+      els.overlayBadge.textContent = isOk ? 'OK' : 'A CONTRÔLER';
+      els.overlayWhen.textContent = entry.scanDateText || '';
+      els.overlaySN.textContent = entry.snDisplay || entry.scannedRaw || '';
+      const ageTxt = entry.ageDays === null || entry.ageDays === '' || entry.ageDays === undefined ? 'n/a' : entry.ageDays + ' j';
+      els.overlayInfo.innerHTML = `Source : <b>${escapeHtml(entry.source || 'INCONNU')}</b><br>Contrôle : <b>${escapeHtml(entry.controlDateText || 'absent')}</b><br>Âge : <b>${escapeHtml(String(ageTxt))}</b><br>Motif : <b>${escapeHtml(entry.reason || '')}</b>`;
+      els.overlayNotes.value = entry.notes || '';
+      els.overlay.classList.add('show');
+      els.overlay.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeOverlay() {
+      els.overlay.classList.remove('show');
+      els.overlay.setAttribute('aria-hidden', 'true');
+    }
+
+    function buildEntry(snRaw) {
+      const now = new Date();
       const key = canonicalSN(snRaw);
-      if (!key) { setStatus('SN vide.', 'ko'); return; }
       const ref = knownMap.get(key) || null;
-      const source = ref ? ref.source : 'INCONNU';
-      const status = ref ? 'OK' : 'A CONTRÔLER';
-      const note = notesInput.value.trim();
-      const entry = { id: Date.now() + Math.random(), sn: ref ? ref.display : scannedDisplay, realScanned: scannedDisplay, scannedInput: scannedDisplay, canonical: key, status, source, date: new Date().toLocaleString('fr-FR'), notes: note };
-      scanned.unshift(entry);
-      saveScanned(); updateCounters(); renderHistory();
-      barcodeInput.value = ''; notesInput.value = '';
-      if (fromScan) playBeep(status === 'OK' ? 'ok' : 'ko');
-      setOverlay(status === 'OK' ? 'ok' : 'ko', entry.sn, source, note);
-      setStatus((fromScan ? 'Scan enregistré : ' : 'Saisie enregistrée : ') + entry.sn, status === 'OK' ? 'ok' : 'ko');
+      let status = 'A CONTRÔLER';
+      let reason = 'SN inconnu';
+      let controlDate = null;
+      let controlDateText = '';
+      let source = 'INCONNU';
+      let snDisplay = displaySN(snRaw) || key;
+      if (ref) {
+        source = ref.source || 'INCONNU';
+        controlDate = ref.controlDate || null;
+        controlDateText = ref.controlDateText || '';
+        snDisplay = ref.snDisplay || snDisplay;
+        const age = daysSince(controlDate);
+        if (!controlDate) {
+          reason = 'Date contrôle absente ou invalide';
+        } else if (age > MAX_AGE_DAYS) {
+          reason = `Contrôle expiré : ${age} jours`;
+        } else if (age < 0) {
+          status = 'OK';
+          reason = `Date future / incohérente : ${age} jours`;
+        } else {
+          status = 'OK';
+          reason = `Contrôle valide : ${age} jours`;
+        }
+      }
+      const ageDays = controlDate ? daysSince(controlDate) : null;
+      return {
+        id: String(Date.now()) + '_' + Math.random().toString(36).slice(2),
+        canonical: key,
+        scannedRaw: displaySN(snRaw),
+        snDisplay,
+        status,
+        reason,
+        source,
+        controlDateText,
+        ageDays,
+        notes: '',
+        scanDateText: now.toLocaleString('fr-FR')
+      };
     }
 
-    function updateLastScanComment(value) {
-      const last = getLastEntry();
-      if (!last) return;
-      last.notes = value.trim();
-      saveScanned();
-      renderHistory();
-      if (overlayEl.classList.contains('show')) {
-        overlaySubEl.textContent = last.source ? ('Source : ' + last.source + (last.notes ? ' • Note : ' + last.notes : '')) : 'Le résultat reste affiché jusqu’au prochain scan.';
+    function commitScan(snRaw, openResult=true) {
+      const key = canonicalSN(snRaw);
+      if (!key) {
+        setStatus('SN vide ou invalide.', 'ko');
+        return;
+      }
+      const nowTs = Date.now();
+      if (nowTs - lastScanAt < 1200) return;
+      lastScanAt = nowTs;
+      const entry = buildEntry(snRaw);
+      scanned.unshift(entry);
+      lastEntryId = entry.id;
+      saveHistory();
+      openOverlay(entry);
+      setStatus((entry.status === 'OK' ? 'OK' : 'A contrôler') + ' : ' + entry.snDisplay, entry.status === 'OK' ? 'ok' : 'ko');
+      playBeep(entry.status === 'OK' ? 'ok' : 'ko');
+      isScannerPaused = true;
+      if (openResult) stopScan(false);
+    }
+
+    async function startScan() {
+      if (!window.ZXingBrowser) {
+        setStatus('Librairie scanner indisponible.', 'ko');
+        return;
+      }
+      try {
+        await stopScan(true);
+        reader = new ZXingBrowser.BrowserMultiFormatReader();
+        const constraints = {
+          audio: false,
+          video: {
+            facingMode: { ideal: 'environment' },
+            width: { ideal: 1920 },
+            height: { ideal: 1080 }
+          }
+        };
+        stream = await navigator.mediaDevices.getUserMedia(constraints);
+        els.video.srcObject = stream;
+        currentTrack = stream.getVideoTracks()[0] || null;
+        await els.video.play();
+        updateTorchAvailability();
+        controls = reader.decodeFromVideoElementContinuously(els.video, (result) => {
+          if (isScannerPaused) return;
+          if (result && result.text) {
+            const text = String(result.text || '').trim();
+            commitScan(text, true);
+          }
+        });
+        isScannerPaused = false;
+        setStatus('Scanner démarré.', 'ok');
+      } catch (e) {
+        console.error(e);
+        setStatus('Impossible de démarrer la caméra / le scan.', 'ko');
       }
     }
-    function applyRAS(target) {
-      target.value = 'RAS';
-      target.dispatchEvent(new Event('input', { bubbles: true }));
-      target.dispatchEvent(new Event('change', { bubbles: true }));
-      target.focus();
+
+    async function stopScan(resetPause=true) {
+      try { if (controls && typeof controls.stop === 'function') controls.stop(); } catch {}
+      controls = null;
+      try { if (reader && typeof reader.reset === 'function') reader.reset(); } catch {}
+      reader = null;
+      if (stream) {
+        for (const tr of stream.getTracks()) tr.stop();
+      }
+      stream = null;
+      currentTrack = null;
+      els.video.srcObject = null;
+      els.btnTorch.disabled = true;
+      torchOn = false;
+      if (resetPause) isScannerPaused = false;
     }
-    function undoLast() {
+
+    async function updateTorchAvailability() {
+      try {
+        if (!currentTrack) { els.btnTorch.disabled = true; return; }
+        const caps = currentTrack.getCapabilities ? currentTrack.getCapabilities() : {};
+        els.btnTorch.disabled = !(caps && caps.torch);
+      } catch {
+        els.btnTorch.disabled = true;
+      }
+    }
+
+    async function toggleTorch() {
+      if (!currentTrack) return;
+      try {
+        torchOn = !torchOn;
+        await currentTrack.applyConstraints({ advanced: [{ torch: torchOn }] });
+        els.btnTorch.textContent = torchOn ? 'Torche ON' : 'Torche';
+      } catch {
+        torchOn = false;
+        els.btnTorch.textContent = 'Torche';
+        setStatus('Torche non disponible sur cet appareil.', 'ko');
+      }
+    }
+
+    function updateLastEntryNotes(note) {
+      if (!lastEntryId) return;
+      const idx = scanned.findIndex(x => x.id === lastEntryId);
+      if (idx < 0) return;
+      scanned[idx].notes = note;
+      saveHistory();
+      openOverlay(scanned[idx]);
+    }
+
+    function cancelLastEntry() {
+      if (!lastEntryId) return;
+      const before = scanned.length;
+      scanned = scanned.filter(x => x.id !== lastEntryId);
+      if (scanned.length !== before) {
+        saveHistory();
+        setStatus('Dernier scan annulé.', 'info');
+      }
+      lastEntryId = null;
+      closeOverlay();
+    }
+
+    function nextScan() {
+      closeOverlay();
+      isScannerPaused = false;
+      startScan();
+    }
+
+    function exportCsv() {
+      const header = [
+        'Client','Bon de réception','SN référence','Barcode réel scanné','Statut','Source',
+        'Date contrôle','Âge contrôle (jours)','Motif','Date scan','Notes'
+      ];
+      const client = els.clientName.value.trim();
+      const receipt = els.receiptName.value.trim();
+      const rows = scanned.map(r => [
+        client, receipt, r.snDisplay || '', r.scannedRaw || '', r.status || '', r.source || '',
+        r.controlDateText || '', r.ageDays ?? '', r.reason || '', r.scanDateText || '', r.notes || ''
+      ].map(escapeCsv).join(';'));
+      const content = [header.map(escapeCsv).join(';'), ...rows].join('
+');
+      const blob = new Blob(['\uFEFF' + content], { type:'text/csv;charset=utf-8' });
+      const a = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      const parts = ['retour'];
+      if (client) parts.push(client.replace(/[^a-z0-9-_]+/gi,'_'));
+      if (receipt) parts.push(receipt.replace(/[^a-z0-9-_]+/gi,'_'));
+      parts.push(new Date().toISOString().slice(0,19).replace(/[:T]/g,'-'));
+      a.href = url;
+      a.download = parts.join('_') + '.csv';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function restoreForm() {
+      els.clientName.value = localStorage.getItem(STORAGE_CLIENT) || '';
+      els.receiptName.value = localStorage.getItem(STORAGE_RECEIPT) || '';
+    }
+
+    function persistForm() {
+      localStorage.setItem(STORAGE_CLIENT, els.clientName.value.trim());
+      localStorage.setItem(STORAGE_RECEIPT, els.receiptName.value.trim());
+    }
+
+    els.btnLoadFiles.addEventListener('click', loadControlFiles);
+    els.btnExport.addEventListener('click', exportCsv);
+    els.btnClearHistory.addEventListener('click', () => {
+      scanned = [];
+      lastEntryId = null;
+      saveHistory();
+      setStatus('Historique vidé.', 'info');
+    });
+    els.btnUndo.addEventListener('click', () => {
       if (!scanned.length) return;
       scanned.shift();
-      saveScanned(); updateCounters(); renderHistory();
-      setStatus('Dernier scan annulé.', 'ok');
-    }
-    function flushScanned() {
-      if (!confirm('Vider la base scannée ?')) return;
-      scanned = []; saveScanned(); updateCounters(); renderHistory(); clearOverlay(); setStatus('Base scannée vidée.', 'ok');
-    }
-    function clearReferences() {
-      if (!confirm('Décharger les références BJONG / Batteries ?')) return;
-      knownMap = new Map(); bjongLoaded = false; batteryLoaded = false; updateSourceTags(); setStatus('Références déchargées.', 'ok');
-    }
+      saveHistory();
+      setStatus('Dernière ligne supprimée.', 'info');
+    });
+    els.btnManualAdd.addEventListener('click', () => commitScan(els.manualInput.value.trim(), false));
+    els.manualInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') commitScan(els.manualInput.value.trim(), false);
+    });
+    els.btnStart.addEventListener('click', startScan);
+    els.btnStop.addEventListener('click', () => stopScan(true));
+    els.btnTorch.addEventListener('click', toggleTorch);
+    els.btnRAS.addEventListener('click', () => updateLastEntryNotes('RAS'));
+    els.btnSaveNote.addEventListener('click', () => updateLastEntryNotes(els.overlayNotes.value.trim()));
+    els.btnCancelLast.addEventListener('click', cancelLastEntry);
+    els.btnNextScan.addEventListener('click', nextScan);
+    els.clientName.addEventListener('input', persistForm);
+    els.receiptName.addEventListener('input', persistForm);
 
-    function exportCsvBlob() {
-      const header = ['SN référence', 'Barcode réel scanné', 'Saisi / scanné', 'Statut', 'Source', 'Date', 'Notes'];
-      const rows = scanned.map(r => [r.sn, r.realScanned || r.scannedInput || '', r.scannedInput || r.realScanned || '', r.status, r.source, r.date, r.notes].map(escapeCsv).join(';'));
-      const content = [header.map(escapeCsv).join(';'), ...rows].join('\n');
-      return new Blob(['\uFEFF' + content], { type: 'text/csv;charset=utf-8' });
-    }
-    function exportCsv() {
-      if (!scanned.length) return;
-      const blob = exportCsvBlob();
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob); a.download = buildExportFileName();
-      document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-      setStatus('CSV exporté.', 'ok');
-    }
-    async function shareCsv() {
-      if (!scanned.length) return;
-      const blob = exportCsvBlob();
-      const file = new File([blob], buildExportFileName(), { type: 'text/csv;charset=utf-8' });
-      try {
-        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-          await navigator.share({ title: 'Bon de réception - retours location', text: 'Export des SN scannés', files: [file] });
-          setStatus('Partage lancé.', 'ok');
-          return;
-        }
-      } catch (_) {}
-      exportCsv();
-    }
-
-    function stopPrimeStream() { try { if (activePrimeStream && activePrimeStream.getTracks) activePrimeStream.getTracks().forEach(t => t.stop()); } catch (_) {} activePrimeStream = null; }
-    async function primeCameraPermission() {
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error('API caméra non disponible sur ce navigateur.');
-      setStatus('Demande de permission caméra…', 'scan');
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 }, frameRate: { ideal: 30, max: 60 } } });
-      activePrimeStream = stream;
-      const video = document.createElement('video'); video.muted = true; video.playsInline = true; video.srcObject = stream;
-      await video.play().catch(() => null); await new Promise(resolve => setTimeout(resolve, 180)); stopPrimeStream(); permissionPrimed = true;
-    }
-    async function loadQuagga() {
-      if (engineLoaded && window.Quagga) return;
-      await new Promise((resolve, reject) => {
-        const existing = document.querySelector('script[data-quagga="1"]');
-        if (existing && window.Quagga) { engineLoaded = true; resolve(); return; }
-        const script = existing || document.createElement('script');
-        if (!existing) {
-          script.src = 'https://unpkg.com/@ericblade/quagga2@1.8.4/dist/quagga.min.js';
-          script.async = true; script.defer = true; script.dataset.quagga = '1'; document.head.appendChild(script);
-        }
-        script.onload = () => { engineLoaded = true; resolve(); };
-        script.onerror = () => reject(new Error('Impossible de charger Quagga2 (connexion Internet requise).'));
-      });
-    }
-    function getActiveVideoTrack() {
-      const video = scannerEl.querySelector('video');
-      if (!video || !video.srcObject || !video.srcObject.getVideoTracks) return null;
-      const tracks = video.srcObject.getVideoTracks();
-      return tracks && tracks.length ? tracks[0] : null;
-    }
-    function syncTorchAvailability(attempt = 0) {
-      const track = getActiveVideoTrack();
-      if (!track) { if (attempt < 12) setTimeout(() => syncTorchAvailability(attempt + 1), 180); return; }
-      let supported = false;
-      try { if (typeof track.getCapabilities === 'function') { const caps = track.getCapabilities() || {}; supported = !!caps.torch; } } catch (_) {}
-      torchCapable = supported; if (!supported) torchEnabled = false; btnTorch.disabled = !started || !torchCapable; btnTorch.textContent = torchEnabled ? 'Torche ON' : 'Torche';
-    }
-    async function toggleTorch() {
-      const track = getActiveVideoTrack();
-      if (!track || !torchCapable) { setStatus('Torche non disponible.', 'ko'); return; }
-      const next = !torchEnabled;
-      try {
-        await track.applyConstraints({ advanced: [{ torch: next }] });
-        torchEnabled = next; btnTorch.textContent = torchEnabled ? 'Torche ON' : 'Torche';
-        setStatus(torchEnabled ? 'Torche activée.' : 'Torche désactivée.', torchEnabled ? 'ok' : 'scan');
-      } catch (error) {
-        console.error(error); torchEnabled = false; btnTorch.textContent = 'Torche'; setStatus('Impossible d\'activer la torche.', 'ko');
-      }
-    }
-    function stopScanner() {
-      try { if (window.Quagga && onDetectedHandler) window.Quagga.offDetected(onDetectedHandler); } catch (_) {}
-      try { if (window.Quagga && onProcessedHandler) window.Quagga.offProcessed(onProcessedHandler); } catch (_) {}
-      onDetectedHandler = null; onProcessedHandler = null;
-      try { if (window.Quagga && started) window.Quagga.stop(); } catch (_) {}
-      started = false; torchEnabled = false; torchCapable = false; btnStop.disabled = true; btnTorch.disabled = true; btnTorch.textContent = 'Torche';
-      const video = scannerEl.querySelector('video');
-      try { if (video && video.srcObject && video.srcObject.getTracks) video.srcObject.getTracks().forEach(t => t.stop()); } catch (_) {}
-      scannerEl.innerHTML = ''; stopPrimeStream();
-    }
-    async function startScanner() {
-      clearOverlay();
-      if (started) return;
-      if (!window.isSecureContext && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') { setStatus('La caméra exige HTTPS ou localhost.', 'ko'); return; }
-      btnStart.disabled = true;
-      try {
-        if (!permissionPrimed) await primeCameraPermission();
-        await loadQuagga(); setStatus('Scanner actif…', 'scan');
-        await new Promise((resolve, reject) => {
-          window.Quagga.init({
-            inputStream: { name: 'Live', type: 'LiveStream', target: scannerEl, constraints: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 }, aspectRatio: { ideal: 0.75 }, frameRate: { ideal: 30, max: 60 } }, area: { top: '43%', right: '5%', left: '5%', bottom: '43%' }, singleChannel: false },
-            locator: { patchSize: 'medium', halfSample: true }, numOfWorkers: 2, frequency: 20, locate: false, decoder: { readers: ['code_128_reader'], multiple: false }
-          }, err => err ? reject(err) : resolve());
-        });
-        onDetectedHandler = data => {
-          const code = data && data.codeResult && data.codeResult.code ? String(data.codeResult.code).trim() : '';
-          if (!code) return;
-          const now = Date.now();
-          const canonical = canonicalSN(code);
-          if (canonical === lastDetected && (now - lastDetectedAt) < 1200) return;
-          lastDetected = canonical; lastDetectedAt = now; if (navigator.vibrate) navigator.vibrate(120);
-          barcodeInput.value = displaySN(code); addEntry(code, true); stopScanner();
-        };
-        onProcessedHandler = () => {
-          const overlay = scannerEl.querySelector('canvas.drawingBuffer'); if (overlay) overlay.style.opacity = '0';
-          const video = scannerEl.querySelector('video');
-          if (video) { video.setAttribute('playsinline', 'true'); video.style.objectFit = 'cover'; }
-          const track = video && video.srcObject && video.srcObject.getVideoTracks ? video.srcObject.getVideoTracks()[0] : null;
-          if (track && typeof track.applyConstraints === 'function') track.applyConstraints({ advanced: [{ focusMode: 'continuous' }] }).catch(() => {});
-          if (started && !torchCapable) syncTorchAvailability();
-        };
-        window.Quagga.onDetected(onDetectedHandler); window.Quagga.onProcessed(onProcessedHandler); window.Quagga.start();
-        started = true; btnStop.disabled = false; btnTorch.disabled = true; btnTorch.textContent = 'Torche'; syncTorchAvailability();
-      } catch (error) {
-        console.error(error); stopScanner(); setStatus(error.message || 'Erreur de démarrage du scanner.', 'ko');
-      } finally { btnStart.disabled = false; }
-    }
-    async function launchNextScan() { clearOverlay(); await startScanner(); }
-
-    fileBjong.addEventListener('change', async e => { await handleRefFile(e.target.files && e.target.files[0], 'BJONG'); });
-    fileBattery.addEventListener('change', async e => { await handleRefFile(e.target.files && e.target.files[0], 'BATTERIE'); });
-    btnStart.addEventListener('click', startScanner);
-    btnNext.addEventListener('click', launchNextScan);
-    overlayNextBtn.addEventListener('click', launchNextScan);
-    btnStop.addEventListener('click', () => { stopScanner(); setStatus('Scan arrêté.', 'ok'); });
-    btnTorch.addEventListener('click', toggleTorch);
-    btnValidateManual.addEventListener('click', () => { clearOverlay(); addEntry(barcodeInput.value, false); });
-    btnRasMain.addEventListener('click', () => applyRAS(notesInput));
-    overlayRasBtn.addEventListener('click', () => applyRAS(overlayCommentInput));
-    barcodeInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); clearOverlay(); addEntry(barcodeInput.value, false); } });
-    notesInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); clearOverlay(); addEntry(barcodeInput.value, false); } });
-    overlayCommentInput.addEventListener('input', () => { updateLastScanComment(overlayCommentInput.value); });
-    overlayCommentInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); launchNextScan(); } });
-    btnUndoLast.addEventListener('click', undoLast);
-    overlayUndoBtn.addEventListener('click', () => { undoLast(); clearOverlay(); });
-    btnExport.addEventListener('click', exportCsv);
-    btnShare.addEventListener('click', shareCsv);
-    btnFlush.addEventListener('click', flushScanned);
-    btnClearRefs.addEventListener('click', clearReferences);
-    searchInput.addEventListener('input', renderHistory);
-    clientNameInput.addEventListener('input', saveMeta);
-    receiptNameInput.addEventListener('input', saveMeta);
-    document.addEventListener('visibilitychange', () => { if (document.hidden) stopScanner(); });
-    window.addEventListener('beforeunload', stopScanner);
-
-    const loadedMeta = loadMeta();
-    clientNameInput.value = loadedMeta.client;
-    receiptNameInput.value = loadedMeta.receipt;
-    updateExportNamePreview();
-    updateSourceTags(); updateCounters(); renderHistory(); setStatus('Prêt. Charge BJONG / Batteries puis scanne.', 'ok');
+    restoreForm();
+    updateCounts();
+    renderHistory();
+    setStatus('App prête. Sélectionne les fichiers de contrôle, puis clique sur « Charger fichiers ».', 'info');
   </script>
 </body>
 </html>
