@@ -153,14 +153,6 @@
         <span id="tagBattery" class="tag neutral">Batteries non chargé</span>
         <span class="tag neutral">SN connus : <strong id="knownCount" style="margin-left:4px;">0</strong></span>
       </div>
-      <div class="field">
-        <label for="controlThresholdInput">Seuil validité contrôle (jours)</label>
-        <div class="input-row">
-          <input id="controlThresholdInput" type="text" inputmode="numeric" value="300" placeholder="Ex. 300" />
-          <button id="btnApplyThreshold" class="btn-secondary">Appliquer</button>
-        </div>
-        <div class="small">Si le dernier contrôle du SN date de plus de ce seuil, le scan passe en rouge.</div>
-      </div>
     </div>
 
     <div class="card">
@@ -345,50 +337,12 @@
     }
 
     function buildControlAssessment(ref) {
-      if (!ref) {
-        return {
-          status: 'A CONTRÔLER',
-          motif: 'SN inconnu dans les fichiers de contrôle',
-          controlDateText: '',
-          controlAgeDays: null,
-          source: 'INCONNU'
-        };
-      }
-      if (!ref.controlDate) {
-        return {
-          status: 'A CONTRÔLER',
-          motif: 'Date de contrôle absente',
-          controlDateText: ref.controlDateText || '',
-          controlAgeDays: null,
-          source: ref.source || 'INCONNU'
-        };
-      }
+      if (!ref) return { status: 'A CONTRÔLER', motif: 'SN inconnu dans les fichiers de contrôle', controlDateText: '', controlAgeDays: null, source: 'INCONNU' };
+      if (!ref.controlDate) return { status: 'A CONTRÔLER', motif: 'Date de contrôle absente', controlDateText: ref.controlDateText || '', controlAgeDays: null, source: ref.source || 'INCONNU' };
       const age = getControlAgeDays(ref.controlDate);
-      if (age === null) {
-        return {
-          status: 'A CONTRÔLER',
-          motif: 'Date de contrôle invalide',
-          controlDateText: ref.controlDateText || '',
-          controlAgeDays: null,
-          source: ref.source || 'INCONNU'
-        };
-      }
-      if (age > controlThresholdDays) {
-        return {
-          status: 'A CONTRÔLER',
-          motif: 'Contrôle expiré (' + age + ' jours > ' + controlThresholdDays + ')',
-          controlDateText: ref.controlDateText || formatControlDate(ref.controlDate),
-          controlAgeDays: age,
-          source: ref.source || 'INCONNU'
-        };
-      }
-      return {
-        status: 'OK',
-        motif: 'Contrôle valide (' + age + ' jours ≤ ' + controlThresholdDays + ')',
-        controlDateText: ref.controlDateText || formatControlDate(ref.controlDate),
-        controlAgeDays: age,
-        source: ref.source || 'INCONNU'
-      };
+      if (age === null) return { status: 'A CONTRÔLER', motif: 'Date de contrôle invalide', controlDateText: ref.controlDateText || '', controlAgeDays: null, source: ref.source || 'INCONNU' };
+      if (age > controlThresholdDays) return { status: 'A CONTRÔLER', motif: 'Contrôle expiré (' + age + ' jours > ' + controlThresholdDays + ')', controlDateText: ref.controlDateText || formatControlDate(ref.controlDate), controlAgeDays: age, source: ref.source || 'INCONNU' };
+      return { status: 'OK', motif: 'Contrôle valide (' + age + ' jours ≤ ' + controlThresholdDays + ')', controlDateText: ref.controlDateText || formatControlDate(ref.controlDate), controlAgeDays: age, source: ref.source || 'INCONNU' };
     }
 
     function buildOverlaySub(entry) {
@@ -533,7 +487,7 @@
           <div><div class="k">Statut</div><div>${escapeHtml(r.status)}</div><div class="small">${escapeHtml(r.motif || '')}</div></div>
           <div><div class="k">Contrôle</div><div>${escapeHtml(r.controlDateText || '—')}</div><div class="small">${r.controlAgeDays !== null && r.controlAgeDays !== undefined ? escapeHtml(r.controlAgeDays + ' jours') : '—'}</div></div>
           <div><div class="k">Source</div><div>${escapeHtml(r.source)}</div><div class="small">Seuil : ${escapeHtml(r.thresholdDays || controlThresholdDays)} j</div></div>
-          <div><div class="k">Notes</div><input type="text" data-note-id="${r.id}" value="${escapeHtml(r.notes || '')}" placeholder="Ajouter une note" /></div></div>
+          <div><div class="k">Notes</div><input type="text" data-note-id="${r.id}" value="${escapeHtml(r.notes || '')}" placeholder="Ajouter une note" /></div>
           <div style="display:flex; align-items:center; justify-content:flex-end; gap:8px;"><button class="btn-neutral" data-delete-id="${r.id}" style="min-height:42px; padding:10px 12px;">Annuler</button></div>
         </div>`).join('');
       historyListEl.querySelectorAll('[data-delete-id]').forEach(btn => {
@@ -553,32 +507,20 @@
     }
 
     function extractSNFromDelimitedLine(line) {
-      const cols = String(line || '').split(/[,;	]/);
-      return {
-        rawSN: displaySN(cols[5] !== undefined ? cols[5] : ''),
-        rawControlDate: String(cols[1] !== undefined ? cols[1] : '').trim()
-      };
+      const cols = String(line || '').split(/[,;\t]/);
+      return displaySN(cols[5] !== undefined ? cols[5] : '');
     }
     async function parseFileToKnownMap(file, sourceName) {
       const map = new Map();
       const ext = (file.name.split('.').pop() || '').toLowerCase();
       if (ext === 'txt' || ext === 'csv') {
-        const textFile = await file.text();
-        String(textFile || '').split(/
-?
-/).forEach((line, idx) => {
-          const parsed = extractSNFromDelimitedLine(line);
-          const raw = parsed.rawSN;
+        const text = await file.text();
+        String(text || '').split(/\r?\n/).forEach((line, idx) => {
+          const raw = extractSNFromDelimitedLine(line);
           const key = canonicalSN(raw);
           if (!key) return;
           if (idx === 0 && ['SN','SERIAL','SERIALNUMBER','NUMERO DE SERIE','N° SERIE'].includes(key)) return;
-          const controlDate = parseControlDate(parsed.rawControlDate);
-          const current = map.get(key);
-          if (!current || ((controlDate && !current.controlDate) || (controlDate && current.controlDate && controlDate.getTime() > current.controlDate.getTime()))) {
-            map.set(key, { source: sourceName, display: raw || key, controlDate, controlDateText: parsed.rawControlDate || (controlDate ? formatControlDate(controlDate) : '') });
-          } else if (!current) {
-            map.set(key, { source: sourceName, display: raw || key, controlDate, controlDateText: parsed.rawControlDate || '' });
-          }
+          if (!map.has(key)) map.set(key, { source: sourceName, display: raw || key });
         });
         return map;
       }
@@ -592,14 +534,7 @@
         const key = canonicalSN(raw);
         if (!key) return;
         if (idx === 0 && ['SN','SERIAL','SERIALNUMBER','NUMERO DE SERIE','N° SERIE'].includes(key)) return;
-        const rawControlDate = String(row[1] || '').trim();
-        const controlDate = parseControlDate(rawControlDate);
-        const current = map.get(key);
-        if (!current || ((controlDate && !current.controlDate) || (controlDate && current.controlDate && controlDate.getTime() > current.controlDate.getTime()))) {
-          map.set(key, { source: sourceName, display: raw || key, controlDate, controlDateText: rawControlDate || (controlDate ? formatControlDate(controlDate) : '') });
-        } else if (!current) {
-          map.set(key, { source: sourceName, display: raw || key, controlDate, controlDateText: rawControlDate || '' });
-        }
+        if (!map.has(key)) map.set(key, { source: sourceName, display: raw || key });
       });
       return map;
     }
@@ -658,7 +593,12 @@
         overlaySubEl.textContent = buildOverlaySub(last);
       }
     }
-
+    function applyRAS(target) {
+      target.value = 'RAS';
+      target.dispatchEvent(new Event('input', { bubbles: true }));
+      target.dispatchEvent(new Event('change', { bubbles: true }));
+      target.focus();
+    }
     function undoLast() {
       if (!scanned.length) return;
       scanned.shift();
@@ -675,23 +615,10 @@
     }
 
     function exportCsvBlob() {
-      const header = ['SN référence', 'Barcode réel scanné', 'Saisi / scanné', 'Statut', 'Motif', 'Date contrôle', 'Âge contrôle (jours)', 'Seuil (jours)', 'Source', 'Date scan', 'Notes'];
-      const rows = scanned.map(r => [
-        r.sn,
-        r.realScanned || r.scannedInput || '',
-        r.scannedInput || r.realScanned || '',
-        r.status,
-        r.motif || '',
-        r.controlDateText || '',
-        r.controlAgeDays !== null && r.controlAgeDays !== undefined ? r.controlAgeDays : '',
-        r.thresholdDays || controlThresholdDays,
-        r.source,
-        r.date,
-        r.notes
-      ].map(escapeCsv).join(';'));
-      const content = [header.map(escapeCsv).join(';'), ...rows].join('
-');
-      return new Blob(['﻿' + content], { type: 'text/csv;charset=utf-8' });
+      const header = ['SN référence', 'Barcode réel scanné', 'Saisi / scanné', 'Statut', 'Source', 'Date', 'Notes'];
+      const rows = scanned.map(r => [r.sn, r.realScanned || r.scannedInput || '', r.scannedInput || r.realScanned || '', r.status, r.source, r.date, r.notes].map(escapeCsv).join(';'));
+      const content = [header.map(escapeCsv).join(';'), ...rows].join('\n');
+      return new Blob(['\uFEFF' + content], { type: 'text/csv;charset=utf-8' });
     }
     function exportCsv() {
       if (!scanned.length) return;
@@ -824,7 +751,6 @@
     btnApplyThreshold.addEventListener('click', () => {
       controlThresholdDays = Math.max(1, parseInt(controlThresholdInput.value, 10) || 300);
       controlThresholdInput.value = String(controlThresholdDays);
-      updateExportNamePreview();
       setStatus('Seuil contrôle appliqué : ' + controlThresholdDays + ' jours.', 'ok');
       renderHistory();
     });
