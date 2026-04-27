@@ -17,7 +17,6 @@
       --ok: #22c55e;
       --ko: #ef4444;
       --warn: #f59e0b;
-      --btn: #334155;
       --shadow: 0 14px 34px rgba(0, 0, 0, 0.28);
       --radius: 18px;
     }
@@ -44,94 +43,41 @@
       margin-bottom: 14px;
       backdrop-filter: blur(8px);
     }
-    .title {
-      margin: 0 0 6px;
-      font-size: 1.45rem;
-      font-weight: 800;
-      line-height: 1.2;
-    }
-    .subtitle {
-      margin: 0;
-      color: var(--muted);
-      line-height: 1.45;
-      font-size: .96rem;
-    }
+    .title { margin: 0 0 6px; font-size: 1.45rem; font-weight: 800; line-height: 1.2; }
+    .subtitle { margin: 0; color: var(--muted); line-height: 1.45; font-size: .96rem; }
     .pillbar { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
     .pill {
-      padding: 6px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(56, 189, 248, 0.16);
-      background: rgba(56, 189, 248, 0.1);
-      color: #bae6fd;
-      font-size: .82rem;
-      font-weight: 700;
+      padding: 6px 10px; border-radius: 999px; border: 1px solid rgba(56, 189, 248, 0.16);
+      background: rgba(56, 189, 248, 0.1); color: #bae6fd; font-size: .82rem; font-weight: 700;
     }
     .grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: 14px; }
     @media (max-width: 960px) { .grid { grid-template-columns: 1fr; } }
     .filegrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     @media (max-width: 720px) { .filegrid { grid-template-columns: 1fr; } }
     .filebox {
-      border-radius: 16px;
-      border: 1px solid var(--line);
-      background: rgba(15, 23, 42, 0.86);
-      padding: 12px;
+      border-radius: 16px; border: 1px solid var(--line); background: rgba(15, 23, 42, 0.86); padding: 12px;
     }
     .video-wrap {
-      position: relative;
-      overflow: hidden;
-      border-radius: 16px;
-      border: 1px solid var(--line);
-      background: #000;
-      aspect-ratio: 3 / 4;
+      position: relative; overflow: hidden; border-radius: 16px; border: 1px solid var(--line); background: #000; aspect-ratio: 3 / 4;
     }
     #scanner, #scanner video {
-      width: 100%;
-      height: 100%;
-      display: block;
-      object-fit: cover;
-      background: #000;
+      width: 100%; height: 100%; display: block; object-fit: cover; background: #000;
     }
     #scanner canvas, #scanner video { position: absolute; inset: 0; }
     .guide { position: absolute; inset: 0; pointer-events: none; }
     .guide::before {
-      content: '';
-      position: absolute;
-      left: 5%; right: 5%; top: 43%; height: 14%;
-      border-radius: 14px;
-      border: 3px solid rgba(56, 189, 248, 0.96);
-      box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.18) inset;
+      content: ''; position: absolute; left: 5%; right: 5%; top: 43%; height: 14%; border-radius: 14px;
+      border: 3px solid rgba(56, 189, 248, 0.96); box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.18) inset;
     }
     .guide::after {
-      content: 'Place le code dans la bande bleue, bien horizontal';
-      position: absolute;
-      left: 0; right: 0; top: 60%;
-      text-align: center;
-      color: #e2e8f0;
-      font-size: .92rem;
-      font-weight: 700;
-      text-shadow: 0 2px 8px rgba(0, 0, 0, .7);
-      padding: 0 10px;
+      content: 'Place le code dans la bande bleue, bien horizontal'; position: absolute; left: 0; right: 0; top: 60%;
+      text-align: center; color: #e2e8f0; font-size: .92rem; font-weight: 700; text-shadow: 0 2px 8px rgba(0, 0, 0, .7); padding: 0 10px;
     }
     .status {
-      margin-top: 12px;
-      min-height: 44px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      border-radius: 14px;
-      border: 1px solid var(--line);
-      background: rgba(15, 23, 42, 0.86);
-      padding: 10px 12px;
-      color: var(--muted);
-      line-height: 1.35;
+      margin-top: 12px; min-height: 44px; display: flex; align-items: center; gap: 10px; border-radius: 14px;
+      border: 1px solid var(--line); background: rgba(15, 23, 42, 0.86); padding: 10px 12px; color: var(--muted); line-height: 1.35;
     }
-    .dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 999px;
-      background: var(--warn);
-      flex: 0 0 auto;
-    }
+    .dot { width: 10px; height: 10px; border-radius: 999px; background: var(--warn); flex: 0 0 auto; }
     .status.scan .dot { background: var(--accent); animation: pulse 1.1s infinite; }
     .status.ok .dot { background: var(--ok); }
     .status.ko .dot { background: var(--ko); }
@@ -140,27 +86,11 @@
       50% { transform: scale(1.35); opacity: .65; }
       100% { transform: scale(1); opacity: 1; }
     }
-    .btnrow, .btnrow2 {
-      display: grid;
-      gap: 10px;
-      margin-top: 12px;
-    }
+    .btnrow, .btnrow2 { display: grid; gap: 10px; margin-top: 12px; }
     .btnrow { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     .btnrow2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    @media (max-width: 640px) {
-      .btnrow, .btnrow2 { grid-template-columns: 1fr; }
-    }
-    button, .fileinput {
-      min-height: 50px;
-      border: 0;
-      border-radius: 14px;
-      font-size: .98rem;
-      font-weight: 760;
-    }
-    button {
-      cursor: pointer;
-      padding: 13px 12px;
-    }
+    @media (max-width: 640px) { .btnrow, .btnrow2 { grid-template-columns: 1fr; } }
+    button { min-height: 50px; border: 0; border-radius: 14px; font-size: .98rem; font-weight: 760; cursor: pointer; padding: 13px 12px; }
     button:disabled { opacity: .55; cursor: not-allowed; }
     .btn-primary { background: linear-gradient(180deg, #38bdf8 0%, #0ea5e9 100%); color: #082f49; }
     .btn-secondary { background: #334155; color: #f8fafc; }
@@ -171,31 +101,15 @@
     .field { margin-top: 12px; }
     label { display: block; margin-bottom: 8px; font-size: .92rem; font-weight: 700; }
     input[type='text'], input[type='file'] {
-      width: 100%;
-      border-radius: 14px;
-      border: 1px solid var(--line);
-      background: rgba(15, 23, 42, 0.86);
-      color: var(--text);
-      padding: 14px;
-      font-size: 16px;
-      min-height: 50px;
+      width: 100%; border-radius: 14px; border: 1px solid var(--line); background: rgba(15, 23, 42, 0.86); color: var(--text);
+      padding: 14px; font-size: 16px; min-height: 50px;
     }
     .input-row { display: grid; grid-template-columns: 1fr auto; gap: 10px; }
     @media (max-width: 520px) { .input-row { grid-template-columns: 1fr; } }
-    .note, .meta, .small { color: var(--muted); font-size: .9rem; line-height: 1.4; }
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 10px;
-      margin-top: 12px;
-    }
+    .note, .small { color: var(--muted); font-size: .9rem; line-height: 1.4; }
+    .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
     @media (max-width: 760px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-    .stat {
-      border-radius: 16px;
-      border: 1px solid var(--line);
-      background: rgba(15, 23, 42, 0.86);
-      padding: 12px;
-    }
+    .stat { border-radius: 16px; border: 1px solid var(--line); background: rgba(15, 23, 42, 0.86); padding: 12px; }
     .stat.ok { background: rgba(34, 197, 94, 0.12); }
     .stat.ko { background: rgba(239, 68, 68, 0.12); }
     .k { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin-bottom: 4px; }
@@ -204,63 +118,35 @@
     @media (max-width: 760px) { .search-row { grid-template-columns: 1fr; } }
     .history-list { display: grid; gap: 10px; margin-top: 12px; }
     .history-item {
-      border-radius: 16px;
-      border: 1px solid var(--line);
-      padding: 12px;
-      display: grid;
-      grid-template-columns: 1.1fr .9fr .9fr 1fr auto;
-      gap: 10px;
+      border-radius: 16px; border: 1px solid var(--line); padding: 12px; display: grid; grid-template-columns: 1.1fr .9fr .9fr 1fr auto; gap: 10px;
     }
     .history-item.ok { background: rgba(34, 197, 94, 0.14); }
     .history-item.ko { background: rgba(239, 68, 68, 0.16); }
     @media (max-width: 900px) { .history-item { grid-template-columns: 1fr; } }
     .empty {
-      border-radius: 16px;
-      border: 1px dashed rgba(148, 163, 184, 0.25);
-      background: rgba(15, 23, 42, 0.62);
-      color: var(--muted);
-      padding: 24px;
-      text-align: center;
-      margin-top: 12px;
+      border-radius: 16px; border: 1px dashed rgba(148, 163, 184, 0.25); background: rgba(15, 23, 42, 0.62); color: var(--muted);
+      padding: 24px; text-align: center; margin-top: 12px;
     }
     .tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      border-radius: 999px;
-      border: 1px solid var(--line);
-      padding: 5px 9px;
-      font-size: .78rem;
-      font-weight: 700;
-      background: rgba(15, 23, 42, 0.72);
-      color: var(--text);
+      display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; border: 1px solid var(--line); padding: 5px 9px;
+      font-size: .78rem; font-weight: 700; background: rgba(15, 23, 42, 0.72); color: var(--text);
     }
     .tag.ok { background: rgba(34, 197, 94, 0.14); color: #bbf7d0; }
-    .tag.ko { background: rgba(239, 68, 68, 0.18); color: #fecaca; }
     .tag.neutral { color: #cbd5e1; }
     .overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 999;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 24px;
-      pointer-events: none;
-      transition: opacity .18s ease;
+      position: fixed; inset: 0; z-index: 999; display: none; align-items: center; justify-content: center; text-align: center;
+      padding: 24px; pointer-events: none;
     }
     .overlay.show { display: flex; }
     .overlay.ok { background: rgba(34, 197, 94, .80); }
     .overlay.ko { background: rgba(239, 68, 68, .84); }
-    .overlay-box {
-      max-width: 860px;
-      color: white;
-      text-shadow: 0 4px 12px rgba(0, 0, 0, .4);
-    }
+    .overlay-box { max-width: 860px; color: white; text-shadow: 0 4px 12px rgba(0, 0, 0, .4); }
     .overlay-title { font-size: clamp(3rem, 10vw, 7rem); font-weight: 900; line-height: 1; margin: 0 0 10px; }
     .overlay-sub { font-size: clamp(1rem, 2.6vw, 1.6rem); font-weight: 700; margin: 0; }
     .overlay-sn { font-size: clamp(1.2rem, 3vw, 2rem); font-weight: 800; margin-top: 10px; word-break: break-all; }
+    .overlay-actions { margin-top: 18px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; pointer-events: auto; }
+    .overlay button { box-shadow: 0 8px 18px rgba(0,0,0,.22); }
+    @media (max-width: 640px) { .overlay-actions { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
@@ -269,20 +155,24 @@
       <div id="overlayTitle" class="overlay-title">PRÊT</div>
       <p id="overlaySub" class="overlay-sub">Le résultat du dernier scan reste affiché jusqu'au prochain scan.</p>
       <div id="overlaySN" class="overlay-sn"></div>
+      <div class="overlay-actions">
+        <button id="overlayNextBtn" class="btn-primary">Scanner suivant</button>
+        <button id="overlayUndoBtn" class="btn-neutral">Annuler ce scan</button>
+      </div>
     </div>
   </div>
 
   <div class="wrap">
     <div class="card">
       <h1 class="title">Retour location - Scan BJONG + Batteries</h1>
-      <p class="subtitle">App HTML autonome prête pour GitHub Pages. Scan Code 128 avec Quagga2, 2 sources chargées séparément, résultat plein écran vert / rouge conservé jusqu'au prochain scan, archivage local, notes, export CSV et partage.</p>
+      <p class="subtitle">App HTML autonome prête pour GitHub Pages. Scan Code 128 avec Quagga2, références lues en colonne F, gestion du "V" initial optionnel, résultat plein écran vert / rouge conservé jusqu'au prochain scan, archivage local, notes, export CSV et partage.</p>
       <div class="pillbar">
         <span class="pill">Quagga2</span>
         <span class="pill">Code 128</span>
-        <span class="pill">2 fichiers</span>
+        <span class="pill">Colonne F</span>
+        <span class="pill">V initial optionnel</span>
         <span class="pill">Notes</span>
         <span class="pill">Undo / Flush</span>
-        <span class="pill">CSV / Partage</span>
       </div>
     </div>
 
@@ -291,15 +181,15 @@
         <div class="filebox">
           <label for="fileBjong">Charger fichier BJONG</label>
           <input id="fileBjong" type="file" accept=".csv,.txt,.xlsx,.xls" />
-          <div class="small">Hypothèse retenue : les SN sont en colonnes A ou B de la première feuille / du CSV.</div>
+          <div class="small">Lecture des SN en colonne F. Correspondance tolérante avec ou sans "V" initial.</div>
         </div>
         <div class="filebox">
           <label for="fileBattery">Charger fichier Batteries</label>
           <input id="fileBattery" type="file" accept=".csv,.txt,.xlsx,.xls" />
-          <div class="small">Même logique : lecture des colonnes A et B de la première feuille / du CSV.</div>
+          <div class="small">Lecture des SN en colonne F. Exemple : <strong>V12345</strong> et <strong>12345</strong> sont considérés identiques.</div>
         </div>
       </div>
-      <div class="pillbar" id="sourceStateBar">
+      <div class="pillbar">
         <span id="tagBjong" class="tag neutral">BJONG non chargé</span>
         <span id="tagBattery" class="tag neutral">Batteries non chargé</span>
         <span class="tag neutral">SN connus : <strong id="knownCount" style="margin-left:4px;">0</strong></span>
@@ -315,7 +205,7 @@
 
         <div id="status" class="status">
           <span class="dot"></span>
-          <span id="statusText">Prêt. Appuie sur « Autoriser & scanner ».</span>
+          <span id="statusText">Prêt. Charge les références puis appuie sur « Autoriser & scanner ».</span>
         </div>
 
         <div class="btnrow">
@@ -329,7 +219,7 @@
           <button id="btnUndoLast" class="btn-neutral">Annuler dernier scan</button>
         </div>
 
-        <div class="note">Le scan s'arrête dès qu'un code est lu. Le plein écran rouge / vert reste affiché jusqu'au prochain scan.</div>
+        <div class="note">Le plein écran persistant reste présent, mais le bouton « Scanner suivant » le ferme immédiatement et relance la caméra.</div>
       </div>
 
       <div class="card">
@@ -347,22 +237,10 @@
         </div>
 
         <div class="stats">
-          <div class="stat">
-            <div class="k">Total scans</div>
-            <div id="countTotal" class="v">0</div>
-          </div>
-          <div class="stat ok">
-            <div class="k">OK</div>
-            <div id="countOK" class="v">0</div>
-          </div>
-          <div class="stat ko">
-            <div class="k">À contrôler</div>
-            <div id="countKO" class="v">0</div>
-          </div>
-          <div class="stat">
-            <div class="k">Prêt export</div>
-            <div id="countExport" class="v">0</div>
-          </div>
+          <div class="stat"><div class="k">Total scans</div><div id="countTotal" class="v">0</div></div>
+          <div class="stat ok"><div class="k">OK</div><div id="countOK" class="v">0</div></div>
+          <div class="stat ko"><div class="k">À contrôler</div><div id="countKO" class="v">0</div></div>
+          <div class="stat"><div class="k">Prêt export</div><div id="countExport" class="v">0</div></div>
         </div>
 
         <div class="btnrow2">
@@ -391,8 +269,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script>
-    const STORAGE_SCANNED = 'retourloc_scanned_v1';
-
+    const STORAGE_SCANNED = 'retourloc_scanned_v3';
     const scannerEl = document.getElementById('scanner');
     const statusEl = document.getElementById('status');
     const statusTextEl = document.getElementById('statusText');
@@ -406,6 +283,8 @@
     const btnShare = document.getElementById('btnShare');
     const btnFlush = document.getElementById('btnFlush');
     const btnClearRefs = document.getElementById('btnClearRefs');
+    const overlayNextBtn = document.getElementById('overlayNextBtn');
+    const overlayUndoBtn = document.getElementById('overlayUndoBtn');
     const barcodeInput = document.getElementById('barcodeInput');
     const notesInput = document.getElementById('notesInput');
     const fileBjong = document.getElementById('fileBjong');
@@ -424,7 +303,7 @@
     const overlaySubEl = document.getElementById('overlaySub');
     const overlaySNEl = document.getElementById('overlaySN');
 
-    let knownMap = new Map(); // sn -> source
+    let knownMap = new Map(); // canonical SN -> { source, display }
     let scanned = loadScanned();
     let bjongLoaded = false;
     let batteryLoaded = false;
@@ -441,16 +320,20 @@
     let lastDetectedAt = 0;
 
     function normalize(v) {
-      return String(v || '').trim().toUpperCase();
+      return String(v || '').trim().toUpperCase().replace(/\s+/g, '');
+    }
+
+    function canonicalSN(v) {
+      const s = normalize(v);
+      return s.replace(/^V(?=.+)/, '');
+    }
+
+    function displaySN(v) {
+      return normalize(v);
     }
 
     function escapeHtml(v) {
-      return String(v ?? '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
+      return String(v ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
     }
 
     function escapeCsv(v) {
@@ -497,7 +380,7 @@
       tagBjong.className = 'tag ' + (bjongLoaded ? 'ok' : 'neutral');
       tagBattery.className = 'tag ' + (batteryLoaded ? 'ok' : 'neutral');
       tagBjong.textContent = bjongLoaded ? 'BJONG chargé' : 'BJONG non chargé';
-      tagBattery.textContent = batteryLoaded ? 'Batteries chargé' : 'Batteries non chargé';
+      tagBattery.textContent = batteryLoaded ? 'Batteries chargées' : 'Batteries non chargées';
       knownCountEl.textContent = String(knownMap.size);
     }
 
@@ -512,75 +395,60 @@
       btnShare.disabled = scanned.length === 0;
       btnFlush.disabled = scanned.length === 0;
       btnUndoLast.disabled = scanned.length === 0;
+      overlayUndoBtn.disabled = scanned.length === 0;
     }
 
     function renderHistory() {
       const q = searchInput.value.trim().toLowerCase();
-      const filtered = !q ? scanned : scanned.filter(r =>
-        [r.sn, r.status, r.source, r.date, r.notes].some(v => String(v || '').toLowerCase().includes(q))
-      );
-
+      const filtered = !q ? scanned : scanned.filter(r => [r.sn, r.status, r.source, r.date, r.notes].some(v => String(v || '').toLowerCase().includes(q)));
       if (!filtered.length) {
         historyListEl.innerHTML = '<div class="empty">Aucun scan archivé.</div>';
         return;
       }
-
       historyListEl.innerHTML = filtered.map(r => `
         <div class="history-item ${r.status === 'OK' ? 'ok' : 'ko'}">
-          <div>
-            <div class="k">SN</div>
-            <div style="font-weight:800; word-break:break-all;">${escapeHtml(r.sn)}</div>
-            <div class="small">${escapeHtml(r.date)}</div>
-          </div>
-          <div>
-            <div class="k">Statut</div>
-            <div>${escapeHtml(r.status)}</div>
-          </div>
-          <div>
-            <div class="k">Source</div>
-            <div>${escapeHtml(r.source)}</div>
-          </div>
-          <div>
-            <div class="k">Notes</div>
-            <input type="text" data-note-id="${r.id}" value="${escapeHtml(r.notes || '')}" placeholder="Ajouter une note" />
-          </div>
-          <div style="display:flex; align-items:center; justify-content:flex-end; gap:8px;">
-            <button class="btn-neutral" data-delete-id="${r.id}" style="min-height:42px; padding:10px 12px;">Annuler</button>
-          </div>
-        </div>
-      `).join('');
-
+          <div><div class="k">SN</div><div style="font-weight:800; word-break:break-all;">${escapeHtml(r.sn)}</div><div class="small">${escapeHtml(r.date)}</div></div>
+          <div><div class="k">Statut</div><div>${escapeHtml(r.status)}</div></div>
+          <div><div class="k">Source</div><div>${escapeHtml(r.source)}</div></div>
+          <div><div class="k">Notes</div><input type="text" data-note-id="${r.id}" value="${escapeHtml(r.notes || '')}" placeholder="Ajouter une note" /></div>
+          <div style="display:flex; align-items:center; justify-content:flex-end; gap:8px;"><button class="btn-neutral" data-delete-id="${r.id}" style="min-height:42px; padding:10px 12px;">Annuler</button></div>
+        </div>`).join('');
       historyListEl.querySelectorAll('[data-delete-id]').forEach(btn => {
         btn.addEventListener('click', () => {
           const id = btn.getAttribute('data-delete-id');
           scanned = scanned.filter(x => String(x.id) !== String(id));
-          saveScanned();
-          updateCounters();
-          renderHistory();
+          saveScanned(); updateCounters(); renderHistory();
         });
       });
-
       historyListEl.querySelectorAll('[data-note-id]').forEach(input => {
         input.addEventListener('change', () => {
           const id = input.getAttribute('data-note-id');
           const row = scanned.find(x => String(x.id) === String(id));
-          if (row) {
-            row.notes = input.value.trim();
-            saveScanned();
-          }
+          if (row) { row.notes = input.value.trim(); saveScanned(); }
         });
       });
     }
 
-    async function parseFileToSNSet(file, sourceName) {
+    function extractSNFromDelimitedLine(line) {
+      const cols = String(line || '').split(/[,;\t]/);
+      const colF = cols[5] !== undefined ? cols[5] : '';
+      return displaySN(colF);
+    }
+
+    async function parseFileToKnownMap(file, sourceName) {
       const map = new Map();
       const ext = (file.name.split('.').pop() || '').toLowerCase();
 
-      if (ext === 'txt') {
+      if (ext === 'txt' || ext === 'csv') {
         const text = await file.text();
-        String(text || '').split(/\r?\n/).forEach(line => {
-          const sn = normalize(line.split(/[,;\t]/)[0]);
-          if (sn) map.set(sn, sourceName);
+        String(text || '').split(/\r?\n/).forEach((line, idx) => {
+          const raw = extractSNFromDelimitedLine(line);
+          const key = canonicalSN(raw);
+          if (!key) return;
+          if (idx === 0 && ['SN', 'SERIAL', 'SERIALNUMBER', 'NUMERO DE SERIE', 'N° SERIE'].includes(key)) return;
+          if (!map.has(key)) {
+            map.set(key, { source: sourceName, display: raw || key });
+          }
         });
         return map;
       }
@@ -591,13 +459,13 @@
       const rows = XLSX.utils.sheet_to_json(ws, { header: 1, raw: false, defval: '' });
       rows.forEach((row, idx) => {
         if (!Array.isArray(row)) return;
-        const a = normalize(row[0]);
-        const b = normalize(row[1]);
-        [a, b].forEach(sn => {
-          if (!sn) return;
-          if (idx === 0 && ['SN', 'SERIAL', 'SERIALNUMBER', 'NUMERO DE SERIE', 'N° SERIE'].includes(sn)) return;
-          map.set(sn, sourceName);
-        });
+        const raw = displaySN(row[5]); // colonne F uniquement
+        const key = canonicalSN(raw);
+        if (!key) return;
+        if (idx === 0 && ['SN', 'SERIAL', 'SERIALNUMBER', 'NUMERO DE SERIE', 'N° SERIE'].includes(key)) return;
+        if (!map.has(key)) {
+          map.set(key, { source: sourceName, display: raw || key });
+        }
       });
       return map;
     }
@@ -605,8 +473,8 @@
     async function handleRefFile(file, sourceName) {
       if (!file) return;
       try {
-        const parsed = await parseFileToSNSet(file, sourceName);
-        parsed.forEach((source, sn) => knownMap.set(sn, source));
+        const parsed = await parseFileToKnownMap(file, sourceName);
+        parsed.forEach((meta, canonical) => knownMap.set(canonical, meta));
         if (sourceName === 'BJONG') bjongLoaded = true;
         if (sourceName === 'BATTERIE') batteryLoaded = true;
         updateSourceTags();
@@ -618,62 +486,50 @@
     }
 
     function addEntry(snRaw, fromScan) {
-      const sn = normalize(snRaw);
-      if (!sn) {
-        setStatus('SN vide.', 'ko');
-        return;
-      }
-      const source = knownMap.get(sn) || 'INCONNU';
-      const status = source === 'INCONNU' ? 'A CONTRÔLER' : 'OK';
+      const scannedDisplay = displaySN(snRaw);
+      const key = canonicalSN(snRaw);
+      if (!key) { setStatus('SN vide.', 'ko'); return; }
+      const ref = knownMap.get(key) || null;
+      const source = ref ? ref.source : 'INCONNU';
+      const status = ref ? 'OK' : 'A CONTRÔLER';
       const note = notesInput.value.trim();
       const entry = {
         id: Date.now() + Math.random(),
-        sn,
+        sn: ref ? ref.display : scannedDisplay,
+        scannedInput: scannedDisplay,
+        canonical: key,
         status,
         source,
         date: new Date().toLocaleString('fr-FR'),
         notes: note
       };
       scanned.unshift(entry);
-      saveScanned();
-      updateCounters();
-      renderHistory();
-      barcodeInput.value = '';
-      notesInput.value = '';
-      setOverlay(status === 'OK' ? 'ok' : 'ko', sn, source, note);
-      setStatus((fromScan ? 'Scan enregistré : ' : 'Saisie enregistrée : ') + sn, status === 'OK' ? 'ok' : 'ko');
+      saveScanned(); updateCounters(); renderHistory();
+      barcodeInput.value = ''; notesInput.value = '';
+      setOverlay(status === 'OK' ? 'ok' : 'ko', entry.sn, source, note);
+      setStatus((fromScan ? 'Scan enregistré : ' : 'Saisie enregistrée : ') + entry.sn, status === 'OK' ? 'ok' : 'ko');
     }
 
     function undoLast() {
       if (!scanned.length) return;
       scanned.shift();
-      saveScanned();
-      updateCounters();
-      renderHistory();
+      saveScanned(); updateCounters(); renderHistory();
       setStatus('Dernier scan annulé.', 'ok');
     }
 
     function flushScanned() {
       if (!confirm('Vider la base scannée ?')) return;
-      scanned = [];
-      saveScanned();
-      updateCounters();
-      renderHistory();
-      setStatus('Base scannée vidée.', 'ok');
+      scanned = []; saveScanned(); updateCounters(); renderHistory(); clearOverlay(); setStatus('Base scannée vidée.', 'ok');
     }
 
     function clearReferences() {
       if (!confirm('Décharger les références BJONG / Batteries ?')) return;
-      knownMap = new Map();
-      bjongLoaded = false;
-      batteryLoaded = false;
-      updateSourceTags();
-      setStatus('Références déchargées.', 'ok');
+      knownMap = new Map(); bjongLoaded = false; batteryLoaded = false; updateSourceTags(); setStatus('Références déchargées.', 'ok');
     }
 
     function exportCsvBlob() {
-      const header = ['SN', 'Statut', 'Source', 'Date', 'Notes'];
-      const rows = scanned.map(r => [r.sn, r.status, r.source, r.date, r.notes].map(escapeCsv).join(';'));
+      const header = ['SN', 'Saisi / scanné', 'Statut', 'Source', 'Date', 'Notes'];
+      const rows = scanned.map(r => [r.sn, r.scannedInput || r.sn, r.status, r.source, r.date, r.notes].map(escapeCsv).join(';'));
       const content = [header.map(escapeCsv).join(';'), ...rows].join('\n');
       return new Blob(['\uFEFF' + content], { type: 'text/csv;charset=utf-8' });
     }
@@ -682,12 +538,8 @@
       if (!scanned.length) return;
       const blob = exportCsvBlob();
       const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = 'retours_location_' + new Date().toISOString().slice(0, 10) + '.csv';
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      a.href = URL.createObjectURL(blob); a.download = 'retours_location_' + new Date().toISOString().slice(0, 10) + '.csv';
+      document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
       setStatus('CSV exporté.', 'ok');
     }
 
@@ -697,11 +549,7 @@
       const file = new File([blob], 'retours_location_' + new Date().toISOString().slice(0, 10) + '.csv', { type: 'text/csv;charset=utf-8' });
       try {
         if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-          await navigator.share({
-            title: 'Bon de réception - retours location',
-            text: 'Export des SN scannés',
-            files: [file]
-          });
+          await navigator.share({ title: 'Bon de réception - retours location', text: 'Export des SN scannés', files: [file] });
           setStatus('Partage lancé.', 'ok');
           return;
         }
@@ -710,53 +558,28 @@
     }
 
     function stopPrimeStream() {
-      try {
-        if (activePrimeStream && activePrimeStream.getTracks) activePrimeStream.getTracks().forEach(t => t.stop());
-      } catch (_) {}
+      try { if (activePrimeStream && activePrimeStream.getTracks) activePrimeStream.getTracks().forEach(t => t.stop()); } catch (_) {}
       activePrimeStream = null;
     }
 
     async function primeCameraPermission() {
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        throw new Error('API caméra non disponible sur ce navigateur.');
-      }
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error('API caméra non disponible sur ce navigateur.');
       setStatus('Demande de permission caméra…', 'scan');
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: false,
-        video: {
-          facingMode: { ideal: 'environment' },
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
-          frameRate: { ideal: 30, max: 60 }
-        }
-      });
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 }, frameRate: { ideal: 30, max: 60 } } });
       activePrimeStream = stream;
-      const video = document.createElement('video');
-      video.muted = true;
-      video.playsInline = true;
-      video.srcObject = stream;
-      await video.play().catch(() => null);
-      await new Promise(resolve => setTimeout(resolve, 180));
-      stopPrimeStream();
-      permissionPrimed = true;
+      const video = document.createElement('video'); video.muted = true; video.playsInline = true; video.srcObject = stream;
+      await video.play().catch(() => null); await new Promise(resolve => setTimeout(resolve, 180)); stopPrimeStream(); permissionPrimed = true;
     }
 
     async function loadQuagga() {
       if (engineLoaded && window.Quagga) return;
       await new Promise((resolve, reject) => {
         const existing = document.querySelector('script[data-quagga="1"]');
-        if (existing && window.Quagga) {
-          engineLoaded = true;
-          resolve();
-          return;
-        }
+        if (existing && window.Quagga) { engineLoaded = true; resolve(); return; }
         const script = existing || document.createElement('script');
         if (!existing) {
           script.src = 'https://unpkg.com/@ericblade/quagga2@1.8.4/dist/quagga.min.js';
-          script.async = true;
-          script.defer = true;
-          script.dataset.quagga = '1';
-          document.head.appendChild(script);
+          script.async = true; script.defer = true; script.dataset.quagga = '1'; document.head.appendChild(script);
         }
         script.onload = () => { engineLoaded = true; resolve(); };
         script.onerror = () => reject(new Error('Impossible de charger Quagga2 (connexion Internet requise).'));
@@ -772,163 +595,95 @@
 
     function syncTorchAvailability(attempt = 0) {
       const track = getActiveVideoTrack();
-      if (!track) {
-        if (attempt < 12) setTimeout(() => syncTorchAvailability(attempt + 1), 180);
-        return;
-      }
+      if (!track) { if (attempt < 12) setTimeout(() => syncTorchAvailability(attempt + 1), 180); return; }
       let supported = false;
-      try {
-        if (typeof track.getCapabilities === 'function') {
-          const caps = track.getCapabilities() || {};
-          supported = !!caps.torch;
-        }
-      } catch (_) {}
-      torchCapable = supported;
-      if (!supported) torchEnabled = false;
-      btnTorch.disabled = !started || !torchCapable;
-      btnTorch.textContent = torchEnabled ? 'Torche ON' : 'Torche';
+      try { if (typeof track.getCapabilities === 'function') { const caps = track.getCapabilities() || {}; supported = !!caps.torch; } } catch (_) {}
+      torchCapable = supported; if (!supported) torchEnabled = false; btnTorch.disabled = !started || !torchCapable; btnTorch.textContent = torchEnabled ? 'Torche ON' : 'Torche';
     }
 
     async function toggleTorch() {
       const track = getActiveVideoTrack();
-      if (!track || !torchCapable) {
-        setStatus('Torche non disponible.', 'ko');
-        return;
-      }
+      if (!track || !torchCapable) { setStatus('Torche non disponible.', 'ko'); return; }
       const next = !torchEnabled;
       try {
         await track.applyConstraints({ advanced: [{ torch: next }] });
-        torchEnabled = next;
-        btnTorch.textContent = torchEnabled ? 'Torche ON' : 'Torche';
+        torchEnabled = next; btnTorch.textContent = torchEnabled ? 'Torche ON' : 'Torche';
         setStatus(torchEnabled ? 'Torche activée.' : 'Torche désactivée.', torchEnabled ? 'ok' : 'scan');
       } catch (error) {
-        console.error(error);
-        torchEnabled = false;
-        btnTorch.textContent = 'Torche';
-        setStatus('Impossible d\'activer la torche.', 'ko');
+        console.error(error); torchEnabled = false; btnTorch.textContent = 'Torche'; setStatus('Impossible d\'activer la torche.', 'ko');
       }
     }
 
     function stopScanner() {
       try { if (window.Quagga && onDetectedHandler) window.Quagga.offDetected(onDetectedHandler); } catch (_) {}
       try { if (window.Quagga && onProcessedHandler) window.Quagga.offProcessed(onProcessedHandler); } catch (_) {}
-      onDetectedHandler = null;
-      onProcessedHandler = null;
+      onDetectedHandler = null; onProcessedHandler = null;
       try { if (window.Quagga && started) window.Quagga.stop(); } catch (_) {}
-      started = false;
-      torchEnabled = false;
-      torchCapable = false;
-      btnStop.disabled = true;
-      btnTorch.disabled = true;
-      btnTorch.textContent = 'Torche';
+      started = false; torchEnabled = false; torchCapable = false; btnStop.disabled = true; btnTorch.disabled = true; btnTorch.textContent = 'Torche';
       const video = scannerEl.querySelector('video');
-      try {
-        if (video && video.srcObject && video.srcObject.getTracks) video.srcObject.getTracks().forEach(t => t.stop());
-      } catch (_) {}
-      scannerEl.innerHTML = '';
-      stopPrimeStream();
+      try { if (video && video.srcObject && video.srcObject.getTracks) video.srcObject.getTracks().forEach(t => t.stop()); } catch (_) {}
+      scannerEl.innerHTML = ''; stopPrimeStream();
     }
 
     async function startScanner() {
       clearOverlay();
       if (started) return;
-      if (!window.isSecureContext && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
-        setStatus('La caméra exige HTTPS ou localhost.', 'ko');
-        return;
-      }
+      if (!window.isSecureContext && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') { setStatus('La caméra exige HTTPS ou localhost.', 'ko'); return; }
       btnStart.disabled = true;
       try {
         if (!permissionPrimed) await primeCameraPermission();
-        await loadQuagga();
-        setStatus('Scanner actif…', 'scan');
-
+        await loadQuagga(); setStatus('Scanner actif…', 'scan');
         await new Promise((resolve, reject) => {
           window.Quagga.init({
             inputStream: {
-              name: 'Live',
-              type: 'LiveStream',
-              target: scannerEl,
-              constraints: {
-                facingMode: 'environment',
-                width: { ideal: 1280 },
-                height: { ideal: 720 },
-                aspectRatio: { ideal: 0.75 },
-                frameRate: { ideal: 30, max: 60 }
-              },
-              area: { top: '43%', right: '5%', left: '5%', bottom: '43%' },
-              singleChannel: false
+              name: 'Live', type: 'LiveStream', target: scannerEl,
+              constraints: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 }, aspectRatio: { ideal: 0.75 }, frameRate: { ideal: 30, max: 60 } },
+              area: { top: '43%', right: '5%', left: '5%', bottom: '43%' }, singleChannel: false
             },
-            locator: { patchSize: 'medium', halfSample: true },
-            numOfWorkers: 2,
-            frequency: 20,
-            locate: false,
+            locator: { patchSize: 'medium', halfSample: true }, numOfWorkers: 2, frequency: 20, locate: false,
             decoder: { readers: ['code_128_reader'], multiple: false }
           }, err => err ? reject(err) : resolve());
         });
-
         onDetectedHandler = data => {
           const code = data && data.codeResult && data.codeResult.code ? String(data.codeResult.code).trim() : '';
           if (!code) return;
           const now = Date.now();
-          if (code === lastDetected && (now - lastDetectedAt) < 1200) return;
-          lastDetected = code;
-          lastDetectedAt = now;
-          if (navigator.vibrate) navigator.vibrate(120);
-          barcodeInput.value = code;
-          addEntry(code, true);
-          stopScanner();
+          const canonical = canonicalSN(code);
+          if (canonical === lastDetected && (now - lastDetectedAt) < 1200) return;
+          lastDetected = canonical; lastDetectedAt = now; if (navigator.vibrate) navigator.vibrate(120);
+          barcodeInput.value = displaySN(code); addEntry(code, true); stopScanner();
         };
-
         onProcessedHandler = () => {
-          const overlay = scannerEl.querySelector('canvas.drawingBuffer');
-          if (overlay) overlay.style.opacity = '0';
+          const overlay = scannerEl.querySelector('canvas.drawingBuffer'); if (overlay) overlay.style.opacity = '0';
           const video = scannerEl.querySelector('video');
-          if (video) {
-            video.setAttribute('playsinline', 'true');
-            video.style.objectFit = 'cover';
-          }
+          if (video) { video.setAttribute('playsinline', 'true'); video.style.objectFit = 'cover'; }
           const track = video && video.srcObject && video.srcObject.getVideoTracks ? video.srcObject.getVideoTracks()[0] : null;
-          if (track && typeof track.applyConstraints === 'function') {
-            track.applyConstraints({ advanced: [{ focusMode: 'continuous' }] }).catch(() => {});
-          }
+          if (track && typeof track.applyConstraints === 'function') track.applyConstraints({ advanced: [{ focusMode: 'continuous' }] }).catch(() => {});
           if (started && !torchCapable) syncTorchAvailability();
         };
-
-        window.Quagga.onDetected(onDetectedHandler);
-        window.Quagga.onProcessed(onProcessedHandler);
-        window.Quagga.start();
-        started = true;
-        btnStop.disabled = false;
-        btnTorch.disabled = true;
-        btnTorch.textContent = 'Torche';
-        syncTorchAvailability();
+        window.Quagga.onDetected(onDetectedHandler); window.Quagga.onProcessed(onProcessedHandler); window.Quagga.start();
+        started = true; btnStop.disabled = false; btnTorch.disabled = true; btnTorch.textContent = 'Torche'; syncTorchAvailability();
       } catch (error) {
-        console.error(error);
-        stopScanner();
-        setStatus(error.message || 'Erreur de démarrage du scanner.', 'ko');
-      } finally {
-        btnStart.disabled = false;
-      }
+        console.error(error); stopScanner(); setStatus(error.message || 'Erreur de démarrage du scanner.', 'ko');
+      } finally { btnStart.disabled = false; }
+    }
+
+    async function launchNextScan() {
+      clearOverlay();
+      await startScanner();
     }
 
     fileBjong.addEventListener('change', async e => { await handleRefFile(e.target.files && e.target.files[0], 'BJONG'); });
     fileBattery.addEventListener('change', async e => { await handleRefFile(e.target.files && e.target.files[0], 'BATTERIE'); });
     btnStart.addEventListener('click', startScanner);
-    btnNext.addEventListener('click', startScanner);
+    btnNext.addEventListener('click', launchNextScan);
+    overlayNextBtn.addEventListener('click', launchNextScan);
     btnStop.addEventListener('click', () => { stopScanner(); setStatus('Scan arrêté.', 'ok'); });
     btnTorch.addEventListener('click', toggleTorch);
-    btnValidateManual.addEventListener('click', () => {
-      clearOverlay();
-      addEntry(barcodeInput.value, false);
-    });
-    barcodeInput.addEventListener('keydown', e => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        clearOverlay();
-        addEntry(barcodeInput.value, false);
-      }
-    });
+    btnValidateManual.addEventListener('click', () => { clearOverlay(); addEntry(barcodeInput.value, false); });
+    barcodeInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); clearOverlay(); addEntry(barcodeInput.value, false); } });
     btnUndoLast.addEventListener('click', undoLast);
+    overlayUndoBtn.addEventListener('click', () => { undoLast(); clearOverlay(); });
     btnExport.addEventListener('click', exportCsv);
     btnShare.addEventListener('click', shareCsv);
     btnFlush.addEventListener('click', flushScanned);
@@ -937,10 +692,7 @@
     document.addEventListener('visibilitychange', () => { if (document.hidden) stopScanner(); });
     window.addEventListener('beforeunload', stopScanner);
 
-    updateSourceTags();
-    updateCounters();
-    renderHistory();
-    setStatus('Prêt. Charge BJONG / Batteries puis scanne.', 'ok');
+    updateSourceTags(); updateCounters(); renderHistory(); setStatus('Prêt. Charge BJONG / Batteries puis scanne.', 'ok');
   </script>
 </body>
 </html>
