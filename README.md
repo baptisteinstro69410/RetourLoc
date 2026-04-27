@@ -1,168 +1,190 @@
-# RetourLoc
+# Contrôle périodique – Scan BJONG + Batteries
 
-Application web statique pour **scanner les retours de location** (BJONG + batteries), vérifier la présence du **SN** dans les fichiers de référence, afficher un résultat **plein écran vert / rouge**, archiver localement les scans, puis **exporter / partager** un CSV.
+Application HTML autonome pour **scanner des SN (Code 128)**, lire les **fichiers de contrôle** (Excel / CSV / TXT), vérifier si le **dernier contrôle** est encore valide selon un **seuil personnalisable en jours**, puis **exporter l'historique** en CSV.
 
-## Fonctions principales
+## Fichiers fournis
 
-- **Scan Code 128** via caméra (Quagga2)
-- **Chargement de 2 sources** :
-  - fichier **BJONG**
-  - fichier **Batteries**
-- Lecture des SN depuis les **colonnes A ou B** de la première feuille / du CSV
-- Résultat visuel :
-  - **Vert = OK**
-  - **Rouge = À contrôler**
-- L’écran rouge / vert **reste affiché jusqu’au prochain scan**
-- **Archivage local** des SN scannés
-- Champ **Notes** pour commentaire sur le matériel
-- **Annuler le dernier scan**
-- **Annuler une ligne précise**
-- **Flush base scannée**
-- **Export CSV**
-- **Partage** (si le téléphone supporte Web Share)
+- `index.html` → application web à déployer sur GitHub Pages
+- `README.md` → ce guide
 
----
+## Fonctionnalités
 
-## Fichiers à mettre dans le dépôt GitHub Pages
+- Scan **Code 128** via **Quagga2**
+- Lecture de fichiers **`.xlsx` / `.xls` / `.csv` / `.txt`**
+- Support **multi-feuilles** dans Excel
+- Détection automatique des colonnes :
+  - **SN** (`NS Batterie`, `NS`, `SN`, `SN (V)`...)
+  - **Date de contrôle** (`Heure de début`, `DATE`, `Date contrôle`...)
+- Gestion du **`V` initial optionnel** sur les SN
+- Gestion de plusieurs structures de fichiers (exports Forms / feuilles simplifiées)
+- Seuil de validité **personnalisable** (ex. 300 jours)
+- Affichage :
+  - **vert** = contrôle valide
+  - **rouge** = contrôle expiré / absent / SN inconnu
+- Overlay persistant jusqu'au prochain scan
+- Commentaire rapide sur chaque scan
+- Bouton **RAS**
+- Bouton **Annuler dernier scan**
+- Bouton **Flush base scannée**
+- Bouton **Vider références**
+- Export **CSV enrichi**
+- Partage natif si disponible sur le navigateur
+- Torche si disponible sur l'appareil
 
-À la racine du repo :
+## Format attendu des fichiers de contrôle
 
-- `index.html`
-- `README.md`
+L'application essaie d'identifier automatiquement les bonnes colonnes.
 
-Aucun build n’est nécessaire.
+### Cas 1 – Export Microsoft Forms
+Exemple de colonnes reconnues :
 
----
+- `Heure de début`
+- `NS Batterie`
+
+### Cas 2 – Feuille simplifiée
+Exemple de colonnes reconnues :
+
+- `NS`
+- `NS (V)`
+- `DATE`
+
+### Règles de lecture
+
+- si plusieurs feuilles existent, **elles sont toutes lues**
+- si un même SN apparaît plusieurs fois, **la date de contrôle la plus récente** est conservée
+- si le SN scanné commence par `V`, l'application compare aussi sans ce `V`
+
+## Règle métier
+
+Pour chaque SN scanné :
+
+- si la **date du dernier contrôle** est trouvée
+- et si l'**âge du contrôle** est **≤ seuil**
+  - statut = **OK**
+- sinon
+  - statut = **A CONTRÔLER**
+
+Le seuil est modifiable dans l'interface.
 
 ## Déploiement GitHub Pages
 
-1. Créer / utiliser le repo **`RetourLoc`**
-2. Déposer `index.html` et `README.md` à la racine
-3. Dans **Settings > Pages**
-4. Choisir **Deploy from a branch**
-5. Sélectionner :
-   - **Branch** : `main`
-   - **Folder** : `/ (root)`
-6. Enregistrer
-7. Attendre la publication
+### Option simple
 
-URL attendue :
+1. renommer le fichier HTML final en **`index.html`**
+2. déposer `index.html` à la racine du dépôt GitHub
+3. committer / pousser
+4. activer **GitHub Pages** sur la branche souhaitée
 
-```text
-https://baptisteinstro69410.github.io/RetourLoc/
-```
+### Important
 
----
+La caméra ne fonctionne que si l'application est servie en :
+
+- **HTTPS**
+- ou **localhost**
 
 ## Utilisation
 
-### 1. Charger les références
-- Charger le fichier **BJONG**
-- Charger le fichier **Batteries**
+### 1. Charger les fichiers de contrôle
 
-L’application fusionne les SN en mémoire dans une seule base de référence.
+- cliquer sur **Charger fichier BJONG** et/ou **Charger fichier Batteries**
+- attendre le message de statut indiquant le nombre de SN reconnus
 
-### 2. Scanner
-- Cliquer sur **Autoriser & scanner**
-- Présenter le code-barres dans la zone bleue
-- Si le SN est connu : **OK**
-- Sinon : **À contrôler**
+### 2. Régler le seuil
 
-### 3. Ajouter une note
-Dans le champ **Notes**, saisir par exemple :
-- câble manquant
-- choc boîtier
-- batterie absente
-- RAS
+- saisir le nombre de jours dans **Seuil validité contrôle (jours)**
+- cliquer sur **Appliquer**
 
-### 4. Archiver
-Chaque scan est ajouté à la liste locale avec :
-- SN
-- statut
-- source
-- date / heure
-- notes
+### 3. Scanner
 
-### 5. Exporter / partager
-- **Exporter CSV** pour intégrer le résultat dans un bon de réception
-- **Partager** pour envoyer via mail / Teams / WhatsApp si disponible
+- cliquer sur **Autoriser & scanner**
+- présenter le code dans la zone bleue
+- le résultat s'affiche en plein écran
 
----
+### 4. Saisie manuelle
 
-## Boutons disponibles
+- saisir le SN dans le champ **Barcode**
+- cliquer sur **Valider manuel**
 
-- **Autoriser & scanner** : démarre la caméra
-- **Arrêter** : arrête le scan
-- **Torche** : active la lumière si supportée
-- **Scanner suivant** : lance un nouveau scan et efface l’écran rouge / vert précédent
-- **Annuler dernier scan** : supprime le dernier scan archivé
-- **Valider manuel** : enregistre le SN saisi manuellement
-- **Exporter CSV** : télécharge le fichier CSV
-- **Partager** : partage le CSV si supporté
-- **Flush base scannée** : vide uniquement l’historique des scans
-- **Vider références** : décharge les références BJONG / Batteries
+### 5. Commenter / corriger
 
----
+- saisir une note dans l'overlay ou dans le champ **Notes**
+- utiliser **RAS** si aucun commentaire n'est nécessaire
+- utiliser **Annuler dernier scan** si besoin
 
-## Format des fichiers sources
+### 6. Exporter
 
-### Fichiers acceptés
-- `.csv`
-- `.txt`
-- `.xlsx`
-- `.xls`
+- cliquer sur **Exporter CSV**
+- ou **Partager** si le navigateur prend en charge le partage de fichiers
 
-### Hypothèse de lecture
-L’application lit les **colonnes A et B** de la **première feuille**.
+## Colonnes exportées dans le CSV
 
-Si tes SN sont ailleurs, il faudra adapter le code.
+L'export contient :
 
----
+- `SN référence`
+- `Barcode réel scanné`
+- `Saisi / scanné`
+- `Statut`
+- `Motif`
+- `Date contrôle`
+- `Âge contrôle (jours)`
+- `Seuil (jours)`
+- `Source`
+- `Date scan`
+- `Notes`
 
-## Format du CSV exporté
+## Boutons de maintenance
 
-Colonnes exportées :
+### Flush base scannée
+Vide immédiatement l'historique des scans enregistrés localement.
 
-```text
-SN ; Statut ; Source ; Date ; Notes
-```
+### Vider références
+Décharge les références lues depuis les fichiers BJONG / Batteries et remet les sélecteurs de fichiers à zéro.
 
----
+## Compatibilité
 
-## Stockage local
+- iPhone / Safari : OK si accès via HTTPS
+- Android / Chrome : OK si accès via HTTPS
+- PC : OK avec webcam si navigateur compatible
 
-Les scans sont stockés dans le navigateur via `localStorage`.
+## Dépannage
 
-Conséquences :
-- si tu vides les données du navigateur, l’historique disparaît
-- si tu changes d’appareil, l’historique ne suit pas
-- le **flush** vide uniquement la base scannée locale
+### La caméra ne démarre pas
 
----
+Vérifier :
 
-## Recommandations terrain
+- que l'application est ouverte en **HTTPS**
+- que l'autorisation caméra est acceptée
+- que le navigateur autorise la caméra
 
-- Utiliser de préférence **Chrome mobile** ou **Safari iPhone récent**
-- Garder le code-barres **horizontal**
-- Faire remplir le cadre bleu par le code
-- Si scan erroné :
-  - **Annuler dernier scan**
-  - ou **Annuler** sur la ligne concernée
+### Le SN est trouvé mais la date semble absente
 
----
+Vérifier :
 
-## Limites connues
+- que le fichier contient bien une colonne de date exploitable
+- que la feuille Excel utilisée contient bien le SN
+- que la date est dans un format interprétable
 
-- Le chargement du moteur de scan **Quagga2** nécessite un accès Internet au chargement initial
-- La torche n’est pas disponible sur tous les appareils / navigateurs
-- Les fichiers Excel sont lus sur la **première feuille uniquement**
+### Le scan est rouge alors que le contrôle est récent
+
+Vérifier :
+
+- le **seuil** configuré
+- le **format de date** du fichier
+- la présence d'une date plus récente sur une autre feuille
+
+## Version recommandée
+
+Utiliser la version HTML finale fournie avec le correctif :
+
+- lecture multi-feuilles
+- détection de colonnes
+- gestion des dates
+- correction RAS / flush / vider références
 
 ---
 
-## Évolutions possibles
+Si besoin, une évolution possible est d'ajouter :
 
-- ajout d’un champ **client**
-- ajout d’un champ **n° bon de réception**
 - filtre **uniquement à contrôler**
-- export enrichi pour impression directe
-- synchronisation SharePoint / Excel / Dataverse
+- export **des seuls SN expirés**
+- affichage du **nom de la feuille utilisée** pour chaque correspondance
