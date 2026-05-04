@@ -1,190 +1,310 @@
-# Contrôle périodique – Scan BJONG + Batteries
+# RetourLoc
 
-Application HTML autonome pour **scanner des SN (Code 128)**, lire les **fichiers de contrôle** (Excel / CSV / TXT), vérifier si le **dernier contrôle** est encore valide selon un **seuil personnalisable en jours**, puis **exporter l'historique** en CSV.
+Application web statique pour scanner les retours de location, contrôler les numéros de série et vérifier la validité du dernier contrôle périodique depuis un fichier Excel unique.
 
-## Fichiers fournis
+## Objectif
 
-- `index.html` → application web à déployer sur GitHub Pages
-- `README.md` → ce guide
+RetourLoc permet de :
 
-## Fonctionnalités
+- scanner des codes-barres Code 128 depuis la caméra d’un téléphone ;
+- charger un seul fichier Excel regroupant les contrôles BJONG et Batteries ;
+- rechercher chaque numéro de série scanné dans ce fichier ;
+- vérifier que le dernier contrôle date de moins de 300 jours par défaut ;
+- personnaliser le seuil de contrôle en jours ;
+- afficher immédiatement un résultat visuel OK / À contrôler ;
+- ajouter une note ou valider RAS ;
+- archiver localement les scans ;
+- exporter ou partager un fichier CSV.
 
-- Scan **Code 128** via **Quagga2**
-- Lecture de fichiers **`.xlsx` / `.xls` / `.csv` / `.txt`**
-- Support **multi-feuilles** dans Excel
-- Détection automatique des colonnes :
-  - **SN** (`NS Batterie`, `NS`, `SN`, `SN (V)`...)
-  - **Date de contrôle** (`Heure de début`, `DATE`, `Date contrôle`...)
-- Gestion du **`V` initial optionnel** sur les SN
-- Gestion de plusieurs structures de fichiers (exports Forms / feuilles simplifiées)
-- Seuil de validité **personnalisable** (ex. 300 jours)
-- Affichage :
-  - **vert** = contrôle valide
-  - **rouge** = contrôle expiré / absent / SN inconnu
-- Overlay persistant jusqu'au prochain scan
-- Commentaire rapide sur chaque scan
-- Bouton **RAS**
-- Bouton **Annuler dernier scan**
-- Bouton **Flush base scannée**
-- Bouton **Vider références**
-- Export **CSV enrichi**
-- Partage natif si disponible sur le navigateur
-- Torche si disponible sur l'appareil
+## Fichiers du dépôt
 
-## Format attendu des fichiers de contrôle
+À placer à la racine du dépôt GitHub Pages :
 
-L'application essaie d'identifier automatiquement les bonnes colonnes.
+```text
+index.html
+README.md
+```
 
-### Cas 1 – Export Microsoft Forms
-Exemple de colonnes reconnues :
-
-- `Heure de début`
-- `NS Batterie`
-
-### Cas 2 – Feuille simplifiée
-Exemple de colonnes reconnues :
-
-- `NS`
-- `NS (V)`
-- `DATE`
-
-### Règles de lecture
-
-- si plusieurs feuilles existent, **elles sont toutes lues**
-- si un même SN apparaît plusieurs fois, **la date de contrôle la plus récente** est conservée
-- si le SN scanné commence par `V`, l'application compare aussi sans ce `V`
-
-## Règle métier
-
-Pour chaque SN scanné :
-
-- si la **date du dernier contrôle** est trouvée
-- et si l'**âge du contrôle** est **≤ seuil**
-  - statut = **OK**
-- sinon
-  - statut = **A CONTRÔLER**
-
-Le seuil est modifiable dans l'interface.
+Aucun build n’est nécessaire.
 
 ## Déploiement GitHub Pages
 
-### Option simple
+1. Ouvrir le dépôt GitHub.
+2. Remplacer ou ajouter le fichier `index.html` à la racine.
+3. Ajouter ce fichier `README.md` à la racine.
+4. Commit / push sur la branche `main`.
+5. Dans GitHub : `Settings > Pages`.
+6. Configurer :
+   - Source : `Deploy from a branch`
+   - Branch : `main`
+   - Folder : `/ (root)`
+7. Attendre la publication.
 
-1. renommer le fichier HTML final en **`index.html`**
-2. déposer `index.html` à la racine du dépôt GitHub
-3. committer / pousser
-4. activer **GitHub Pages** sur la branche souhaitée
+URL attendue :
 
-### Important
+```text
+https://baptisteinstro69410.github.io/RetourLoc/
+```
 
-La caméra ne fonctionne que si l'application est servie en :
+Pour forcer le rafraîchissement après déploiement :
 
-- **HTTPS**
-- ou **localhost**
+```text
+https://baptisteinstro69410.github.io/RetourLoc/?v=11
+```
 
 ## Utilisation
 
-### 1. Charger les fichiers de contrôle
+### 1. Charger le fichier Excel unique
 
-- cliquer sur **Charger fichier BJONG** et/ou **Charger fichier Batteries**
-- attendre le message de statut indiquant le nombre de SN reconnus
+Cliquer sur le champ :
 
-### 2. Régler le seuil
+```text
+Fichier Excel unique contrôles BJONG + Batteries
+```
 
-- saisir le nombre de jours dans **Seuil validité contrôle (jours)**
-- cliquer sur **Appliquer**
+Puis sélectionner le fichier Excel contenant les contrôles.
 
-### 3. Scanner
+L’application lit toutes les feuilles du classeur.
 
-- cliquer sur **Autoriser & scanner**
-- présenter le code dans la zone bleue
-- le résultat s'affiche en plein écran
+### 2. Règle de lecture du fichier Excel
 
-### 4. Saisie manuelle
+L’application tente de détecter automatiquement les colonnes utiles à partir des en-têtes.
 
-- saisir le SN dans le champ **Barcode**
-- cliquer sur **Valider manuel**
+Si les colonnes ne sont pas détectées automatiquement, le fallback appliqué est :
 
-### 5. Commenter / corriger
+| Donnée | Colonne Excel |
+|---|---:|
+| Numéro de série | F |
+| Date de contrôle | B |
 
-- saisir une note dans l'overlay ou dans le champ **Notes**
-- utiliser **RAS** si aucun commentaire n'est nécessaire
-- utiliser **Annuler dernier scan** si besoin
+La date peut être au format :
 
-### 6. Exporter
+```text
+20/01/2026 15:20:46
+```
 
-- cliquer sur **Exporter CSV**
-- ou **Partager** si le navigateur prend en charge le partage de fichiers
+ou dans un format date Excel reconnu.
 
-## Colonnes exportées dans le CSV
+### 3. Gestion des numéros de série
 
-L'export contient :
+Les numéros de série sont normalisés avant comparaison.
 
-- `SN référence`
-- `Barcode réel scanné`
-- `Saisi / scanné`
-- `Statut`
-- `Motif`
-- `Date contrôle`
-- `Âge contrôle (jours)`
-- `Seuil (jours)`
-- `Source`
-- `Date scan`
-- `Notes`
+Règles appliquées :
 
-## Boutons de maintenance
+- suppression des espaces ;
+- conversion en majuscules ;
+- gestion du préfixe `V` facultatif devant les numéros numériques.
 
-### Flush base scannée
-Vide immédiatement l'historique des scans enregistrés localement.
+Exemples considérés équivalents :
 
-### Vider références
-Décharge les références lues depuis les fichiers BJONG / Batteries et remet les sélecteurs de fichiers à zéro.
+```text
+V202100132125
+202100132125
+```
+
+### 4. Personnaliser le seuil de contrôle
+
+Le champ `Seuil contrôle` permet de modifier la périodicité acceptée.
+
+Valeur par défaut :
+
+```text
+300 jours
+```
+
+Règle appliquée :
+
+- dernier contrôle ≤ seuil : `OK` ;
+- dernier contrôle > seuil : `À CONTRÔLER` ;
+- date absente : `À CONTRÔLER` ;
+- SN absent du fichier : `À CONTRÔLER`.
+
+### 5. Scanner un code-barres
+
+Cliquer sur :
+
+```text
+Autoriser & scanner
+```
+
+Puis autoriser l’accès caméra si demandé.
+
+L’application utilise Quagga pour lire les codes-barres Code 128.
+
+Le repère de scan est affiché au centre de la zone caméra :
+
+- rectangle de visée ;
+- ligne rouge centrale ;
+- zone de lecture visuelle.
+
+### 6. Résultat après scan
+
+Après chaque scan, l’application affiche un écran de résultat :
+
+- vert : `OK` ;
+- rouge : `À CONTRÔLER`.
+
+L’écran affiche :
+
+- le SN normalisé ;
+- le statut ;
+- la raison du statut ;
+- le type détecté ;
+- la date du dernier contrôle ;
+- l’âge du contrôle en jours.
+
+### 7. Notes et RAS
+
+Depuis l’écran de résultat, il est possible de :
+
+- saisir une note matériel ;
+- cliquer sur `RAS` ;
+- annuler le scan ;
+- lancer le scan suivant.
+
+Les notes sont enregistrées dans l’historique local et dans l’export CSV.
+
+### 8. Saisie manuelle
+
+Un SN peut être saisi manuellement dans le champ :
+
+```text
+Saisie manuelle SN
+```
+
+Puis validé avec :
+
+```text
+Valider manuel
+```
+
+La même logique de contrôle est appliquée que pour un scan caméra.
+
+## Export CSV
+
+Le bouton `Exporter CSV` télécharge un fichier CSV.
+
+Le bouton `Partager` utilise le partage natif du téléphone si disponible. Sinon, un export CSV classique est lancé.
+
+Le nom du fichier exporté est basé sur :
+
+- le champ client ;
+- le numéro de bon de réception ;
+- la date du jour.
+
+Format du nom :
+
+```text
+RetourLoc_CLIENT_BR_AAAA-MM-JJ.csv
+```
+
+Colonnes exportées :
+
+```text
+Date scan
+Client
+Bon reception
+Barcode reel scanne
+SN normalise
+Statut
+Raison
+Type controle
+Date dernier controle
+Age jours
+Scan manuel
+Notes SN
+Notes globales
+```
+
+## Stockage local
+
+L’historique des scans est stocké localement dans le navigateur via `localStorage`.
+
+Conséquences :
+
+- l’historique reste disponible après fermeture / réouverture de la page ;
+- l’historique ne suit pas automatiquement sur un autre appareil ;
+- vider les données du navigateur supprime l’historique.
+
+## Actions maintenance
+
+Les actions sensibles sont regroupées dans la section :
+
+```text
+Zone maintenance / actions dangereuses
+```
+
+Cette zone contient :
+
+- `Flush base scannée` ;
+- `Vider références`.
+
+Le bouton `Flush base scannée` est volontairement éloigné des boutons `Exporter CSV` et `Partager` afin d’éviter les mauvais clics.
+
+Une confirmation est demandée avant suppression de la base scannée.
+
+## Mode clair / mode sombre
+
+L’application propose une case :
+
+```text
+Mode sombre
+```
+
+Le mode clair est le mode par défaut.
+
+Le choix est conservé localement dans le navigateur.
 
 ## Compatibilité
 
-- iPhone / Safari : OK si accès via HTTPS
-- Android / Chrome : OK si accès via HTTPS
-- PC : OK avec webcam si navigateur compatible
+Recommandé :
 
-## Dépannage
+- iPhone avec Safari récent ;
+- Chrome mobile ;
+- accès HTTPS via GitHub Pages.
 
-### La caméra ne démarre pas
+Important : la caméra ne fonctionne pas correctement si la page est ouverte en HTTP ou depuis un fichier local.
 
-Vérifier :
+## Dépendances externes
 
-- que l'application est ouverte en **HTTPS**
-- que l'autorisation caméra est acceptée
-- que le navigateur autorise la caméra
+L’application charge les bibliothèques suivantes depuis CDN :
 
-### Le SN est trouvé mais la date semble absente
+- Quagga2 pour le scan Code 128 ;
+- SheetJS / XLSX pour la lecture Excel.
 
-Vérifier :
+Un accès Internet est nécessaire au chargement initial de la page pour récupérer ces bibliothèques.
 
-- que le fichier contient bien une colonne de date exploitable
-- que la feuille Excel utilisée contient bien le SN
-- que la date est dans un format interprétable
+## Limites connues
 
-### Le scan est rouge alors que le contrôle est récent
+- La torche dépend du support navigateur / appareil.
+- La lecture caméra dépend des autorisations iOS / Android.
+- Le scan peut nécessiter un bon éclairage et un code-barres horizontal.
+- Le fichier Excel doit contenir des SN exploitables et des dates de contrôle reconnues.
+- Les données restent locales au navigateur.
 
-Vérifier :
+## Recommandations terrain
 
-- le **seuil** configuré
-- le **format de date** du fichier
-- la présence d'une date plus récente sur une autre feuille
+- Utiliser l’URL GitHub Pages en HTTPS.
+- Après déploiement, forcer le cache avec `?v=11`.
+- Garder le code-barres horizontal dans le rectangle de visée.
+- Remplir le champ client et le bon de réception avant export.
+- Utiliser `RAS` pour accélérer la saisie des notes sans anomalie.
+- En cas d’erreur de scan, utiliser `Annuler ce scan`, `Annuler dernier scan` ou le bouton `Annuler` sur la ligne concernée.
 
-## Version recommandée
+## Version documentée
 
-Utiliser la version HTML finale fournie avec le correctif :
+README correspondant à la version `index.html` v11.
 
-- lecture multi-feuilles
-- détection de colonnes
-- gestion des dates
-- correction RAS / flush / vider références
+Fonctions principales validées :
 
----
-
-Si besoin, une évolution possible est d'ajouter :
-
-- filtre **uniquement à contrôler**
-- export **des seuls SN expirés**
-- affichage du **nom de la feuille utilisée** pour chaque correspondance
+- fichier Excel unique ;
+- lecture toutes feuilles ;
+- fallback SN colonne F / date colonne B ;
+- seuil personnalisable ;
+- scan Quagga Code 128 ;
+- affichage OK / À contrôler ;
+- notes et RAS ;
+- export / partage CSV ;
+- mode clair / sombre ;
+- zone maintenance séparée ;
+- bouton flush éloigné des actions de partage / export.
