@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>RetourLoc</title>
+  <meta name="theme-color" content="#f3f4f6" />
 
   <script src="https://cdn.jsdelivr.net/npm/@ericblade/quagga2/dist/quagga.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -186,12 +187,6 @@
 
     /* =========================================================
        02. SCANNER QUAGGA
-       ---------------------------------------------------------
-       Correction v9 :
-       - Pas de getUserMedia préalable.
-       - Quagga demande et garde la caméra.
-       - La vidéo Quagga est isolée dans #cameraViewport.
-       - Les repères rouges/verts sont hors conteneur Quagga.
        ========================================================= */
     #reader {
       position: relative;
@@ -207,17 +202,7 @@
       margin-top: 10px;
     }
 
-    #cameraViewport {
-      position: absolute;
-      inset: 0;
-      z-index: 1;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      background: #020617;
-    }
-
-    #cameraViewport video {
+    #reader video {
       position: absolute !important;
       inset: 0 !important;
       display: block !important;
@@ -232,8 +217,8 @@
       background: #020617 !important;
     }
 
-    #cameraViewport canvas,
-    #cameraViewport canvas.drawingBuffer {
+    #reader canvas,
+    #reader canvas.drawingBuffer {
       display: none !important;
       visibility: hidden !important;
       opacity: 0 !important;
@@ -243,9 +228,7 @@
     .scan-mask,
     .scan-target,
     .scan-line,
-    .scan-hint {
-      pointer-events: none;
-    }
+    .scan-hint { pointer-events: none; }
 
     .scan-mask {
       position: absolute;
@@ -253,12 +236,12 @@
       z-index: 10;
       background: linear-gradient(
         to bottom,
-        rgba(2, 6, 23, .36),
-        rgba(2, 6, 23, .18) 28%,
+        rgba(2, 6, 23, .34),
+        rgba(2, 6, 23, .16) 28%,
         rgba(2, 6, 23, 0) 43%,
         rgba(2, 6, 23, 0) 57%,
-        rgba(2, 6, 23, .18) 72%,
-        rgba(2, 6, 23, .36)
+        rgba(2, 6, 23, .16) 72%,
+        rgba(2, 6, 23, .34)
       );
     }
 
@@ -397,10 +380,7 @@
       vertical-align: top;
     }
 
-    th {
-      color: var(--muted);
-      font-size: 12px;
-    }
+    th { color: var(--muted); font-size: 12px; }
 
     .empty {
       color: var(--muted);
@@ -426,32 +406,16 @@
       gap: 8px;
     }
 
-    .switch input {
-      width: auto;
-      transform: scale(1.15);
-    }
+    .switch input { width: auto; transform: scale(1.15); }
 
     @media (max-width: 760px) {
       .topbar,
-      .row {
-        flex-direction: column;
-        align-items: stretch;
-      }
-
+      .row { flex-direction: column; align-items: stretch; }
       .col-6,
       .col-3 { grid-column: span 12; }
       .btn { width: 100%; }
-
-      #reader {
-        height: 54vh;
-        min-height: 340px;
-      }
-
-      .scan-target {
-        left: 5%;
-        right: 5%;
-        height: 108px;
-      }
+      #reader { height: 54vh; min-height: 340px; }
+      .scan-target { left: 5%; right: 5%; height: 108px; }
     }
   </style>
 </head>
@@ -503,11 +467,10 @@
       </div>
 
       <div id="reader" aria-label="Zone caméra de scan">
-        <div id="cameraViewport"></div>
-        <div class="scan-mask" aria-hidden="true"></div>
-        <div class="scan-target" aria-hidden="true"></div>
-        <div class="scan-line" aria-hidden="true"></div>
-        <div class="scan-hint">Aligne le code-barres dans le rectangle</div>
+        <div class="scan-mask" data-scan-overlay aria-hidden="true"></div>
+        <div class="scan-target" data-scan-overlay aria-hidden="true"></div>
+        <div class="scan-line" data-scan-overlay aria-hidden="true"></div>
+        <div class="scan-hint" data-scan-overlay>Aligne le code-barres dans le rectangle</div>
       </div>
 
       <br />
@@ -566,7 +529,7 @@
     /* =========================================================
        01. ÉTAT GLOBAL
        ========================================================= */
-    const STORAGE_SCANS = 'retourloc_scans_v9';
+    const STORAGE_SCANS = 'retourloc_scans_v11';
     const STORAGE_THEME = 'retourloc_theme';
 
     let refs = new Map();
@@ -576,7 +539,7 @@
     let currentTrack = null;
     let pendingOverlayId = null;
     let lastFile = null;
-    let cameraObserver = null;
+    let layoutTimer = null;
 
     const $ = (id) => document.getElementById(id);
 
@@ -621,7 +584,7 @@
       scans = safeJson(localStorage.getItem(STORAGE_SCANS), []);
       bindEvents();
       renderScans();
-      installCameraObserver();
+      forceCameraAndOverlayLayout();
     }
 
     function bindEvents() {
@@ -781,18 +744,19 @@
         return;
       }
 
-      const cameraViewport = document.querySelector('#cameraViewport');
-      if (!cameraViewport) {
+      const reader = document.querySelector('#reader');
+      if (!reader) {
         alert('Erreur interne : conteneur caméra introuvable.');
         return;
       }
 
-      clearCameraViewport();
+      removeOldCameraNodes();
+      forceCameraAndOverlayLayout();
 
       Quagga.init({
         inputStream: {
           type: 'LiveStream',
-          target: cameraViewport,
+          target: reader,
           constraints: {
             facingMode: 'environment',
             width: { ideal: 1280 },
@@ -817,10 +781,11 @@
         try {
           Quagga.start();
           scanning = true;
-          enforceCameraLayout();
-          setTimeout(enforceCameraLayout, 100);
-          setTimeout(enforceCameraLayout, 500);
-          setTimeout(enforceCameraLayout, 1200);
+          forceCameraAndOverlayLayout();
+          layoutTimer = setInterval(forceCameraAndOverlayLayout, 400);
+          setTimeout(forceCameraAndOverlayLayout, 100);
+          setTimeout(forceCameraAndOverlayLayout, 800);
+          setTimeout(forceCameraAndOverlayLayout, 1600);
           captureTrack();
         } catch (startError) {
           alert('Erreur au démarrage caméra : ' + getCameraErrorMessage(startError));
@@ -842,6 +807,10 @@
     }
 
     function stopScanner() {
+      if (layoutTimer) {
+        clearInterval(layoutTimer);
+        layoutTimer = null;
+      }
       try {
         if (window.Quagga && scanning) Quagga.stop();
       } catch (error) {
@@ -856,31 +825,27 @@
       startScanner();
     }
 
-    function clearCameraViewport() {
-      const cameraViewport = document.querySelector('#cameraViewport');
-      if (cameraViewport) cameraViewport.innerHTML = '';
+    function removeOldCameraNodes() {
+      const reader = document.querySelector('#reader');
+      if (!reader) return;
+      reader.querySelectorAll('video, canvas').forEach((node) => node.remove());
     }
 
-    function installCameraObserver() {
-      const cameraViewport = document.querySelector('#cameraViewport');
-      if (!cameraViewport) return;
-      cameraObserver = new MutationObserver(() => enforceCameraLayout());
-      cameraObserver.observe(cameraViewport, { childList: true, subtree: true, attributes: true });
-    }
-
-    function enforceCameraLayout() {
-      const cameraViewport = document.querySelector('#cameraViewport');
-      if (!cameraViewport) return;
-
-      Object.assign(cameraViewport.style, {
-        position: 'absolute',
-        inset: '0',
-        width: '100%',
-        height: '100%',
-        overflow: 'hidden'
+    function ensureScannerOverlayOnTop() {
+      const reader = document.querySelector('#reader');
+      if (!reader) return;
+      reader.querySelectorAll('[data-scan-overlay]').forEach((node) => {
+        if (node.parentElement === reader && node.nextElementSibling !== null) {
+          reader.appendChild(node);
+        }
       });
+    }
 
-      cameraViewport.querySelectorAll('video').forEach((video) => {
+    function forceCameraAndOverlayLayout() {
+      const reader = document.querySelector('#reader');
+      if (!reader) return;
+
+      reader.querySelectorAll('video').forEach((video) => {
         video.setAttribute('playsinline', 'true');
         video.setAttribute('muted', 'true');
         Object.assign(video.style, {
@@ -899,7 +864,7 @@
         });
       });
 
-      cameraViewport.querySelectorAll('canvas').forEach((canvas) => {
+      reader.querySelectorAll('canvas').forEach((canvas) => {
         Object.assign(canvas.style, {
           display: 'none',
           visibility: 'hidden',
@@ -907,11 +872,13 @@
           pointerEvents: 'none'
         });
       });
+
+      ensureScannerOverlayOnTop();
     }
 
     function captureTrack() {
       setTimeout(() => {
-        const video = document.querySelector('#cameraViewport video');
+        const video = document.querySelector('#reader video');
         if (video && video.srcObject) {
           const tracks = video.srcObject.getVideoTracks();
           currentTrack = tracks && tracks[0];
