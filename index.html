@@ -10,423 +10,74 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <style>
-    /* =========================================================
-       01. BASE / THÈMES
-       ========================================================= */
     :root {
-      --bg: #f3f4f6;
-      --panel: #ffffff;
-      --soft: #f9fafb;
-      --text: #111827;
-      --muted: #6b7280;
-      --border: #d1d5db;
-      --primary: #2563eb;
-      --secondary: #64748b;
-      --success: #16a34a;
-      --danger: #dc2626;
-      --danger-dark: #991b1b;
-      --warning: #f59e0b;
-      --scan: #2563eb;
-      --shadow: 0 10px 25px rgba(15, 23, 42, .10);
+      --bg:#f3f4f6; --panel:#fff; --soft:#f9fafb; --text:#111827; --muted:#6b7280;
+      --border:#d1d5db; --primary:#2563eb; --secondary:#64748b; --success:#16a34a;
+      --danger:#dc2626; --danger-dark:#991b1b; --warning:#f59e0b; --scan:#2563eb;
+      --shadow:0 10px 25px rgba(15,23,42,.10);
     }
-
     [data-theme="dark"] {
-      --bg: #111827;
-      --panel: #1f2937;
-      --soft: #111827;
-      --text: #f9fafb;
-      --muted: #cbd5e1;
-      --border: #374151;
-      --primary: #60a5fa;
-      --success: #22c55e;
-      --danger: #f87171;
-      --warning: #fbbf24;
-      --scan: #60a5fa;
-      --shadow: 0 10px 25px rgba(0, 0, 0, .35);
+      --bg:#111827; --panel:#1f2937; --soft:#111827; --text:#f9fafb; --muted:#cbd5e1;
+      --border:#374151; --primary:#60a5fa; --success:#22c55e; --danger:#f87171;
+      --warning:#fbbf24; --scan:#60a5fa; --shadow:0 10px 25px rgba(0,0,0,.35);
     }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif; background:var(--bg); color:var(--text); }
+    .wrap { width:100%; max-width:1050px; margin:0 auto; padding:14px 14px 34px; }
+    .topbar { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:14px; }
+    h1 { margin:0 0 6px; font-size:24px; line-height:1.1; font-weight:900; }
+    .sub,.hint { color:var(--muted); font-size:13px; }
+    .card { margin:12px 0; padding:14px; background:var(--panel); border:1px solid var(--border); border-radius:18px; box-shadow:var(--shadow); }
+    .grid { display:grid; grid-template-columns:repeat(12,1fr); gap:10px; }
+    .col-6 { grid-column:span 6; } .col-3 { grid-column:span 3; }
+    label { display:block; margin-bottom:6px; font-size:13px; font-weight:800; }
+    input,textarea { width:100%; padding:11px 12px; color:var(--text); background:var(--soft); border:1px solid var(--border); border-radius:12px; font-size:15px; outline:none; }
+    textarea { min-height:74px; resize:vertical; }
+    .row { display:flex; align-items:center; flex-wrap:wrap; gap:8px; }
+    .btn { border:0; border-radius:14px; padding:11px 14px; color:#fff; background:var(--primary); font-size:15px; font-weight:900; cursor:pointer; box-shadow:0 4px 10px rgba(37,99,235,.18); }
+    .btn.secondary { background:var(--secondary); } .btn.success { background:var(--success); } .btn.warning { background:var(--warning); color:#111827; } .btn.danger { background:var(--danger); }
+    .btn.ghost { color:var(--text); background:transparent; border:1px solid var(--border); box-shadow:none; }
+    .btn.small { width:auto; padding:8px 10px; border-radius:10px; font-size:13px; }
+    .pill { display:inline-flex; align-items:center; gap:6px; padding:7px 10px; color:var(--text); background:var(--soft); border:1px solid var(--border); border-radius:999px; font-size:12px; font-weight:800; }
+    .stats { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+    .ok { color:var(--success); } .bad { color:var(--danger); } .warnTxt { color:var(--warning); }
 
-    * { box-sizing: border-box; }
+    /* Scanner Quagga : cible directe #reader, overlays conservés au-dessus */
+    #reader { position:relative; width:100%; height:56vh; min-height:340px; max-height:520px; overflow:hidden; background:#020617; border:4px solid var(--scan); border-radius:18px; isolation:isolate; margin-top:10px; }
+    #reader video { position:absolute!important; inset:0!important; display:block!important; width:100%!important; height:100%!important; min-width:100%!important; min-height:100%!important; max-width:none!important; max-height:none!important; object-fit:cover!important; z-index:1!important; background:#020617!important; }
+    #reader canvas,#reader canvas.drawingBuffer { display:none!important; visibility:hidden!important; opacity:0!important; pointer-events:none!important; }
+    .scan-mask,.scan-target,.scan-line,.scan-hint { pointer-events:none; }
+    .scan-mask { position:absolute; inset:0; z-index:10; background:linear-gradient(to bottom,rgba(2,6,23,.34),rgba(2,6,23,.16) 28%,rgba(2,6,23,0) 43%,rgba(2,6,23,0) 57%,rgba(2,6,23,.16) 72%,rgba(2,6,23,.34)); }
+    .scan-target { position:absolute; z-index:11; left:6%; right:6%; top:50%; height:118px; transform:translateY(-50%); border:3px solid rgba(255,255,255,.95); border-radius:16px; box-shadow:0 0 0 999px rgba(2,6,23,.10),0 0 18px rgba(37,99,235,.45); }
+    .scan-target::before,.scan-target::after { content:""; position:absolute; width:28px; height:28px; border-color:#22c55e; border-style:solid; }
+    .scan-target::before { left:-3px; top:-3px; border-width:5px 0 0 5px; border-radius:14px 0 0 0; }
+    .scan-target::after { right:-3px; bottom:-3px; border-width:0 5px 5px 0; border-radius:0 0 14px 0; }
+    .scan-line { position:absolute; z-index:12; left:9%; right:9%; top:50%; height:4px; transform:translateY(-50%); background:#ef4444; border-radius:999px; box-shadow:0 0 16px #ef4444; }
+    .scan-hint { position:absolute; z-index:13; left:50%; bottom:12px; transform:translateX(-50%); max-width:calc(100% - 24px); padding:7px 11px; color:#fff; background:rgba(15,23,42,.78); border:1px solid rgba(255,255,255,.24); border-radius:999px; font-size:12px; font-weight:800; text-align:center; white-space:nowrap; }
 
-    body {
-      margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-    }
-
-    .wrap {
-      width: 100%;
-      max-width: 1050px;
-      margin: 0 auto;
-      padding: 14px 14px 34px;
-    }
-
-    .topbar {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 14px;
-    }
-
-    h1 {
-      margin: 0 0 6px;
-      font-size: 24px;
-      line-height: 1.1;
-      font-weight: 900;
-    }
-
-    .sub,
-    .hint {
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .card {
-      margin: 12px 0;
-      padding: 14px;
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      box-shadow: var(--shadow);
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(12, 1fr);
-      gap: 10px;
-    }
-
-    .col-6 { grid-column: span 6; }
-    .col-3 { grid-column: span 3; }
-
-    label {
-      display: block;
-      margin-bottom: 6px;
-      font-size: 13px;
-      font-weight: 800;
-    }
-
-    input,
-    textarea {
-      width: 100%;
-      padding: 11px 12px;
-      color: var(--text);
-      background: var(--soft);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      font-size: 15px;
-      outline: none;
-    }
-
-    textarea {
-      min-height: 74px;
-      resize: vertical;
-    }
-
-    .row {
-      display: flex;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    .btn {
-      border: 0;
-      border-radius: 14px;
-      padding: 11px 14px;
-      color: #ffffff;
-      background: var(--primary);
-      font-size: 15px;
-      font-weight: 900;
-      cursor: pointer;
-      box-shadow: 0 4px 10px rgba(37, 99, 235, .18);
-    }
-
-    .btn.secondary { background: var(--secondary); }
-    .btn.success { background: var(--success); }
-    .btn.warning { background: var(--warning); color: #111827; }
-    .btn.danger { background: var(--danger); }
-
-    .btn.ghost {
-      color: var(--text);
-      background: transparent;
-      border: 1px solid var(--border);
-      box-shadow: none;
-    }
-
-    .btn.small {
-      width: auto;
-      padding: 8px 10px;
-      border-radius: 10px;
-      font-size: 13px;
-    }
-
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 7px 10px;
-      color: var(--text);
-      background: var(--soft);
-      border: 1px solid var(--border);
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 800;
-    }
-
-    .stats {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 10px;
-    }
-
-    .ok { color: var(--success); }
-    .bad { color: var(--danger); }
-
-    /* =========================================================
-       02. SCANNER QUAGGA
-       ========================================================= */
-    #reader {
-      position: relative;
-      width: 100%;
-      height: 56vh;
-      min-height: 340px;
-      max-height: 520px;
-      overflow: hidden;
-      background: #020617;
-      border: 4px solid var(--scan);
-      border-radius: 18px;
-      isolation: isolate;
-      margin-top: 10px;
-    }
-
-    #reader video {
-      position: absolute !important;
-      inset: 0 !important;
-      display: block !important;
-      width: 100% !important;
-      height: 100% !important;
-      min-width: 100% !important;
-      min-height: 100% !important;
-      max-width: none !important;
-      max-height: none !important;
-      object-fit: cover !important;
-      z-index: 1 !important;
-      background: #020617 !important;
-    }
-
-    #reader canvas,
-    #reader canvas.drawingBuffer {
-      display: none !important;
-      visibility: hidden !important;
-      opacity: 0 !important;
-      pointer-events: none !important;
-    }
-
-    .scan-mask,
-    .scan-target,
-    .scan-line,
-    .scan-hint { pointer-events: none; }
-
-    .scan-mask {
-      position: absolute;
-      inset: 0;
-      z-index: 10;
-      background: linear-gradient(
-        to bottom,
-        rgba(2, 6, 23, .34),
-        rgba(2, 6, 23, .16) 28%,
-        rgba(2, 6, 23, 0) 43%,
-        rgba(2, 6, 23, 0) 57%,
-        rgba(2, 6, 23, .16) 72%,
-        rgba(2, 6, 23, .34)
-      );
-    }
-
-    .scan-target {
-      position: absolute;
-      z-index: 11;
-      left: 6%;
-      right: 6%;
-      top: 50%;
-      height: 118px;
-      transform: translateY(-50%);
-      border: 3px solid rgba(255, 255, 255, .95);
-      border-radius: 16px;
-      box-shadow: 0 0 0 999px rgba(2, 6, 23, .10), 0 0 18px rgba(37, 99, 235, .45);
-    }
-
-    .scan-target::before,
-    .scan-target::after {
-      content: "";
-      position: absolute;
-      width: 28px;
-      height: 28px;
-      border-color: #22c55e;
-      border-style: solid;
-    }
-
-    .scan-target::before {
-      left: -3px;
-      top: -3px;
-      border-width: 5px 0 0 5px;
-      border-radius: 14px 0 0 0;
-    }
-
-    .scan-target::after {
-      right: -3px;
-      bottom: -3px;
-      border-width: 0 5px 5px 0;
-      border-radius: 0 0 14px 0;
-    }
-
-    .scan-line {
-      position: absolute;
-      z-index: 12;
-      left: 9%;
-      right: 9%;
-      top: 50%;
-      height: 4px;
-      transform: translateY(-50%);
-      background: #ef4444;
-      border-radius: 999px;
-      box-shadow: 0 0 16px #ef4444;
-    }
-
-    .scan-hint {
-      position: absolute;
-      z-index: 13;
-      left: 50%;
-      bottom: 12px;
-      transform: translateX(-50%);
-      max-width: calc(100% - 24px);
-      padding: 7px 11px;
-      color: #ffffff;
-      background: rgba(15, 23, 42, .78);
-      border: 1px solid rgba(255, 255, 255, .24);
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 800;
-      text-align: center;
-      white-space: nowrap;
-    }
-
-    /* =========================================================
-       03. OVERLAY / TABLES
-       ========================================================= */
-    #overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      z-index: 9999;
-      overflow: auto;
-      padding: 18px;
-      color: #ffffff;
-      background: #15803d;
-    }
-
-    #overlay.bad { background: var(--danger-dark); }
-
-    .overlay-box {
-      max-width: 760px;
-      min-height: 100%;
-      margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      gap: 14px;
-    }
-
-    .overlay-status {
-      font-size: 44px;
-      line-height: 1;
-      font-weight: 950;
-      text-align: center;
-    }
-
-    .overlay-sn {
-      font-size: 28px;
-      font-weight: 900;
-      text-align: center;
-      word-break: break-word;
-    }
-
-    .overlay-meta {
-      text-align: center;
-      font-size: 15px;
-    }
-
-    .overlay-buttons {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-
-    .overlay-buttons .wide { grid-column: 1 / -1; }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-    }
-
-    th,
-    td {
-      padding: 9px 7px;
-      border-bottom: 1px solid var(--border);
-      text-align: left;
-      vertical-align: top;
-    }
-
-    th { color: var(--muted); font-size: 12px; }
-
-    .empty {
-      color: var(--muted);
-      font-style: italic;
-      padding: 12px 0;
-    }
-
-    .maintenance {
-      background: var(--soft);
-      border: 1px dashed var(--border);
-    }
-
-    .maintenance summary {
-      cursor: pointer;
-      color: var(--danger);
-      font-weight: 900;
-      padding: 4px 0;
-    }
-
-    .switch {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .switch input { width: auto; transform: scale(1.15); }
-
-    @media (max-width: 760px) {
-      .topbar,
-      .row { flex-direction: column; align-items: stretch; }
-      .col-6,
-      .col-3 { grid-column: span 12; }
-      .btn { width: 100%; }
-      #reader { height: 54vh; min-height: 340px; }
-      .scan-target { left: 5%; right: 5%; height: 108px; }
-    }
+    #overlay { display:none; position:fixed; inset:0; z-index:9999; overflow:auto; padding:18px; color:#fff; background:#15803d; }
+    #overlay.bad { background:var(--danger-dark); }
+    .overlay-box { max-width:760px; min-height:100%; margin:0 auto; display:flex; flex-direction:column; justify-content:center; gap:14px; }
+    .overlay-status { font-size:44px; line-height:1; font-weight:950; text-align:center; }
+    .overlay-sn { font-size:28px; font-weight:900; text-align:center; word-break:break-word; }
+    .overlay-meta { text-align:center; font-size:15px; }
+    .overlay-buttons { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .overlay-buttons .wide { grid-column:1 / -1; }
+    table { width:100%; border-collapse:collapse; font-size:13px; }
+    th,td { padding:9px 7px; border-bottom:1px solid var(--border); text-align:left; vertical-align:top; }
+    th { color:var(--muted); font-size:12px; }
+    .empty { color:var(--muted); font-style:italic; padding:12px 0; }
+    .maintenance { background:var(--soft); border:1px dashed var(--border); }
+    .maintenance summary { cursor:pointer; color:var(--danger); font-weight:900; padding:4px 0; }
+    .switch { display:flex; align-items:center; gap:8px; }
+    .switch input { width:auto; transform:scale(1.15); }
+    @media (max-width:760px) { .topbar,.row{flex-direction:column; align-items:stretch;} .col-6,.col-3{grid-column:span 12;} .btn{width:100%;} #reader{height:54vh; min-height:340px;} .scan-target{left:5%; right:5%; height:108px;} }
   </style>
 </head>
-
 <body>
   <div class="wrap">
     <header class="topbar">
-      <div>
-        <h1>RetourLoc</h1>
-        <div class="sub">Scan retour location + contrôle périodique depuis un fichier Excel unique.</div>
-      </div>
+      <div><h1>RetourLoc</h1><div class="sub">Scan retour location + contrôle périodique depuis un fichier Excel unique.</div></div>
       <label class="switch pill"><input id="themeToggle" type="checkbox" /> Mode sombre</label>
     </header>
 
@@ -435,17 +86,10 @@
         <div class="col-6">
           <label for="excelFile">Fichier Excel unique contrôles BJONG + Batteries</label>
           <input id="excelFile" type="file" accept=".xlsx,.xls,.csv,.txt" />
-          <div class="hint">Lecture de toutes les feuilles. Détection auto SN/date. Fallback : SN colonne F, date colonne B.</div>
+          <div class="hint">Lecture toutes feuilles. Détection : SN_NORMALISE, NS BJONG, NS Batterie, NS RADAR, NS Doppler H/V. Date : DATE_CONTROLE ou Heure de début.</div>
         </div>
-        <div class="col-3">
-          <label for="thresholdDays">Seuil contrôle</label>
-          <input id="thresholdDays" type="number" value="300" min="1" step="1" />
-          <div class="hint">OK si dernier contrôle ≤ seuil.</div>
-        </div>
-        <div class="col-3">
-          <label>&nbsp;</label>
-          <button class="btn secondary" id="reloadRefsBtn">Recharger fichier</button>
-        </div>
+        <div class="col-3"><label for="thresholdDays">Seuil contrôle</label><input id="thresholdDays" type="number" value="300" min="1" step="1" /><div class="hint">OK si contrôle OK et date ≤ seuil.</div></div>
+        <div class="col-3"><label>&nbsp;</label><button class="btn secondary" id="reloadRefsBtn">Recharger fichier</button></div>
       </div>
       <div class="stats" id="refStats"><span class="pill">Référentiel : non chargé</span></div>
     </section>
@@ -465,694 +109,332 @@
         <button class="btn ghost" id="torchBtn">Torche</button>
         <button class="btn warning" id="nextBtn">Scanner suivant</button>
       </div>
-
       <div id="reader" aria-label="Zone caméra de scan">
         <div class="scan-mask" data-scan-overlay aria-hidden="true"></div>
         <div class="scan-target" data-scan-overlay aria-hidden="true"></div>
         <div class="scan-line" data-scan-overlay aria-hidden="true"></div>
         <div class="scan-hint" data-scan-overlay>Aligne le code-barres dans le rectangle</div>
       </div>
-
       <br />
       <div class="grid">
         <div class="col-6"><label for="manualSn">Saisie manuelle SN</label><input id="manualSn" placeholder="Ex : V202100132125 ou 202100132125" /></div>
         <div class="col-6"><label for="scanNotes">Notes pour le prochain scan</label><input id="scanNotes" placeholder="RAS, câble manquant, choc..." /></div>
       </div>
       <br />
-      <div class="row">
-        <button class="btn" id="manualBtn">Valider manuel</button>
-        <button class="btn ghost" id="rasBtn">RAS</button>
-        <button class="btn danger" id="undoBtn">Annuler dernier scan</button>
-      </div>
+      <div class="row"><button class="btn" id="manualBtn">Valider manuel</button><button class="btn ghost" id="rasBtn">RAS</button><button class="btn danger" id="undoBtn">Annuler dernier scan</button></div>
     </section>
 
     <section class="card">
-      <div class="row" style="justify-content: space-between;">
-        <div><strong>Base scannée</strong><div class="hint" id="scanCount">0 ligne</div></div>
-        <div class="row"><button class="btn" id="exportBtn">Exporter CSV</button><button class="btn secondary" id="shareBtn">Partager</button></div>
-      </div>
-      <div style="overflow: auto; margin-top: 10px;">
-        <table>
-          <thead><tr><th>Date</th><th>Barcode réel</th><th>SN normalisé</th><th>Statut</th><th>Type</th><th>Dernier contrôle</th><th>Âge</th><th>Notes</th><th></th></tr></thead>
-          <tbody id="scanTbody"></tbody>
-        </table>
-      </div>
+      <div class="row" style="justify-content:space-between;"><div><strong>Base scannée</strong><div class="hint" id="scanCount">0 ligne</div></div><div class="row"><button class="btn" id="exportBtn">Exporter CSV</button><button class="btn secondary" id="shareBtn">Partager</button></div></div>
+      <div style="overflow:auto; margin-top:10px;"><table><thead><tr><th>Date</th><th>Barcode réel</th><th>SN normalisé</th><th>Statut</th><th>Type</th><th>Dernier contrôle</th><th>Âge</th><th>Résultat contrôle</th><th>Notes</th><th></th></tr></thead><tbody id="scanTbody"></tbody></table></div>
     </section>
 
     <section class="card maintenance">
-      <details>
-        <summary>Zone maintenance / actions dangereuses</summary>
-        <p class="hint">Le bouton de purge est volontairement éloigné de Partager / Exporter pour éviter les mauvais clics.</p>
-        <div class="row"><button class="btn danger" id="flushBtn">Flush base scannée</button><button class="btn ghost" id="clearRefsBtn">Vider références</button></div>
-      </details>
+      <details><summary>Zone maintenance / actions dangereuses</summary><p class="hint">Le bouton de purge est volontairement éloigné de Partager / Exporter pour éviter les mauvais clics.</p><div class="row"><button class="btn danger" id="flushBtn">Flush base scannée</button><button class="btn ghost" id="clearRefsBtn">Vider références</button></div></details>
     </section>
   </div>
 
-  <div id="overlay">
-    <div class="overlay-box">
-      <div class="overlay-status" id="ovStatus">OK</div>
-      <div class="overlay-sn" id="ovSn"></div>
-      <div class="overlay-meta" id="ovMeta"></div>
-      <label for="ovNotes">Notes matériel</label>
-      <textarea id="ovNotes" placeholder="RAS, câble manquant, choc..."></textarea>
-      <div class="overlay-buttons">
-        <button class="btn success" id="ovRasBtn">RAS</button>
-        <button class="btn danger" id="ovCancelBtn">Annuler ce scan</button>
-        <button class="btn wide" id="ovNextBtn">Scanner suivant</button>
-      </div>
-    </div>
-  </div>
+  <div id="overlay"><div class="overlay-box"><div class="overlay-status" id="ovStatus">OK</div><div class="overlay-sn" id="ovSn"></div><div class="overlay-meta" id="ovMeta"></div><label for="ovNotes">Notes matériel</label><textarea id="ovNotes" placeholder="RAS, câble manquant, choc..."></textarea><div class="overlay-buttons"><button class="btn success" id="ovRasBtn">RAS</button><button class="btn danger" id="ovCancelBtn">Annuler ce scan</button><button class="btn wide" id="ovNextBtn">Scanner suivant</button></div></div></div>
 
-  <script>
-    'use strict';
+<script>
+'use strict';
 
-    /* =========================================================
-       01. ÉTAT GLOBAL
-       ========================================================= */
-    const STORAGE_SCANS = 'retourloc_scans_v11';
-    const STORAGE_THEME = 'retourloc_theme';
+const STORAGE_SCANS = 'retourloc_scans_v12';
+const STORAGE_THEME = 'retourloc_theme';
+let refs = new Map();
+let scans = [];
+let scanning = false;
+let lastScanAt = 0;
+let currentTrack = null;
+let pendingOverlayId = null;
+let lastFile = null;
+let layoutTimer = null;
+const $ = (id) => document.getElementById(id);
+const els = {
+  themeToggle: $('themeToggle'), excelFile: $('excelFile'), thresholdDays: $('thresholdDays'), reloadRefsBtn: $('reloadRefsBtn'), refStats: $('refStats'),
+  clientName: $('clientName'), brNumber: $('brNumber'), globalNotes: $('globalNotes'), startBtn: $('startBtn'), stopBtn: $('stopBtn'), torchBtn: $('torchBtn'), nextBtn: $('nextBtn'),
+  manualSn: $('manualSn'), scanNotes: $('scanNotes'), manualBtn: $('manualBtn'), rasBtn: $('rasBtn'), undoBtn: $('undoBtn'), exportBtn: $('exportBtn'), shareBtn: $('shareBtn'),
+  scanTbody: $('scanTbody'), scanCount: $('scanCount'), flushBtn: $('flushBtn'), clearRefsBtn: $('clearRefsBtn'), overlay: $('overlay'), ovStatus: $('ovStatus'), ovSn: $('ovSn'), ovMeta: $('ovMeta'), ovNotes: $('ovNotes'), ovRasBtn: $('ovRasBtn'), ovCancelBtn: $('ovCancelBtn'), ovNextBtn: $('ovNextBtn')
+};
 
-    let refs = new Map();
-    let scans = [];
-    let scanning = false;
-    let lastScanAt = 0;
-    let currentTrack = null;
-    let pendingOverlayId = null;
-    let lastFile = null;
-    let layoutTimer = null;
+init();
+function init() {
+  applyTheme(localStorage.getItem(STORAGE_THEME) || 'light');
+  scans = safeJson(localStorage.getItem(STORAGE_SCANS), []);
+  bindEvents();
+  renderScans();
+  forceCameraAndOverlayLayout();
+}
+function bindEvents() {
+  els.themeToggle.addEventListener('change', () => applyTheme(els.themeToggle.checked ? 'dark' : 'light'));
+  els.excelFile.addEventListener('change', (event) => { lastFile = event.target.files[0] || null; if (lastFile) loadReferenceFile(lastFile); });
+  els.reloadRefsBtn.addEventListener('click', () => lastFile ? loadReferenceFile(lastFile) : els.excelFile.click());
+  els.startBtn.addEventListener('click', startScanner); els.stopBtn.addEventListener('click', stopScanner); els.nextBtn.addEventListener('click', nextScan); els.torchBtn.addEventListener('click', toggleTorch);
+  els.manualBtn.addEventListener('click', () => { const value = els.manualSn.value.trim(); if (value) handleCode(value, true); });
+  els.rasBtn.addEventListener('click', () => { els.scanNotes.value = 'RAS'; });
+  els.undoBtn.addEventListener('click', undoLastScan); els.exportBtn.addEventListener('click', downloadCsv); els.shareBtn.addEventListener('click', shareCsv); els.flushBtn.addEventListener('click', flushScans); els.clearRefsBtn.addEventListener('click', clearRefs);
+  els.ovRasBtn.addEventListener('click', () => { els.ovNotes.value = 'RAS'; syncOverlayNote(); });
+  els.ovCancelBtn.addEventListener('click', cancelOverlayScan);
+  els.ovNextBtn.addEventListener('click', () => { syncOverlayNote(); hideOverlay(); startScanner(); });
+  els.ovNotes.addEventListener('input', syncOverlayNote);
+  els.thresholdDays.addEventListener('change', () => { renderRefStats(); renderScans(); });
+}
+function applyTheme(theme) { document.documentElement.dataset.theme = theme; els.themeToggle.checked = theme === 'dark'; localStorage.setItem(STORAGE_THEME, theme); }
 
-    const $ = (id) => document.getElementById(id);
+async function loadReferenceFile(file) {
+  refs.clear();
+  const buffer = await file.arrayBuffer();
+  const workbook = XLSX.read(buffer, { type:'array', cellDates:true });
+  let rowsRead = 0, rowsKept = 0, sheetsUsed = 0, sheetsIgnored = 0;
+  const ignored = [];
 
-    const els = {
-      themeToggle: $('themeToggle'),
-      excelFile: $('excelFile'),
-      thresholdDays: $('thresholdDays'),
-      reloadRefsBtn: $('reloadRefsBtn'),
-      refStats: $('refStats'),
-      clientName: $('clientName'),
-      brNumber: $('brNumber'),
-      globalNotes: $('globalNotes'),
-      startBtn: $('startBtn'),
-      stopBtn: $('stopBtn'),
-      torchBtn: $('torchBtn'),
-      nextBtn: $('nextBtn'),
-      manualSn: $('manualSn'),
-      scanNotes: $('scanNotes'),
-      manualBtn: $('manualBtn'),
-      rasBtn: $('rasBtn'),
-      undoBtn: $('undoBtn'),
-      exportBtn: $('exportBtn'),
-      shareBtn: $('shareBtn'),
-      scanTbody: $('scanTbody'),
-      scanCount: $('scanCount'),
-      flushBtn: $('flushBtn'),
-      clearRefsBtn: $('clearRefsBtn'),
-      overlay: $('overlay'),
-      ovStatus: $('ovStatus'),
-      ovSn: $('ovSn'),
-      ovMeta: $('ovMeta'),
-      ovNotes: $('ovNotes'),
-      ovRasBtn: $('ovRasBtn'),
-      ovCancelBtn: $('ovCancelBtn'),
-      ovNextBtn: $('ovNextBtn')
-    };
+  for (const sheetName of workbook.SheetNames) {
+    const worksheet = workbook.Sheets[sheetName];
+    const rows = XLSX.utils.sheet_to_json(worksheet, { header:1, defval:'', raw:true });
+    if (!rows.length) continue;
+    rowsRead += rows.length;
 
-    init();
+    const headerIndex = detectHeaderRow(rows);
+    if (headerIndex < 0) { sheetsIgnored++; ignored.push(`${sheetName}: en-tête non détecté`); continue; }
 
-    function init() {
-      applyTheme(localStorage.getItem(STORAGE_THEME) || 'light');
-      scans = safeJson(localStorage.getItem(STORAGE_SCANS), []);
-      bindEvents();
-      renderScans();
+    const headers = rows[headerIndex] || [];
+    const startRow = headerIndex + 1;
+    const snColumn = detectColumn(headers, [
+      'SN_NORMALISE','SN normalisé','SN normalise','SN','NS','NS BJONG','NS Batterie','NS Doppler H/V','NS RADAR','N° série','N° serie','Numero serie','Numéro série','Serial','Code barre','Barcode'
+    ], -1);
+    const dateColumn = detectColumn(headers, [
+      'DATE_CONTROLE','Date contrôle','Date controle','Dernier contrôle','Dernier controle','Heure de début','Heure de debut','Date','Timestamp'
+    ], -1);
+    const resultColumn = detectColumn(headers, [
+      'RESULTAT_CONTROLE','Résultat contrôle','Resultat controle','Résultat Autotest','Resultat Autotest','Résutat','Résultat','Resultat','Résultat test H/V','Resultat test H/V','Résultat test Hauteur','Resultat test Hauteur'
+    ], -1);
+    const typeColumn = detectColumn(headers, ['TYPE_MATERIEL','Type matériel','Type materiel','Type','Matériel','Materiel','Famille'], -1);
+
+    if (snColumn < 0 || dateColumn < 0) { sheetsIgnored++; ignored.push(`${sheetName}: colonne SN ou date absente`); continue; }
+    sheetsUsed++;
+
+    for (let rowIndex = startRow; rowIndex < rows.length; rowIndex++) {
+      const row = rows[rowIndex] || [];
+      const rawSn = row[snColumn];
+      const sn = normalizeSn(rawSn);
+      if (!sn || sn.length < 4) continue;
+
+      const controlDate = parseDateAny(row[dateColumn]);
+      if (!controlDate) continue;
+
+      const rawResult = resultColumn >= 0 ? row[resultColumn] : 'OK';
+      const result = normalizeControlResult(rawResult);
+      const type = typeColumn >= 0 && row[typeColumn] ? String(row[typeColumn]).trim() : inferType(sheetName, file.name);
+      const existing = refs.get(sn);
+
+      if (!existing || controlDate > existing.date) {
+        refs.set(sn, { sn, rawSn:String(rawSn).trim(), date:controlDate, dateText:formatDate(controlDate), type, result, rawResult:String(rawResult ?? '').trim(), sheet:sheetName, file:file.name });
+      }
+      rowsKept++;
+    }
+  }
+  renderRefStats({ rowsRead, rowsKept, sheetsUsed, sheetsIgnored, ignored });
+}
+
+function detectHeaderRow(rows) {
+  const maxRows = Math.min(rows.length, 15);
+  for (let index = 0; index < maxRows; index++) {
+    const normalizedCells = (rows[index] || []).map(normalizeHeaderText).filter(Boolean);
+    const line = normalizedCells.join(' ');
+    const hasSn = normalizedCells.some((cell) => cell.includes('sn') || cell === 'ns' || cell.includes('nsbjong') || cell.includes('nsbatterie') || cell.includes('nsradar') || cell.includes('nsdoppler') || cell.includes('serial') || cell.includes('barcode'));
+    const hasDate = normalizedCells.some((cell) => cell.includes('date') || cell.includes('heuredebut') || cell.includes('heure'));
+    if (hasSn && hasDate) return index;
+    if (line.includes('datecontrole') && line.includes('snnormalise')) return index;
+  }
+  return -1;
+}
+function detectColumn(headers, candidates, fallback) {
+  const normalizedHeaders = headers.map(normalizeHeaderText);
+  const normalizedCandidates = candidates.map(normalizeHeaderText).filter(Boolean);
+  for (const candidate of normalizedCandidates) {
+    const index = normalizedHeaders.findIndex((header) => header && header === candidate);
+    if (index >= 0) return index;
+  }
+  for (const candidate of normalizedCandidates) {
+    const index = normalizedHeaders.findIndex((header) => {
+      if (!header) return false;
+      if (header.includes(candidate)) return true;
+      return header.length >= 3 && candidate.includes(header);
+    });
+    if (index >= 0) return index;
+  }
+  return fallback;
+}
+function normalizeHeaderText(value) {
+  return String(value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[\s_\-°()/]+/g, '');
+}
+function inferType(sheetName, fileName) {
+  const source = `${sheetName} ${fileName}`.toLowerCase();
+  if (source.includes('batt')) return 'BATTERIE_BJONG';
+  if (source.includes('doppler')) return 'DOPPLER_HAUTEUR';
+  if (source.includes('radar') || source.includes('vega')) return 'RADAR_VEGA';
+  if (source.includes('bjong')) return 'BJONG';
+  return 'NON PRÉCISÉ';
+}
+function normalizeControlResult(value) {
+  const txt = String(value ?? '').trim().toUpperCase();
+  if (txt === 'OK' || txt === 'PASS' || txt === 'CONFORME') return 'OK';
+  return 'FAIL';
+}
+function renderRefStats(info) {
+  const byType = {};
+  const byResult = { OK:0, FAIL:0 };
+  refs.forEach((ref) => { byType[ref.type] = (byType[ref.type] || 0) + 1; byResult[ref.result] = (byResult[ref.result] || 0) + 1; });
+  const parts = [`<span class="pill">Référentiel : ${refs.size} SN uniques</span>`];
+  Object.keys(byType).sort().forEach((type) => parts.push(`<span class="pill">${escapeHtml(type)} : ${byType[type]}</span>`));
+  parts.push(`<span class="pill ok">Contrôles OK : ${byResult.OK || 0}</span>`);
+  parts.push(`<span class="pill bad">Contrôles FAIL : ${byResult.FAIL || 0}</span>`);
+  if (info) {
+    parts.push(`<span class="pill">Lignes lues : ${info.rowsRead}</span>`);
+    parts.push(`<span class="pill">Lignes SN détectées : ${info.rowsKept}</span>`);
+    parts.push(`<span class="pill">Feuilles utilisées : ${info.sheetsUsed}</span>`);
+    if (info.sheetsIgnored) parts.push(`<span class="pill warnTxt">Feuilles ignorées : ${info.sheetsIgnored}</span>`);
+  }
+  els.refStats.innerHTML = parts.join('');
+}
+
+function startScanner() {
+  hideOverlay();
+  if (scanning) return;
+  if (!window.isSecureContext) { alert('Caméra bloquée : ouvre l’application en HTTPS via GitHub Pages.'); return; }
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { alert('Caméra indisponible : navigateur non compatible getUserMedia.'); return; }
+  if (!window.Quagga) { alert('Moteur caméra non chargé. Vérifie la connexion Internet au premier chargement.'); return; }
+  const reader = document.querySelector('#reader');
+  if (!reader) { alert('Erreur interne : conteneur caméra introuvable.'); return; }
+
+  removeOldCameraNodes();
+  forceCameraAndOverlayLayout();
+  Quagga.init({
+    inputStream:{ type:'LiveStream', target:reader, constraints:{ facingMode:'environment', width:{ideal:1280}, height:{ideal:720} }, area:{ top:'30%', right:'5%', left:'5%', bottom:'30%' } },
+    decoder:{ readers:['code_128_reader'] }, locate:true, frequency:10
+  }, (error) => {
+    if (error) { alert('Caméra indisponible au lancement Quagga : ' + getCameraErrorMessage(error)); return; }
+    try {
+      Quagga.start(); scanning = true;
       forceCameraAndOverlayLayout();
-    }
+      layoutTimer = setInterval(forceCameraAndOverlayLayout, 400);
+      setTimeout(forceCameraAndOverlayLayout, 100); setTimeout(forceCameraAndOverlayLayout, 800); setTimeout(forceCameraAndOverlayLayout, 1600);
+      captureTrack();
+    } catch (startError) { alert('Erreur au démarrage caméra : ' + getCameraErrorMessage(startError)); }
+  });
+  Quagga.offDetected(onDetected); Quagga.onDetected(onDetected);
+}
+function onDetected(result) {
+  const code = result && result.codeResult && result.codeResult.code;
+  if (!code) return;
+  const now = Date.now();
+  if (now - lastScanAt < 1800) return;
+  lastScanAt = now; stopScanner(); handleCode(code, false);
+}
+function stopScanner() {
+  if (layoutTimer) { clearInterval(layoutTimer); layoutTimer = null; }
+  try { if (window.Quagga && scanning) Quagga.stop(); } catch (error) {}
+  scanning = false; currentTrack = null;
+}
+function nextScan() { hideOverlay(); startScanner(); }
+function removeOldCameraNodes() { const reader = document.querySelector('#reader'); if (!reader) return; reader.querySelectorAll('video, canvas').forEach((node) => node.remove()); }
+function ensureScannerOverlayOnTop() { const reader = document.querySelector('#reader'); if (!reader) return; reader.querySelectorAll('[data-scan-overlay]').forEach((node) => { if (node.parentElement === reader && node.nextElementSibling !== null) reader.appendChild(node); }); }
+function forceCameraAndOverlayLayout() {
+  const reader = document.querySelector('#reader'); if (!reader) return;
+  reader.querySelectorAll('video').forEach((video) => { video.setAttribute('playsinline','true'); video.setAttribute('muted','true'); Object.assign(video.style,{ position:'absolute', inset:'0', display:'block', width:'100%', height:'100%', minWidth:'100%', minHeight:'100%', maxWidth:'none', maxHeight:'none', objectFit:'cover', zIndex:'1', background:'#020617' }); });
+  reader.querySelectorAll('canvas').forEach((canvas) => Object.assign(canvas.style,{ display:'none', visibility:'hidden', opacity:'0', pointerEvents:'none' }));
+  ensureScannerOverlayOnTop();
+}
+function captureTrack() { setTimeout(() => { const video = document.querySelector('#reader video'); if (video && video.srcObject) { const tracks = video.srcObject.getVideoTracks(); currentTrack = tracks && tracks[0]; } }, 600); }
+async function toggleTorch() {
+  try {
+    if (!currentTrack) { alert('Torche indisponible : caméra non active.'); return; }
+    const capabilities = currentTrack.getCapabilities();
+    if (!capabilities.torch) { alert('Torche non supportée sur cet appareil/navigateur.'); return; }
+    const enabled = !currentTrack._torchOn;
+    await currentTrack.applyConstraints({ advanced:[{ torch:enabled }] });
+    currentTrack._torchOn = enabled;
+  } catch (error) { alert('Impossible de modifier la torche.'); }
+}
+function getCameraErrorMessage(error) {
+  if (!error) return 'erreur inconnue'; if (typeof error === 'string') return error;
+  const name = error.name || ''; const message = error.message || String(error);
+  if (name === 'NotAllowedError' || name === 'PermissionDeniedError') return 'permission refusée. Vérifie Réglages > Safari/Chrome > Caméra.';
+  if (name === 'NotFoundError' || name === 'DevicesNotFoundError') return 'aucune caméra détectée.';
+  if (name === 'NotReadableError' || name === 'TrackStartError') return 'caméra déjà utilisée ou bloquée par le système.';
+  if (name === 'OverconstrainedError' || name === 'ConstraintNotSatisfiedError') return 'contrainte caméra non supportée.';
+  if (name === 'SecurityError') return 'accès caméra bloqué car la page n’est pas servie en HTTPS.';
+  return `${name || 'Erreur'} - ${message}`;
+}
 
-    function bindEvents() {
-      els.themeToggle.addEventListener('change', () => applyTheme(els.themeToggle.checked ? 'dark' : 'light'));
-      els.excelFile.addEventListener('change', (event) => {
-        lastFile = event.target.files[0] || null;
-        if (lastFile) loadReferenceFile(lastFile);
-      });
-      els.reloadRefsBtn.addEventListener('click', () => lastFile ? loadReferenceFile(lastFile) : els.excelFile.click());
-      els.startBtn.addEventListener('click', startScanner);
-      els.stopBtn.addEventListener('click', stopScanner);
-      els.nextBtn.addEventListener('click', nextScan);
-      els.torchBtn.addEventListener('click', toggleTorch);
-      els.manualBtn.addEventListener('click', () => {
-        const value = els.manualSn.value.trim();
-        if (value) handleCode(value, true);
-      });
-      els.rasBtn.addEventListener('click', () => { els.scanNotes.value = 'RAS'; });
-      els.undoBtn.addEventListener('click', undoLastScan);
-      els.exportBtn.addEventListener('click', downloadCsv);
-      els.shareBtn.addEventListener('click', shareCsv);
-      els.flushBtn.addEventListener('click', flushScans);
-      els.clearRefsBtn.addEventListener('click', clearRefs);
-      els.ovRasBtn.addEventListener('click', () => { els.ovNotes.value = 'RAS'; syncOverlayNote(); });
-      els.ovCancelBtn.addEventListener('click', cancelOverlayScan);
-      els.ovNextBtn.addEventListener('click', () => { syncOverlayNote(); hideOverlay(); startScanner(); });
-      els.ovNotes.addEventListener('input', syncOverlayNote);
-      els.thresholdDays.addEventListener('change', () => { renderRefStats(); renderScans(); });
-    }
+function handleCode(rawBarcode, manual) {
+  const sn = normalizeSn(rawBarcode);
+  const ref = refs.get(sn);
+  const status = getStatusForRef(ref);
+  const age = ref && ref.date ? daysSince(ref.date) : null;
+  const item = { id:`${Date.now()}_${Math.random().toString(16).slice(2)}`, date:new Date().toISOString(), barcode:String(rawBarcode).trim(), sn, status:status.label, reason:status.reason, type:ref ? ref.type : 'ABSENT', controlDate:ref && ref.date ? ref.date.toISOString() : '', controlDateText:ref ? ref.dateText : '', ageDays:age, controlResult:ref ? ref.result : '', notes:els.scanNotes.value || '', client:els.clientName.value || '', br:els.brNumber.value || '', globalNotes:els.globalNotes.value || '', manual:Boolean(manual) };
+  scans.unshift(item); saveScans(); renderScans(); showOverlay(item, status.cls);
+  els.manualSn.value = ''; els.scanNotes.value = ''; beep(status.cls === 'ok');
+}
+function getStatusForRef(ref) {
+  if (!ref) return { label:'À CONTRÔLER', cls:'bad', reason:'SN absent du référentiel' };
+  const age = daysSince(ref.date);
+  if (age === null) return { label:'À CONTRÔLER', cls:'bad', reason:'Date contrôle absente' };
+  if (ref.result !== 'OK') return { label:'À CONTRÔLER', cls:'bad', reason:`Dernier contrôle ${ref.result}` };
+  const threshold = Number(els.thresholdDays.value || 300);
+  if (age <= threshold) return { label:'OK', cls:'ok', reason:'Contrôle valide' };
+  return { label:'À CONTRÔLER', cls:'bad', reason:`Contrôle > ${threshold} jours` };
+}
+function normalizeSn(value) { return String(value || '').trim().toUpperCase().replace(/\s+/g,'').replace(/^V(?=\d)/,''); }
+function parseDateAny(value) {
+  if (!value && value !== 0) return null;
+  if (value instanceof Date && !isNaN(value)) return value;
+  if (typeof value === 'number') { const dateCode = XLSX.SSF.parse_date_code(value); return dateCode ? new Date(dateCode.y, dateCode.m - 1, dateCode.d, dateCode.H || 0, dateCode.M || 0, Math.floor(dateCode.S || 0)) : null; }
+  const text = String(value).trim(); if (!text) return null;
+  const iso = text.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
+  if (iso) return new Date(Number(iso[1]), Number(iso[2]) - 1, Number(iso[3]), Number(iso[4] || 0), Number(iso[5] || 0), Number(iso[6] || 0));
+  const fr = text.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
+  if (fr) { let year = Number(fr[3]); if (year < 100) year += 2000; return new Date(year, Number(fr[2]) - 1, Number(fr[1]), Number(fr[4] || 0), Number(fr[5] || 0), Number(fr[6] || 0)); }
+  const date = new Date(text); return isNaN(date) ? null : date;
+}
+function daysSince(date) { if (!date) return null; return Math.floor((Date.now() - date.getTime()) / 86400000); }
+function formatDate(date) { if (!date) return ''; return new Intl.DateTimeFormat('fr-FR',{ dateStyle:'short', timeStyle:'short' }).format(date); }
 
-    /* =========================================================
-       02. THÈME
-       ========================================================= */
-    function applyTheme(theme) {
-      document.documentElement.dataset.theme = theme;
-      els.themeToggle.checked = theme === 'dark';
-      localStorage.setItem(STORAGE_THEME, theme);
-    }
-
-    /* =========================================================
-       03. EXCEL UNIQUE
-       ========================================================= */
-    async function loadReferenceFile(file) {
-      refs.clear();
-      const buffer = await file.arrayBuffer();
-      const workbook = XLSX.read(buffer, { type: 'array', cellDates: true });
-      let rowsRead = 0;
-      let rowsKept = 0;
-
-      for (const sheetName of workbook.SheetNames) {
-        const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1, defval: '', raw: false });
-        if (!rows.length) continue;
-        rowsRead += rows.length;
-
-        const headerIndex = detectHeaderRow(rows);
-        const headers = headerIndex >= 0 ? rows[headerIndex] || [] : [];
-        const startRow = headerIndex >= 0 ? headerIndex + 1 : 0;
-        const snColumn = detectColumn(headers, ['sn', 'n°serie', 'n° série', 'numero serie', 'numéro série', 'ns', 'serial', 'code barre', 'barcode'], 5);
-        const dateColumn = detectColumn(headers, ['date', 'date controle', 'date contrôle', 'dernier controle', 'dernier contrôle', 'heure de debut', 'heure de début'], 1);
-        const typeColumn = detectColumn(headers, ['type', 'materiel', 'matériel', 'famille', 'controle', 'contrôle'], -1);
-
-        for (let rowIndex = startRow; rowIndex < rows.length; rowIndex++) {
-          const row = rows[rowIndex];
-          const rawSn = row[snColumn];
-          const sn = normalizeSn(rawSn);
-          if (!sn || sn.length < 4) continue;
-
-          const controlDate = parseDateAny(row[dateColumn]);
-          const type = typeColumn >= 0 && row[typeColumn] ? String(row[typeColumn]).trim() : inferType(sheetName, file.name);
-          const existing = refs.get(sn);
-
-          if (!existing || (controlDate && (!existing.date || controlDate > existing.date))) {
-            refs.set(sn, {
-              sn,
-              rawSn: String(rawSn).trim(),
-              date: controlDate,
-              dateText: controlDate ? formatDate(controlDate) : String(row[dateColumn] || ''),
-              type,
-              sheet: sheetName,
-              file: file.name
-            });
-          }
-
-          rowsKept++;
-        }
-      }
-
-      renderRefStats(rowsRead, rowsKept);
-    }
-
-    function detectHeaderRow(rows) {
-      for (let index = 0; index < Math.min(rows.length, 10); index++) {
-        const line = rows[index].map((cell) => String(cell).toLowerCase()).join(' ');
-        const hasSn = line.includes('sn') || line.includes('série') || line.includes('serie') || line.includes('ns');
-        const hasDate = line.includes('date') || line.includes('heure');
-        if (hasSn && hasDate) return index;
-      }
-      return -1;
-    }
-
-    function detectColumn(headers, candidates, fallback) {
-      const normalizeHeader = (value) => String(value || '')
-        .toLowerCase()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/[\s_\-°()]/g, '');
-      const normalizedHeaders = headers.map(normalizeHeader);
-
-      for (const candidate of candidates) {
-        const index = normalizedHeaders.indexOf(normalizeHeader(candidate));
-        if (index >= 0) return index;
-      }
-      for (const candidate of candidates) {
-        const normalizedCandidate = normalizeHeader(candidate);
-        const index = normalizedHeaders.findIndex((header) => header.includes(normalizedCandidate) || normalizedCandidate.includes(header));
-        if (index >= 0) return index;
-      }
-      return fallback;
-    }
-
-    function inferType(sheetName, fileName) {
-      const source = `${sheetName} ${fileName}`.toLowerCase();
-      if (source.includes('batt')) return 'BATTERIE';
-      if (source.includes('bjong')) return 'BJONG';
-      return 'NON PRÉCISÉ';
-    }
-
-    function renderRefStats(rowsRead, rowsKept) {
-      const byType = {};
-      refs.forEach((ref) => { byType[ref.type] = (byType[ref.type] || 0) + 1; });
-      const parts = [`<span class="pill">Référentiel : ${refs.size} SN uniques</span>`];
-      Object.keys(byType).sort().forEach((type) => parts.push(`<span class="pill">${escapeHtml(type)} : ${byType[type]}</span>`));
-      if (rowsRead !== undefined) {
-        parts.push(`<span class="pill">Lignes lues : ${rowsRead}</span>`);
-        parts.push(`<span class="pill">Lignes SN détectées : ${rowsKept}</span>`);
-      }
-      els.refStats.innerHTML = parts.join('');
-    }
-
-    /* =========================================================
-       04. SCANNER QUAGGA
-       ========================================================= */
-    function startScanner() {
-      hideOverlay();
-      if (scanning) return;
-
-      if (!window.isSecureContext) {
-        alert('Caméra bloquée : ouvre l’application en HTTPS via GitHub Pages.');
-        return;
-      }
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        alert('Caméra indisponible : navigateur non compatible getUserMedia.');
-        return;
-      }
-      if (!window.Quagga) {
-        alert('Moteur caméra non chargé. Vérifie la connexion Internet au premier chargement.');
-        return;
-      }
-
-      const reader = document.querySelector('#reader');
-      if (!reader) {
-        alert('Erreur interne : conteneur caméra introuvable.');
-        return;
-      }
-
-      removeOldCameraNodes();
-      forceCameraAndOverlayLayout();
-
-      Quagga.init({
-        inputStream: {
-          type: 'LiveStream',
-          target: reader,
-          constraints: {
-            facingMode: 'environment',
-            width: { ideal: 1280 },
-            height: { ideal: 720 }
-          },
-          area: {
-            top: '30%',
-            right: '5%',
-            left: '5%',
-            bottom: '30%'
-          }
-        },
-        decoder: { readers: ['code_128_reader'] },
-        locate: true,
-        frequency: 10
-      }, (error) => {
-        if (error) {
-          alert('Caméra indisponible au lancement Quagga : ' + getCameraErrorMessage(error));
-          return;
-        }
-
-        try {
-          Quagga.start();
-          scanning = true;
-          forceCameraAndOverlayLayout();
-          layoutTimer = setInterval(forceCameraAndOverlayLayout, 400);
-          setTimeout(forceCameraAndOverlayLayout, 100);
-          setTimeout(forceCameraAndOverlayLayout, 800);
-          setTimeout(forceCameraAndOverlayLayout, 1600);
-          captureTrack();
-        } catch (startError) {
-          alert('Erreur au démarrage caméra : ' + getCameraErrorMessage(startError));
-        }
-      });
-
-      Quagga.offDetected(onDetected);
-      Quagga.onDetected(onDetected);
-    }
-
-    function onDetected(result) {
-      const code = result && result.codeResult && result.codeResult.code;
-      if (!code) return;
-      const now = Date.now();
-      if (now - lastScanAt < 1800) return;
-      lastScanAt = now;
-      stopScanner();
-      handleCode(code, false);
-    }
-
-    function stopScanner() {
-      if (layoutTimer) {
-        clearInterval(layoutTimer);
-        layoutTimer = null;
-      }
-      try {
-        if (window.Quagga && scanning) Quagga.stop();
-      } catch (error) {
-        // Non bloquant.
-      }
-      scanning = false;
-      currentTrack = null;
-    }
-
-    function nextScan() {
-      hideOverlay();
-      startScanner();
-    }
-
-    function removeOldCameraNodes() {
-      const reader = document.querySelector('#reader');
-      if (!reader) return;
-      reader.querySelectorAll('video, canvas').forEach((node) => node.remove());
-    }
-
-    function ensureScannerOverlayOnTop() {
-      const reader = document.querySelector('#reader');
-      if (!reader) return;
-      reader.querySelectorAll('[data-scan-overlay]').forEach((node) => {
-        if (node.parentElement === reader && node.nextElementSibling !== null) {
-          reader.appendChild(node);
-        }
-      });
-    }
-
-    function forceCameraAndOverlayLayout() {
-      const reader = document.querySelector('#reader');
-      if (!reader) return;
-
-      reader.querySelectorAll('video').forEach((video) => {
-        video.setAttribute('playsinline', 'true');
-        video.setAttribute('muted', 'true');
-        Object.assign(video.style, {
-          position: 'absolute',
-          inset: '0',
-          display: 'block',
-          width: '100%',
-          height: '100%',
-          minWidth: '100%',
-          minHeight: '100%',
-          maxWidth: 'none',
-          maxHeight: 'none',
-          objectFit: 'cover',
-          zIndex: '1',
-          background: '#020617'
-        });
-      });
-
-      reader.querySelectorAll('canvas').forEach((canvas) => {
-        Object.assign(canvas.style, {
-          display: 'none',
-          visibility: 'hidden',
-          opacity: '0',
-          pointerEvents: 'none'
-        });
-      });
-
-      ensureScannerOverlayOnTop();
-    }
-
-    function captureTrack() {
-      setTimeout(() => {
-        const video = document.querySelector('#reader video');
-        if (video && video.srcObject) {
-          const tracks = video.srcObject.getVideoTracks();
-          currentTrack = tracks && tracks[0];
-        }
-      }, 600);
-    }
-
-    async function toggleTorch() {
-      try {
-        if (!currentTrack) {
-          alert('Torche indisponible : caméra non active.');
-          return;
-        }
-        const capabilities = currentTrack.getCapabilities();
-        if (!capabilities.torch) {
-          alert('Torche non supportée sur cet appareil/navigateur.');
-          return;
-        }
-        const enabled = !currentTrack._torchOn;
-        await currentTrack.applyConstraints({ advanced: [{ torch: enabled }] });
-        currentTrack._torchOn = enabled;
-      } catch (error) {
-        alert('Impossible de modifier la torche.');
-      }
-    }
-
-    function getCameraErrorMessage(error) {
-      if (!error) return 'erreur inconnue';
-      if (typeof error === 'string') return error;
-      const name = error.name || '';
-      const message = error.message || String(error);
-      if (name === 'NotAllowedError' || name === 'PermissionDeniedError') return 'permission refusée. Vérifie Réglages > Safari/Chrome > Caméra.';
-      if (name === 'NotFoundError' || name === 'DevicesNotFoundError') return 'aucune caméra détectée.';
-      if (name === 'NotReadableError' || name === 'TrackStartError') return 'caméra déjà utilisée ou bloquée par le système.';
-      if (name === 'OverconstrainedError' || name === 'ConstraintNotSatisfiedError') return 'contrainte caméra non supportée.';
-      if (name === 'SecurityError') return 'accès caméra bloqué car la page n’est pas servie en HTTPS.';
-      return `${name || 'Erreur'} - ${message}`;
-    }
-
-    /* =========================================================
-       05. SCANS / STATUTS
-       ========================================================= */
-    function handleCode(rawBarcode, manual) {
-      const sn = normalizeSn(rawBarcode);
-      const ref = refs.get(sn);
-      const status = getStatusForRef(ref);
-      const age = ref && ref.date ? daysSince(ref.date) : null;
-      const item = {
-        id: `${Date.now()}_${Math.random().toString(16).slice(2)}`,
-        date: new Date().toISOString(),
-        barcode: String(rawBarcode).trim(),
-        sn,
-        status: status.label,
-        reason: status.reason,
-        type: ref ? ref.type : 'ABSENT',
-        controlDate: ref && ref.date ? ref.date.toISOString() : '',
-        controlDateText: ref ? ref.dateText : '',
-        ageDays: age,
-        notes: els.scanNotes.value || '',
-        client: els.clientName.value || '',
-        br: els.brNumber.value || '',
-        globalNotes: els.globalNotes.value || '',
-        manual: Boolean(manual)
-      };
-      scans.unshift(item);
-      saveScans();
-      renderScans();
-      showOverlay(item, status.cls);
-      els.manualSn.value = '';
-      els.scanNotes.value = '';
-      beep(status.cls === 'ok');
-    }
-
-    function getStatusForRef(ref) {
-      if (!ref) return { label: 'À CONTRÔLER', cls: 'bad', reason: 'SN absent du référentiel' };
-      const age = daysSince(ref.date);
-      if (age === null) return { label: 'À CONTRÔLER', cls: 'bad', reason: 'Date contrôle absente' };
-      const threshold = Number(els.thresholdDays.value || 300);
-      if (age <= threshold) return { label: 'OK', cls: 'ok', reason: 'Contrôle valide' };
-      return { label: 'À CONTRÔLER', cls: 'bad', reason: `Contrôle > ${threshold} jours` };
-    }
-
-    function normalizeSn(value) {
-      return String(value || '').trim().toUpperCase().replace(/\s+/g, '').replace(/^V(?=\d)/, '');
-    }
-
-    function parseDateAny(value) {
-      if (!value && value !== 0) return null;
-      if (value instanceof Date && !isNaN(value)) return value;
-      if (typeof value === 'number') {
-        const dateCode = XLSX.SSF.parse_date_code(value);
-        return dateCode ? new Date(dateCode.y, dateCode.m - 1, dateCode.d, dateCode.H || 0, dateCode.M || 0, Math.floor(dateCode.S || 0)) : null;
-      }
-      const text = String(value).trim();
-      if (!text) return null;
-      const frMatch = text.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
-      if (frMatch) {
-        let year = Number(frMatch[3]);
-        if (year < 100) year += 2000;
-        return new Date(year, Number(frMatch[2]) - 1, Number(frMatch[1]), Number(frMatch[4] || 0), Number(frMatch[5] || 0), Number(frMatch[6] || 0));
-      }
-      const date = new Date(text);
-      return isNaN(date) ? null : date;
-    }
-
-    function daysSince(date) {
-      if (!date) return null;
-      return Math.floor((Date.now() - date.getTime()) / 86400000);
-    }
-
-    function formatDate(date) {
-      if (!date) return '';
-      return new Intl.DateTimeFormat('fr-FR', { dateStyle: 'short', timeStyle: 'short' }).format(date);
-    }
-
-    /* =========================================================
-       06. OVERLAY / HISTORIQUE / EXPORT
-       ========================================================= */
-    function showOverlay(item, cls) {
-      pendingOverlayId = item.id;
-      els.overlay.className = cls === 'ok' ? '' : 'bad';
-      els.ovStatus.textContent = item.status;
-      els.ovSn.textContent = item.sn;
-      els.ovMeta.textContent = `${item.reason} | Type: ${item.type} | Dernier contrôle: ${item.controlDateText || 'absent'} | Âge: ${item.ageDays == null ? 'n/a' : item.ageDays + ' j'}`;
-      els.ovNotes.value = item.notes || '';
-      els.overlay.style.display = 'block';
-    }
-
-    function hideOverlay() {
-      els.overlay.style.display = 'none';
-      pendingOverlayId = null;
-    }
-
-    function syncOverlayNote() {
-      if (!pendingOverlayId) return;
-      const item = scans.find((scan) => scan.id === pendingOverlayId);
-      if (!item) return;
-      item.notes = els.ovNotes.value;
-      saveScans();
-      renderScans();
-    }
-
-    function cancelOverlayScan() {
-      if (!pendingOverlayId) return;
-      scans = scans.filter((scan) => scan.id !== pendingOverlayId);
-      saveScans();
-      renderScans();
-      hideOverlay();
-    }
-
-    function saveScans() {
-      localStorage.setItem(STORAGE_SCANS, JSON.stringify(scans));
-    }
-
-    function renderScans() {
-      els.scanCount.textContent = scans.length + (scans.length > 1 ? ' lignes' : ' ligne');
-      if (!scans.length) {
-        els.scanTbody.innerHTML = '<tr><td colspan="9" class="empty">Aucun scan archivé.</td></tr>';
-        return;
-      }
-      els.scanTbody.innerHTML = scans.map((item) => `
-        <tr>
-          <td>${formatDate(new Date(item.date))}</td>
-          <td>${escapeHtml(item.barcode)}</td>
-          <td><strong>${escapeHtml(item.sn)}</strong></td>
-          <td class="${item.status === 'OK' ? 'ok' : 'bad'}"><strong>${escapeHtml(item.status)}</strong><br><small>${escapeHtml(item.reason || '')}</small></td>
-          <td>${escapeHtml(item.type || '')}</td>
-          <td>${escapeHtml(item.controlDateText || '')}</td>
-          <td>${item.ageDays == null ? '' : item.ageDays + ' j'}</td>
-          <td>${escapeHtml(item.notes || '')}</td>
-          <td><button class="btn small danger" onclick="deleteScan('${item.id}')">Annuler</button></td>
-        </tr>
-      `).join('');
-    }
-
-    window.deleteScan = function deleteScan(id) {
-      scans = scans.filter((scan) => scan.id !== id);
-      saveScans();
-      renderScans();
-    };
-
-    function undoLastScan() {
-      if (!scans.length) return;
-      scans.shift();
-      saveScans();
-      renderScans();
-    }
-
-    function flushScans() {
-      if (!confirm('Confirmer la suppression complète de la base scannée locale ?')) return;
-      scans = [];
-      saveScans();
-      renderScans();
-    }
-
-    function clearRefs() {
-      refs.clear();
-      lastFile = null;
-      els.excelFile.value = '';
-      renderRefStats();
-    }
-
-    function buildCsvText() {
-      const headers = ['Date scan', 'Client', 'Bon reception', 'Barcode reel scanne', 'SN normalise', 'Statut', 'Raison', 'Type controle', 'Date dernier controle', 'Age jours', 'Scan manuel', 'Notes SN', 'Notes globales'];
-      const rows = scans.slice().reverse().map((item) => [formatDate(new Date(item.date)), item.client, item.br, item.barcode, item.sn, item.status, item.reason, item.type, item.controlDateText, item.ageDays, item.manual ? 'OUI' : 'NON', item.notes, item.globalNotes]);
-      return [headers, ...rows].map((row) => row.map(csvCell).join(';')).join('\r\n');
-    }
-
-    function csvCell(value) {
-      const text = String(value ?? '');
-      return '"' + text.replace(/"/g, '""') + '"';
-    }
-
-    function getExportFileName() {
-      const client = sanitizeFilePart(els.clientName.value || 'CLIENT');
-      const br = sanitizeFilePart(els.brNumber.value || 'BR');
-      const date = new Date().toISOString().slice(0, 10);
-      return `RetourLoc_${client}_${br}_${date}.csv`;
-    }
-
-    function sanitizeFilePart(value) {
-      return String(value).trim().replace(/[^a-z0-9_-]+/gi, '_');
-    }
-
-    function downloadCsv() {
-      const blob = new Blob(['\ufeff' + buildCsvText()], { type: 'text/csv;charset=utf-8' });
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = getExportFileName();
-      link.click();
-      URL.revokeObjectURL(link.href);
-    }
-
-    async function shareCsv() {
-      const blob = new Blob(['\ufeff' + buildCsvText()], { type: 'text/csv;charset=utf-8' });
-      const file = new File([blob], getExportFileName(), { type: 'text/csv' });
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({ files: [file], title: 'RetourLoc', text: 'Export scans RetourLoc' });
-      } else {
-        downloadCsv();
-      }
-    }
-
-    function beep(ok) {
-      try {
-        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-        const context = new AudioContextClass();
-        const play = (frequency, delay) => {
-          const oscillator = context.createOscillator();
-          const gain = context.createGain();
-          oscillator.frequency.value = frequency;
-          oscillator.connect(gain);
-          gain.connect(context.destination);
-          gain.gain.setValueAtTime(0.001, context.currentTime + delay);
-          gain.gain.exponentialRampToValueAtTime(0.22, context.currentTime + delay + 0.02);
-          gain.gain.exponentialRampToValueAtTime(0.001, context.currentTime + delay + 0.14);
-          oscillator.start(context.currentTime + delay);
-          oscillator.stop(context.currentTime + delay + 0.16);
-        };
-        if (ok) play(880, 0);
-        else { play(220, 0); play(220, 0.22); }
-      } catch (error) {
-        // Son non critique.
-      }
-    }
-
-    function safeJson(text, fallback) {
-      try { return JSON.parse(text) || fallback; }
-      catch (error) { return fallback; }
-    }
-
-    function escapeHtml(value) {
-      return String(value ?? '').replace(/[&<>"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[char]));
-    }
-  </script>
+function showOverlay(item, cls) {
+  pendingOverlayId = item.id;
+  els.overlay.className = cls === 'ok' ? '' : 'bad';
+  els.ovStatus.textContent = item.status; els.ovSn.textContent = item.sn;
+  els.ovMeta.textContent = `${item.reason} | Type: ${item.type} | Dernier contrôle: ${item.controlDateText || 'absent'} | Résultat: ${item.controlResult || 'n/a'} | Âge: ${item.ageDays == null ? 'n/a' : item.ageDays + ' j'}`;
+  els.ovNotes.value = item.notes || ''; els.overlay.style.display = 'block';
+}
+function hideOverlay() { els.overlay.style.display = 'none'; pendingOverlayId = null; }
+function syncOverlayNote() { if (!pendingOverlayId) return; const item = scans.find((scan) => scan.id === pendingOverlayId); if (!item) return; item.notes = els.ovNotes.value; saveScans(); renderScans(); }
+function cancelOverlayScan() { if (!pendingOverlayId) return; scans = scans.filter((scan) => scan.id !== pendingOverlayId); saveScans(); renderScans(); hideOverlay(); }
+function saveScans() { localStorage.setItem(STORAGE_SCANS, JSON.stringify(scans)); }
+function renderScans() {
+  els.scanCount.textContent = scans.length + (scans.length > 1 ? ' lignes' : ' ligne');
+  if (!scans.length) { els.scanTbody.innerHTML = '<tr><td colspan="10" class="empty">Aucun scan archivé.</td></tr>'; return; }
+  els.scanTbody.innerHTML = scans.map((item) => `<tr><td>${formatDate(new Date(item.date))}</td><td>${escapeHtml(item.barcode)}</td><td><strong>${escapeHtml(item.sn)}</strong></td><td class="${item.status === 'OK' ? 'ok' : 'bad'}"><strong>${escapeHtml(item.status)}</strong><br><small>${escapeHtml(item.reason || '')}</small></td><td>${escapeHtml(item.type || '')}</td><td>${escapeHtml(item.controlDateText || '')}</td><td>${item.ageDays == null ? '' : item.ageDays + ' j'}</td><td>${escapeHtml(item.controlResult || '')}</td><td>${escapeHtml(item.notes || '')}</td><td><button class="btn small danger" onclick="deleteScan('${item.id}')">Annuler</button></td></tr>`).join('');
+}
+window.deleteScan = function deleteScan(id) { scans = scans.filter((scan) => scan.id !== id); saveScans(); renderScans(); };
+function undoLastScan() { if (!scans.length) return; scans.shift(); saveScans(); renderScans(); }
+function flushScans() { if (!confirm('Confirmer la suppression complète de la base scannée locale ?')) return; scans = []; saveScans(); renderScans(); }
+function clearRefs() { refs.clear(); lastFile = null; els.excelFile.value = ''; renderRefStats(); }
+function buildCsvText() {
+  const headers = ['Date scan','Client','Bon reception','Barcode reel scanne','SN normalise','Statut','Raison','Type controle','Date dernier controle','Age jours','Resultat controle','Scan manuel','Notes SN','Notes globales'];
+  const rows = scans.slice().reverse().map((item) => [formatDate(new Date(item.date)), item.client, item.br, item.barcode, item.sn, item.status, item.reason, item.type, item.controlDateText, item.ageDays, item.controlResult, item.manual ? 'OUI' : 'NON', item.notes, item.globalNotes]);
+  return [headers, ...rows].map((row) => row.map(csvCell).join(';')).join('\r\n');
+}
+function csvCell(value) { const text = String(value ?? ''); return '"' + text.replace(/"/g,'""') + '"'; }
+function getExportFileName() { const client = sanitizeFilePart(els.clientName.value || 'CLIENT'); const br = sanitizeFilePart(els.brNumber.value || 'BR'); const date = new Date().toISOString().slice(0,10); return `RetourLoc_${client}_${br}_${date}.csv`; }
+function sanitizeFilePart(value) { return String(value).trim().replace(/[^a-z0-9_-]+/gi,'_'); }
+function downloadCsv() { const blob = new Blob(['\ufeff' + buildCsvText()], { type:'text/csv;charset=utf-8' }); const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = getExportFileName(); link.click(); URL.revokeObjectURL(link.href); }
+async function shareCsv() { const blob = new Blob(['\ufeff' + buildCsvText()], { type:'text/csv;charset=utf-8' }); const file = new File([blob], getExportFileName(), { type:'text/csv' }); if (navigator.canShare && navigator.canShare({ files:[file] })) await navigator.share({ files:[file], title:'RetourLoc', text:'Export scans RetourLoc' }); else downloadCsv(); }
+function beep(ok) {
+  try { const AudioContextClass = window.AudioContext || window.webkitAudioContext; const context = new AudioContextClass(); const play = (frequency, delay) => { const oscillator = context.createOscillator(); const gain = context.createGain(); oscillator.frequency.value = frequency; oscillator.connect(gain); gain.connect(context.destination); gain.gain.setValueAtTime(0.001, context.currentTime + delay); gain.gain.exponentialRampToValueAtTime(0.22, context.currentTime + delay + 0.02); gain.gain.exponentialRampToValueAtTime(0.001, context.currentTime + delay + 0.14); oscillator.start(context.currentTime + delay); oscillator.stop(context.currentTime + delay + 0.16); }; if (ok) play(880,0); else { play(220,0); play(220,0.22); } } catch (error) {}
+}
+function safeJson(text, fallback) { try { return JSON.parse(text) || fallback; } catch (error) { return fallback; } }
+function escapeHtml(value) { return String(value ?? '').replace(/[&<>"]/g, (char) => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[char])); }
+</script>
 </body>
 </html>
