@@ -1,111 +1,1082 @@
 <!doctype html>
 <html lang="fr">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>RetourLoc</title>
-  <meta name="theme-color" content="#f3f4f6" />
-  <script src="https://cdn.jsdelivr.net/npm/@ericblade/quagga2/dist/quagga.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+ <head>
+  <meta charset="utf-8">
+  <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
+  <title>
+   RetourLoc
+  </title>
+  <meta content="#f3f4f6" name="theme-color"/>
+  <script src="https://cdn.jsdelivr.net/npm/@ericblade/quagga2/dist/quagga.min.js">
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js">
+  </script>
   <style>
-    :root{--bg:#f3f4f6;--panel:#fff;--soft:#f9fafb;--text:#111827;--muted:#6b7280;--border:#d1d5db;--primary:#2563eb;--secondary:#64748b;--success:#16a34a;--danger:#dc2626;--dangerDark:#991b1b;--warning:#f59e0b;--scan:#2563eb;--shadow:0 10px 25px rgba(15,23,42,.10);--safeBottom:env(safe-area-inset-bottom,0px)}
-    [data-theme="dark"]{--bg:#111827;--panel:#1f2937;--soft:#111827;--text:#f9fafb;--muted:#cbd5e1;--border:#374151;--primary:#60a5fa;--success:#22c55e;--danger:#f87171;--warning:#fbbf24;--scan:#60a5fa;--shadow:0 10px 25px rgba(0,0,0,.35)}
-    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);padding-bottom:calc(78px + var(--safeBottom))}.wrap{width:100%;max-width:1050px;margin:0 auto;padding:14px 14px 34px}.topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px}h1{margin:0 0 6px;font-size:24px;line-height:1.1;font-weight:900}.sub,.hint{color:var(--muted);font-size:13px}.card{margin:12px 0;padding:14px;background:var(--panel);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow)}.compact-card{padding:12px}.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:10px}.col-12{grid-column:span 12}.col-6{grid-column:span 6}.col-3{grid-column:span 3}label{display:block;margin-bottom:6px;font-size:13px;font-weight:800}input,textarea{width:100%;padding:11px 12px;color:var(--text);background:var(--soft);border:1px solid var(--border);border-radius:12px;font-size:15px;outline:none}textarea{min-height:74px;resize:vertical}.row{display:flex;align-items:center;flex-wrap:wrap;gap:8px}.btn{border:0;border-radius:14px;padding:11px 14px;color:#fff;background:var(--primary);font-size:15px;font-weight:900;cursor:pointer;box-shadow:0 4px 10px rgba(37,99,235,.18)}.btn.secondary{background:var(--secondary)}.btn.success{background:var(--success)}.btn.warning{background:var(--warning);color:#111827}.btn.danger{background:var(--danger)}.btn.ghost{color:var(--text);background:transparent;border:1px solid var(--border);box-shadow:none}.btn.small{width:auto;padding:8px 10px;border-radius:10px;font-size:13px}.pill{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;color:var(--text);background:var(--soft);border:1px solid var(--border);border-radius:999px;font-size:12px;font-weight:800}.stats{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.ok{color:var(--success)}.bad{color:var(--danger)}.warnTxt{color:var(--warning)}
-    .quickbar{position:fixed;left:0;right:0;bottom:0;z-index:9000;padding:8px 12px calc(8px + var(--safeBottom));background:rgba(243,244,246,.92);backdrop-filter:blur(12px);border-top:1px solid var(--border)}[data-theme="dark"] .quickbar{background:rgba(17,24,39,.92)}.quickbar-inner{max-width:1050px;margin:0 auto;display:grid;grid-template-columns:1.35fr 1fr 1fr;gap:8px}.quickbar .btn{padding:13px 10px;border-radius:16px}
-    #scannerCard{scroll-margin-top:12px}#reader{position:relative;width:100%;height:56vh;min-height:340px;max-height:520px;overflow:hidden;background:#020617;border:4px solid var(--scan);border-radius:18px;isolation:isolate;margin-top:10px}#reader video{position:absolute!important;inset:0!important;display:block!important;width:100%!important;height:100%!important;min-width:100%!important;min-height:100%!important;max-width:none!important;max-height:none!important;object-fit:cover!important;z-index:1!important;background:#020617!important}#reader canvas,#reader canvas.drawingBuffer{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important}.scan-mask,.scan-target,.scan-line,.scan-hint{pointer-events:none}.scan-mask{position:absolute;inset:0;z-index:10;background:linear-gradient(to bottom,rgba(2,6,23,.34),rgba(2,6,23,.16) 28%,rgba(2,6,23,0) 43%,rgba(2,6,23,0) 57%,rgba(2,6,23,.16) 72%,rgba(2,6,23,.34))}.scan-target{position:absolute;z-index:11;left:6%;right:6%;top:50%;height:118px;transform:translateY(-50%);border:3px solid rgba(255,255,255,.95);border-radius:16px;box-shadow:0 0 0 999px rgba(2,6,23,.10),0 0 18px rgba(37,99,235,.45)}.scan-target::before,.scan-target::after{content:"";position:absolute;width:28px;height:28px;border-color:#22c55e;border-style:solid}.scan-target::before{left:-3px;top:-3px;border-width:5px 0 0 5px;border-radius:14px 0 0 0}.scan-target::after{right:-3px;bottom:-3px;border-width:0 5px 5px 0;border-radius:0 0 14px 0}.scan-line{position:absolute;z-index:12;left:9%;right:9%;top:50%;height:4px;transform:translateY(-50%);background:#ef4444;border-radius:999px;box-shadow:0 0 16px #ef4444}.scan-hint{position:absolute;z-index:13;left:50%;bottom:12px;transform:translateX(-50%);max-width:calc(100% - 24px);padding:7px 11px;color:#fff;background:rgba(15,23,42,.78);border:1px solid rgba(255,255,255,.24);border-radius:999px;font-size:12px;font-weight:800;text-align:center;white-space:nowrap}
-    #overlay{display:none;position:fixed;inset:0;z-index:9999;overflow:auto;padding:18px;color:#fff;background:#15803d}#overlay.bad{background:var(--dangerDark)}.overlay-box{max-width:760px;min-height:100%;margin:0 auto;display:flex;flex-direction:column;justify-content:center;gap:14px}.overlay-status{font-size:44px;line-height:1;font-weight:950;text-align:center}.overlay-sn{font-size:28px;font-weight:900;text-align:center;word-break:break-word}.overlay-meta{text-align:center;font-size:15px}.overlay-buttons{display:grid;grid-template-columns:1fr 1fr;gap:10px}.overlay-buttons .wide{grid-column:1/-1}table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:9px 7px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top}th{color:var(--muted);font-size:12px}.empty{color:var(--muted);font-style:italic;padding:12px 0}.maintenance{background:var(--soft);border:1px dashed var(--border)}.maintenance summary{cursor:pointer;color:var(--danger);font-weight:900;padding:4px 0}.switch{display:flex;align-items:center;gap:8px}.switch input{width:auto;transform:scale(1.15)}
-    @media(max-width:760px){.topbar,.row{flex-direction:column;align-items:stretch}.col-6,.col-3{grid-column:span 12}.btn{width:100%}#reader{height:54vh;min-height:340px}.scan-target{left:5%;right:5%;height:108px}.quickbar-inner{grid-template-columns:1.4fr 1fr 1fr}}
+   :root {
+  --bg:#f3f4f6;
+  --panel:#fff;
+  --soft:#f9fafb;
+  --text:#111827;
+  --muted:#6b7280;
+  --border:#d1d5db;
+  --primary:#2563eb;
+  --secondary:#64748b;
+  --success:#16a34a;
+  --danger:#dc2626;
+  --dangerDark:#991b1b;
+  --warning:#f59e0b;
+  --scan:#2563eb;
+  --shadow:0 10px 25px rgba(15,23,42,.10);
+  --safeBottom:env(safe-area-inset-bottom,0px)
+}
+[data-theme="dark"] {
+  --bg:#111827;
+  --panel:#1f2937;
+  --soft:#111827;
+  --text:#f9fafb;
+  --muted:#cbd5e1;
+  --border:#374151;
+  --primary:#60a5fa;
+  --success:#22c55e;
+  --danger:#f87171;
+  --warning:#fbbf24;
+  --scan:#60a5fa;
+  --shadow:0 10px 25px rgba(0,0,0,.35)
+}
+* {
+  box-sizing:border-box
+}
+html {
+  scroll-behavior:smooth
+}
+body {
+  margin:0;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  padding-bottom:calc(78px + var(--safeBottom))
+}
+.wrap {
+  max-width:1050px;
+  margin:0 auto;
+  padding:14px 14px 34px
+}
+.topbar {
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:14px
+}
+h1 {
+  margin:0 0 6px;
+  font-size:24px;
+  font-weight:900
+}
+.sub,.hint {
+  color:var(--muted);
+  font-size:13px
+}
+.card {
+  margin:12px 0;
+  padding:14px;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:18px;
+  box-shadow:var(--shadow)
+}
+.compact {
+  padding:12px
+}
+.grid {
+  display:grid;
+  grid-template-columns:repeat(12,1fr);
+  gap:10px
+}
+.col-6 {
+  grid-column:span 6
+}
+.col-3 {
+  grid-column:span 3
+}
+label {
+  display:block;
+  margin-bottom:6px;
+  font-size:13px;
+  font-weight:800
+}
+input,textarea {
+  width:100%;
+  padding:11px 12px;
+  color:var(--text);
+  background:var(--soft);
+  border:1px solid var(--border);
+  border-radius:12px;
+  font-size:15px;
+  outline:none
+}
+textarea {
+  min-height:74px;
+  resize:vertical
+}
+.row {
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:8px
+}
+.btn {
+  border:0;
+  border-radius:14px;
+  padding:11px 14px;
+  color:#fff;
+  background:var(--primary);
+  font-size:15px;
+  font-weight:900;
+  cursor:pointer;
+  box-shadow:0 4px 10px rgba(37,99,235,.18)
+}
+.btn.secondary {
+  background:var(--secondary)
+}
+.btn.success {
+  background:var(--success)
+}
+.btn.warning {
+  background:var(--warning);
+  color:#111827
+}
+.btn.danger {
+  background:var(--danger)
+}
+.btn.ghost {
+  color:var(--text);
+  background:transparent;
+  border:1px solid var(--border);
+  box-shadow:none
+}
+.btn.small {
+  width:auto;
+  padding:8px 10px;
+  border-radius:10px;
+  font-size:13px
+}
+.pill {
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:7px 10px;
+  color:var(--text);
+  background:var(--soft);
+  border:1px solid var(--border);
+  border-radius:999px;
+  font-size:12px;
+  font-weight:800
+}
+.stats {
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:10px
+}
+.ok {
+  color:var(--success)
+}
+.bad {
+  color:var(--danger)
+}
+.warnTxt {
+  color:var(--warning)
+}
+.quickbar {
+  position:fixed;
+  left:0;
+  right:0;
+  bottom:0;
+  z-index:9000;
+  padding:8px 12px calc(8px + var(--safeBottom));
+  background:rgba(243,244,246,.92);
+  backdrop-filter:blur(12px);
+  border-top:1px solid var(--border)
+}
+[data-theme="dark"] .quickbar {
+  background:rgba(17,24,39,.92)
+}
+.quickbar-inner {
+  max-width:1050px;
+  margin:0 auto;
+  display:grid;
+  grid-template-columns:1.35fr 1fr 1fr;
+  gap:8px
+}
+.quickbar .btn {
+  padding:13px 10px;
+  border-radius:16px
+}
+#scannerCard {
+  scroll-margin-top:12px
+}
+#reader {
+  position:relative;
+  width:100%;
+  height:56vh;
+  min-height:340px;
+  max-height:520px;
+  overflow:hidden;
+  background:#020617;
+  border:4px solid var(--scan);
+  border-radius:18px;
+  isolation:isolate;
+  margin-top:10px
+}
+#reader video {
+  position:absolute!important;
+  inset:0!important;
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  min-width:100%!important;
+  min-height:100%!important;
+  max-width:none!important;
+  max-height:none!important;
+  object-fit:cover!important;
+  z-index:1!important;
+  background:#020617!important
+}
+#reader canvas,#reader canvas.drawingBuffer {
+  display:none!important;
+  visibility:hidden!important;
+  opacity:0!important;
+  pointer-events:none!important
+}
+.scan-mask,.scan-target,.scan-line,.scan-hint {
+  pointer-events:none
+}
+.scan-mask {
+  position:absolute;
+  inset:0;
+  z-index:10;
+  background:linear-gradient(to bottom,rgba(2,6,23,.34),rgba(2,6,23,.16) 28%,rgba(2,6,23,0) 43%,rgba(2,6,23,0) 57%,rgba(2,6,23,.16) 72%,rgba(2,6,23,.34))
+}
+.scan-target {
+  position:absolute;
+  z-index:11;
+  left:6%;
+  right:6%;
+  top:50%;
+  height:118px;
+  transform:translateY(-50%);
+  border:3px solid rgba(255,255,255,.95);
+  border-radius:16px;
+  box-shadow:0 0 0 999px rgba(2,6,23,.10),0 0 18px rgba(37,99,235,.45)
+}
+.scan-target:before,.scan-target:after {
+  content:"";
+  position:absolute;
+  width:28px;
+  height:28px;
+  border-color:#22c55e;
+  border-style:solid
+}
+.scan-target:before {
+  left:-3px;
+  top:-3px;
+  border-width:5px 0 0 5px;
+  border-radius:14px 0 0 0
+}
+.scan-target:after {
+  right:-3px;
+  bottom:-3px;
+  border-width:0 5px 5px 0;
+  border-radius:0 0 14px 0
+}
+.scan-line {
+  position:absolute;
+  z-index:12;
+  left:9%;
+  right:9%;
+  top:50%;
+  height:4px;
+  transform:translateY(-50%);
+  background:#ef4444;
+  border-radius:999px;
+  box-shadow:0 0 16px #ef4444
+}
+.scan-hint {
+  position:absolute;
+  z-index:13;
+  left:50%;
+  bottom:12px;
+  transform:translateX(-50%);
+  padding:7px 11px;
+  color:#fff;
+  background:rgba(15,23,42,.78);
+  border:1px solid rgba(255,255,255,.24);
+  border-radius:999px;
+  font-size:12px;
+  font-weight:800;
+  white-space:nowrap
+}
+#overlay {
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:9999;
+  overflow:auto;
+  padding:18px;
+  color:#fff;
+  background:#15803d
+}
+#overlay.bad {
+  background:var(--dangerDark)
+}
+.overlay-box {
+  max-width:760px;
+  min-height:100%;
+  margin:0 auto;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:14px
+}
+.overlay-status {
+  font-size:44px;
+  line-height:1;
+  font-weight:950;
+  text-align:center
+}
+.overlay-sn {
+  font-size:28px;
+  font-weight:900;
+  text-align:center;
+  word-break:break-word
+}
+.overlay-meta {
+  text-align:center;
+  font-size:15px
+}
+.overlay-buttons {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px
+}
+.overlay-buttons .wide {
+  grid-column:1/-1
+}
+table {
+  width:100%;
+  border-collapse:collapse;
+  font-size:13px
+}
+th,td {
+  padding:9px 7px;
+  border-bottom:1px solid var(--border);
+  text-align:left;
+  vertical-align:top
+}
+th {
+  color:var(--muted);
+  font-size:12px
+}
+.empty {
+  color:var(--muted);
+  font-style:italic;
+  padding:12px 0
+}
+.maintenance {
+  background:var(--soft);
+  border:1px dashed var(--border)
+}
+.maintenance summary {
+  cursor:pointer;
+  color:var(--danger);
+  font-weight:900;
+  padding:4px 0
+}
+.switch {
+  display:flex;
+  align-items:center;
+  gap:8px
+}
+.switch input {
+  width:auto;
+  transform:scale(1.15)
+}
+@media(max-width:760px) {
+  .topbar,.row {
+    flex-direction:column;
+    align-items:stretch
+  }
+  .col-6,.col-3 {
+    grid-column:span 12
+  }
+  .btn {
+    width:100%
+  }
+  #reader {
+    height:54vh;
+    min-height:340px
+  }
+  .scan-target {
+    left:5%;
+    right:5%;
+    height:108px
+  }
+  .quickbar-inner {
+    grid-template-columns:1.4fr 1fr 1fr
+  }
+}
   </style>
-</head>
-<body>
+ </head>
+ <body>
   <div class="wrap">
-    <header class="topbar"><div><h1>RetourLoc</h1><div class="sub">Scan retour location + contrôle périodique depuis un fichier Excel unique.</div></div></header>
-
-    <section class="card compact-card" id="fileCard">
-      <div class="grid">
-        <div class="col-6"><label for="excelFile">Fichier Excel unique contrôles</label><input id="excelFile" type="file" accept=".xlsx,.xls,.csv,.txt" /><div class="hint">Après chargement, l’app descend automatiquement sur la zone scanner.</div></div>
-        <div class="col-3"><label for="thresholdDays">Seuil contrôle</label><input id="thresholdDays" type="number" value="300" min="1" step="1" /><div class="hint">OK si contrôle OK et date ≤ seuil.</div></div>
-        <div class="col-3"><label>&nbsp;</label><button class="btn secondary" id="reloadRefsBtn">Recharger fichier</button></div>
+   <header class="topbar">
+    <div>
+     <h1>
+      RetourLoc
+     </h1>
+     <div class="sub">
+      Scan retour location + contrôle périodique depuis un fichier Excel unique.
+     </div>
+    </div>
+   </header>
+   <section class="card compact" id="fileCard">
+    <div class="grid">
+     <div class="col-6">
+      <label for="excelFile">
+       Fichier Excel unique contrôles
+      </label>
+      <input accept=".xlsx,.xls,.csv,.txt" id="excelFile" type="file"/>
+      <div class="hint">
+       Après chargement, l’app descend automatiquement sur la zone scanner.
       </div>
-      <div class="stats" id="refStats"><span class="pill">Référentiel : non chargé</span></div>
-    </section>
-
-    <section class="card" id="scannerCard">
-      <div class="row"><button class="btn success" id="startBtn">Autoriser & scanner</button><button class="btn secondary" id="stopBtn">Arrêter</button><button class="btn ghost" id="torchBtn">Torche</button><button class="btn warning" id="nextBtn">Scanner suivant</button></div>
-      <div id="reader" aria-label="Zone caméra de scan"><div class="scan-mask" data-scan-overlay aria-hidden="true"></div><div class="scan-target" data-scan-overlay aria-hidden="true"></div><div class="scan-line" data-scan-overlay aria-hidden="true"></div><div class="scan-hint" data-scan-overlay>Aligne le code-barres dans le rectangle</div></div>
-      <br />
-      <div class="grid"><div class="col-6"><label for="manualSn">Saisie manuelle SN</label><input id="manualSn" placeholder="Ex : V202100132125 ou 202100132125" /></div><div class="col-6"><label for="scanNotes">Notes pour le prochain scan</label><input id="scanNotes" placeholder="RAS, câble manquant, choc..." /></div></div>
-      <br />
-      <div class="row"><button class="btn" id="manualBtn">Valider manuel</button><button class="btn ghost" id="rasBtn">RAS</button><button class="btn danger" id="undoBtn">Annuler dernier scan</button></div>
-    </section>
-
-    <section class="card"><div class="grid"><div class="col-3"><label for="clientName">Client</label><input id="clientName" placeholder="Nom client" /></div><div class="col-3"><label for="brNumber">Bon de réception</label><input id="brNumber" placeholder="BR-..." /></div><div class="col-6"><label for="globalNotes">Notes globales export</label><input id="globalNotes" placeholder="Optionnel" /></div></div></section>
-
-    <section class="card"><div class="row" style="justify-content:space-between"><div><strong>Base scannée</strong><div class="hint" id="scanCount">0 ligne</div></div><div class="row"><button class="btn" id="exportBtn">Exporter CSV</button><button class="btn secondary" id="shareBtn">Partager</button></div></div><div style="overflow:auto;margin-top:10px"><table><thead><tr><th>Date</th><th>Barcode réel</th><th>SN normalisé</th><th>Statut</th><th>Type</th><th>Dernier contrôle</th><th>Âge</th><th>Résultat contrôle</th><th>Notes</th><th></th></tr></thead><tbody id="scanTbody"></tbody></table></div></section>
-
-    <section class="card maintenance"><details><summary>Zone maintenance / actions dangereuses</summary><br><label class="switch pill"><input id="themeToggle" type="checkbox" /> Mode sombre</label><p class="hint">Le bouton de purge est volontairement éloigné de Partager / Exporter pour éviter les mauvais clics.</p><div class="row"><button class="btn danger" id="flushBtn">Flush base scannée</button><button class="btn ghost" id="clearRefsBtn">Vider références</button></div></details></section>
+     </div>
+     <div class="col-3">
+      <label for="thresholdDays">
+       Seuil contrôle
+      </label>
+      <input id="thresholdDays" min="1" step="1" type="number" value="300"/>
+      <div class="hint">
+       OK si contrôle OK et date ≤ seuil.
+      </div>
+     </div>
+     <div class="col-3">
+      <label>
+      </label>
+      <button class="btn secondary" id="reloadRefsBtn">
+       Recharger fichier
+      </button>
+     </div>
+    </div>
+    <div class="stats" id="refStats">
+     <span class="pill">
+      Référentiel : non chargé
+     </span>
+    </div>
+   </section>
+   <section class="card" id="scannerCard">
+    <div class="row">
+     <button class="btn success" id="startBtn">
+      Autoriser & scanner
+     </button>
+     <button class="btn secondary" id="stopBtn">
+      Arrêter
+     </button>
+     <button class="btn ghost" id="torchBtn">
+      Torche
+     </button>
+     <button class="btn warning" id="nextBtn">
+      Scanner suivant
+     </button>
+    </div>
+    <div id="reader">
+     <div class="scan-mask" data-scan-overlay="">
+     </div>
+     <div class="scan-target" data-scan-overlay="">
+     </div>
+     <div class="scan-line" data-scan-overlay="">
+     </div>
+     <div class="scan-hint" data-scan-overlay="">
+      Aligne le code-barres dans le rectangle
+     </div>
+    </div>
+    <br/>
+    <div class="grid">
+     <div class="col-6">
+      <label for="manualSn">
+       Saisie manuelle SN
+      </label>
+      <input id="manualSn" placeholder="Ex : V202100132125 ou 202100132125"/>
+     </div>
+     <div class="col-6">
+      <label for="scanNotes">
+       Notes pour le prochain scan
+      </label>
+      <input id="scanNotes" placeholder="RAS, câble manquant, choc..."/>
+     </div>
+    </div>
+    <br/>
+    <div class="row">
+     <button class="btn" id="manualBtn">
+      Valider manuel
+     </button>
+     <button class="btn ghost" id="rasBtn">
+      RAS
+     </button>
+     <button class="btn danger" id="undoBtn">
+      Annuler dernier scan
+     </button>
+    </div>
+   </section>
+   <section class="card">
+    <div class="grid">
+     <div class="col-3">
+      <label for="clientName">
+       Client
+      </label>
+      <input id="clientName" placeholder="Nom client"/>
+     </div>
+     <div class="col-3">
+      <label for="brNumber">
+       Bon de réception
+      </label>
+      <input id="brNumber" placeholder="BR-..."/>
+     </div>
+     <div class="col-6">
+      <label for="globalNotes">
+       Notes globales export
+      </label>
+      <input id="globalNotes" placeholder="Optionnel"/>
+     </div>
+    </div>
+   </section>
+   <section class="card">
+    <div class="row" style="justify-content:space-between">
+     <div>
+      <strong>
+       Base scannée
+      </strong>
+      <div class="hint" id="scanCount">
+       0 ligne
+      </div>
+     </div>
+     <div class="row">
+      <button class="btn" id="exportBtn">
+       Exporter CSV
+      </button>
+      <button class="btn secondary" id="shareBtn">
+       Partager
+      </button>
+     </div>
+    </div>
+    <div style="overflow:auto;margin-top:10px">
+     <table>
+      <thead>
+       <tr>
+        <th>
+         Date
+        </th>
+        <th>
+         Barcode réel
+        </th>
+        <th>
+         SN normalisé
+        </th>
+        <th>
+         Statut
+        </th>
+        <th>
+         Type
+        </th>
+        <th>
+         Dernier contrôle
+        </th>
+        <th>
+         Âge
+        </th>
+        <th>
+         Résultat contrôle
+        </th>
+        <th>
+         Notes
+        </th>
+        <th>
+        </th>
+       </tr>
+      </thead>
+      <tbody id="scanTbody">
+      </tbody>
+     </table>
+    </div>
+   </section>
+   <section class="card maintenance">
+    <details>
+     <summary>
+      Zone maintenance / actions dangereuses
+     </summary>
+     <br/>
+     <label class="switch pill">
+      <input id="themeToggle" type="checkbox"/>
+      Mode sombre
+     </label>
+     <p class="hint">
+      Le bouton de purge est volontairement éloigné de Partager / Exporter pour éviter les mauvais clics.
+     </p>
+     <div class="row">
+      <button class="btn danger" id="flushBtn">
+       Flush base scannée
+      </button>
+      <button class="btn ghost" id="clearRefsBtn">
+       Vider références
+      </button>
+     </div>
+    </details>
+   </section>
   </div>
+  <div class="quickbar">
+   <div class="quickbar-inner">
+    <button class="btn success" id="quickStartBtn">
+     Scanner
+    </button>
+    <button class="btn warning" id="quickNextBtn">
+     Suivant
+    </button>
+    <button class="btn secondary" id="quickShareBtn">
+     Partager
+    </button>
+   </div>
+  </div>
+  <div id="overlay">
+   <div class="overlay-box">
+    <div class="overlay-status" id="ovStatus">
+     OK
+    </div>
+    <div class="overlay-sn" id="ovSn">
+    </div>
+    <div class="overlay-meta" id="ovMeta">
+    </div>
+    <label for="ovNotes">
+     Notes matériel
+    </label>
+    <textarea id="ovNotes" placeholder="RAS, câble manquant, choc..."></textarea>
+    <div class="overlay-buttons">
+     <button class="btn success" id="ovRasBtn">
+      RAS
+     </button>
+     <button class="btn danger" id="ovCancelBtn">
+      Annuler ce scan
+     </button>
+     <button class="btn wide" id="ovNextBtn">
+      Scanner suivant
+     </button>
+    </div>
+   </div>
+  </div>
+  <script>
+/* =========================================================
+   RETOURLOC - JS organisé par sections
+   01. Etat global / init
+   02. Lecture Excel
+   03. Scanner Quagga
+   04. Scans / statut / overlay
+   05. Export / partage / utilitaires
+   ========================================================= */
 
-  <div class="quickbar"><div class="quickbar-inner"><button class="btn success" id="quickStartBtn">Scanner</button><button class="btn warning" id="quickNextBtn">Suivant</button><button class="btn secondary" id="quickExportBtn">Export</button></div></div>
-
-  <div id="overlay"><div class="overlay-box"><div class="overlay-status" id="ovStatus">OK</div><div class="overlay-sn" id="ovSn"></div><div class="overlay-meta" id="ovMeta"></div><label for="ovNotes">Notes matériel</label><textarea id="ovNotes" placeholder="RAS, câble manquant, choc..."></textarea><div class="overlay-buttons"><button class="btn success" id="ovRasBtn">RAS</button><button class="btn danger" id="ovCancelBtn">Annuler ce scan</button><button class="btn wide" id="ovNextBtn">Scanner suivant</button></div></div></div>
-
-<script>
 'use strict';
-const STORAGE_SCANS='retourloc_scans_v13';
-const STORAGE_THEME='retourloc_theme';
+const STORAGE_SCANS='retourloc_scans_v15', STORAGE_THEME='retourloc_theme';
 let refs=new Map(), scans=[], scanning=false, lastScanAt=0, currentTrack=null, pendingOverlayId=null, lastFile=null, layoutTimer=null;
 const $=id=>document.getElementById(id);
-const els={themeToggle:$('themeToggle'),excelFile:$('excelFile'),thresholdDays:$('thresholdDays'),reloadRefsBtn:$('reloadRefsBtn'),refStats:$('refStats'),clientName:$('clientName'),brNumber:$('brNumber'),globalNotes:$('globalNotes'),startBtn:$('startBtn'),stopBtn:$('stopBtn'),torchBtn:$('torchBtn'),nextBtn:$('nextBtn'),quickStartBtn:$('quickStartBtn'),quickNextBtn:$('quickNextBtn'),quickExportBtn:$('quickExportBtn'),manualSn:$('manualSn'),scanNotes:$('scanNotes'),manualBtn:$('manualBtn'),rasBtn:$('rasBtn'),undoBtn:$('undoBtn'),exportBtn:$('exportBtn'),shareBtn:$('shareBtn'),scanTbody:$('scanTbody'),scanCount:$('scanCount'),flushBtn:$('flushBtn'),clearRefsBtn:$('clearRefsBtn'),overlay:$('overlay'),ovStatus:$('ovStatus'),ovSn:$('ovSn'),ovMeta:$('ovMeta'),ovNotes:$('ovNotes'),ovRasBtn:$('ovRasBtn'),ovCancelBtn:$('ovCancelBtn'),ovNextBtn:$('ovNextBtn')};
+const els= {
+  themeToggle:$('themeToggle'), excelFile:$('excelFile'), thresholdDays:$('thresholdDays'), reloadRefsBtn:$('reloadRefsBtn'), refStats:$('refStats'), clientName:$('clientName'), brNumber:$('brNumber'), globalNotes:$('globalNotes'), startBtn:$('startBtn'), stopBtn:$('stopBtn'), torchBtn:$('torchBtn'), nextBtn:$('nextBtn'), quickStartBtn:$('quickStartBtn'), quickNextBtn:$('quickNextBtn'), quickShareBtn:$('quickShareBtn'), manualSn:$('manualSn'), scanNotes:$('scanNotes'), manualBtn:$('manualBtn'), rasBtn:$('rasBtn'), undoBtn:$('undoBtn'), exportBtn:$('exportBtn'), shareBtn:$('shareBtn'), scanTbody:$('scanTbody'), scanCount:$('scanCount'), flushBtn:$('flushBtn'), clearRefsBtn:$('clearRefsBtn'), overlay:$('overlay'), ovStatus:$('ovStatus'), ovSn:$('ovSn'), ovMeta:$('ovMeta'), ovNotes:$('ovNotes'), ovRasBtn:$('ovRasBtn'), ovCancelBtn:$('ovCancelBtn'), ovNextBtn:$('ovNextBtn')
+};
 init();
-function init(){applyTheme(localStorage.getItem(STORAGE_THEME)||'light');scans=safeJson(localStorage.getItem(STORAGE_SCANS),[]);bindEvents();renderScans();forceCameraAndOverlayLayout()}
-function bindEvents(){els.themeToggle.addEventListener('change',()=>applyTheme(els.themeToggle.checked?'dark':'light'));els.excelFile.addEventListener('change',e=>{lastFile=e.target.files[0]||null;if(lastFile)loadReferenceFile(lastFile)});els.reloadRefsBtn.addEventListener('click',()=>lastFile?loadReferenceFile(lastFile):els.excelFile.click());els.startBtn.addEventListener('click',()=>{scrollToScanner();startScanner()});els.quickStartBtn.addEventListener('click',()=>{scrollToScanner();startScanner()});els.stopBtn.addEventListener('click',stopScanner);els.nextBtn.addEventListener('click',nextScan);els.quickNextBtn.addEventListener('click',nextScan);els.quickExportBtn.addEventListener('click',downloadCsv);els.torchBtn.addEventListener('click',toggleTorch);els.manualBtn.addEventListener('click',()=>{const v=els.manualSn.value.trim();if(v)handleCode(v,true)});els.rasBtn.addEventListener('click',()=>{els.scanNotes.value='RAS'});els.undoBtn.addEventListener('click',undoLastScan);els.exportBtn.addEventListener('click',downloadCsv);els.shareBtn.addEventListener('click',shareCsv);els.flushBtn.addEventListener('click',flushScans);els.clearRefsBtn.addEventListener('click',clearRefs);els.ovRasBtn.addEventListener('click',()=>{els.ovNotes.value='RAS';syncOverlayNote()});els.ovCancelBtn.addEventListener('click',cancelOverlayScan);els.ovNextBtn.addEventListener('click',()=>{syncOverlayNote();hideOverlay();scrollToScanner();startScanner()});els.ovNotes.addEventListener('input',syncOverlayNote);els.thresholdDays.addEventListener('change',()=>{renderRefStats();renderScans()})}
-function applyTheme(theme){document.documentElement.dataset.theme=theme;els.themeToggle.checked=theme==='dark';localStorage.setItem(STORAGE_THEME,theme)}
-function scrollToScanner(){document.getElementById('scannerCard')?.scrollIntoView({behavior:'smooth',block:'start'})}
-
-async function loadReferenceFile(file){refs.clear();const buffer=await file.arrayBuffer();const workbook=XLSX.read(buffer,{type:'array',cellDates:true});let rowsRead=0,rowsKept=0,sheetsUsed=0,sheetsIgnored=0;for(const sheetName of workbook.SheetNames){const rows=XLSX.utils.sheet_to_json(workbook.Sheets[sheetName],{header:1,defval:'',raw:true});if(!rows.length)continue;rowsRead+=rows.length;const headerIndex=detectHeaderRow(rows);if(headerIndex<0){sheetsIgnored++;continue}const headers=rows[headerIndex]||[];const snColumn=detectColumn(headers,['SN_NORMALISE','SN normalisé','SN normalise','SN','NS','NS BJONG','NS Batterie','NS Doppler H/V','NS RADAR','N° série','N° serie','Numero serie','Numéro série','Serial','Code barre','Barcode'],-1);const dateColumn=detectColumn(headers,['DATE_CONTROLE','Date contrôle','Date controle','Dernier contrôle','Dernier controle','Heure de début','Heure de debut','Date','Timestamp'],-1);const resultColumn=detectColumn(headers,['RESULTAT_CONTROLE','Résultat contrôle','Resultat controle','Résultat Autotest','Resultat Autotest','Résutat','Résultat','Resultat','Résultat test H/V','Resultat test H/V','Résultat test Hauteur','Resultat test Hauteur'],-1);const typeColumn=detectColumn(headers,['TYPE_MATERIEL','Type matériel','Type materiel','Type','Matériel','Materiel','Famille'],-1);if(snColumn<0||dateColumn<0){sheetsIgnored++;continue}sheetsUsed++;for(let i=headerIndex+1;i<rows.length;i++){const row=rows[i]||[];const rawSn=row[snColumn];const sn=normalizeSn(rawSn);if(!sn||sn.length<4)continue;const controlDate=parseDateAny(row[dateColumn]);if(!controlDate)continue;const rawResult=resultColumn>=0?row[resultColumn]:'OK';const result=normalizeControlResult(rawResult);const type=typeColumn>=0&&row[typeColumn]?String(row[typeColumn]).trim():inferType(sheetName,file.name);const existing=refs.get(sn);if(!existing||controlDate>existing.date){refs.set(sn,{sn,rawSn:String(rawSn).trim(),date:controlDate,dateText:formatDate(controlDate),type,result,rawResult:String(rawResult??'').trim(),sheet:sheetName,file:file.name})}rowsKept++}}renderRefStats({rowsRead,rowsKept,sheetsUsed,sheetsIgnored});setTimeout(scrollToScanner,250)}
-function detectHeaderRow(rows){for(let i=0;i<Math.min(rows.length,15);i++){const cells=(rows[i]||[]).map(normalizeHeaderText).filter(Boolean);const line=cells.join(' ');const hasSn=cells.some(c=>c.includes('sn')||c==='ns'||c.includes('nsbjong')||c.includes('nsbatterie')||c.includes('nsradar')||c.includes('nsdoppler')||c.includes('serial')||c.includes('barcode'));const hasDate=cells.some(c=>c.includes('date')||c.includes('heuredebut')||c.includes('heure'));if(hasSn&&hasDate)return i;if(line.includes('datecontrole')&&line.includes('snnormalise'))return i}return-1}
-function detectColumn(headers,candidates,fallback){const hs=headers.map(normalizeHeaderText);const cs=candidates.map(normalizeHeaderText).filter(Boolean);for(const c of cs){const idx=hs.findIndex(h=>h&&h===c);if(idx>=0)return idx}for(const c of cs){const idx=hs.findIndex(h=>{if(!h)return false;if(h.includes(c))return true;return h.length>=3&&c.includes(h)});if(idx>=0)return idx}return fallback}
-function normalizeHeaderText(v){return String(v||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[\s_\-°()/]+/g,'')}
-function inferType(sheetName,fileName){const s=`${sheetName} ${fileName}`.toLowerCase();if(s.includes('batt'))return'BATTERIE_BJONG';if(s.includes('doppler'))return'DOPPLER_HAUTEUR';if(s.includes('radar')||s.includes('vega'))return'RADAR_VEGA';if(s.includes('bjong'))return'BJONG';return'NON PRÉCISÉ'}
-function normalizeControlResult(v){const t=String(v??'').trim().toUpperCase();if(t==='OK'||t==='PASS'||t==='CONFORME')return'OK';return'FAIL'}
-function renderRefStats(info){const byType={},byResult={OK:0,FAIL:0};refs.forEach(r=>{byType[r.type]=(byType[r.type]||0)+1;byResult[r.result]=(byResult[r.result]||0)+1});const parts=[`<span class="pill">Référentiel : ${refs.size} SN uniques</span>`];Object.keys(byType).sort().forEach(t=>parts.push(`<span class="pill">${escapeHtml(t)} : ${byType[t]}</span>`));parts.push(`<span class="pill ok">Contrôles OK : ${byResult.OK||0}</span>`,`<span class="pill bad">Contrôles FAIL : ${byResult.FAIL||0}</span>`);if(info){parts.push(`<span class="pill">Lignes lues : ${info.rowsRead}</span>`,`<span class="pill">Lignes SN détectées : ${info.rowsKept}</span>`,`<span class="pill">Feuilles utilisées : ${info.sheetsUsed}</span>`);if(info.sheetsIgnored)parts.push(`<span class="pill warnTxt">Feuilles ignorées : ${info.sheetsIgnored}</span>`)}els.refStats.innerHTML=parts.join('')}
-
-function startScanner(){hideOverlay();if(scanning)return;if(!window.isSecureContext){alert('Caméra bloquée : ouvre l’application en HTTPS via GitHub Pages.');return}if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){alert('Caméra indisponible : navigateur non compatible getUserMedia.');return}if(!window.Quagga){alert('Moteur caméra non chargé. Vérifie la connexion Internet au premier chargement.');return}const reader=document.querySelector('#reader');if(!reader){alert('Erreur interne : conteneur caméra introuvable.');return}removeOldCameraNodes();forceCameraAndOverlayLayout();Quagga.init({inputStream:{type:'LiveStream',target:reader,constraints:{facingMode:'environment',width:{ideal:1280},height:{ideal:720}},area:{top:'30%',right:'5%',left:'5%',bottom:'30%'}},decoder:{readers:['code_128_reader']},locate:true,frequency:10},error=>{if(error){alert('Caméra indisponible au lancement Quagga : '+getCameraErrorMessage(error));return}try{Quagga.start();scanning=true;forceCameraAndOverlayLayout();layoutTimer=setInterval(forceCameraAndOverlayLayout,400);setTimeout(forceCameraAndOverlayLayout,100);setTimeout(forceCameraAndOverlayLayout,800);setTimeout(forceCameraAndOverlayLayout,1600);captureTrack()}catch(e){alert('Erreur au démarrage caméra : '+getCameraErrorMessage(e))}});Quagga.offDetected(onDetected);Quagga.onDetected(onDetected)}
-function onDetected(result){const code=result&&result.codeResult&&result.codeResult.code;if(!code)return;const now=Date.now();if(now-lastScanAt<1800)return;lastScanAt=now;stopScanner();handleCode(code,false)}
-function stopScanner(){if(layoutTimer){clearInterval(layoutTimer);layoutTimer=null}try{if(window.Quagga&&scanning)Quagga.stop()}catch(e){}scanning=false;currentTrack=null}
-function nextScan(){hideOverlay();scrollToScanner();startScanner()}
-function removeOldCameraNodes(){const reader=document.querySelector('#reader');if(!reader)return;reader.querySelectorAll('video, canvas').forEach(n=>n.remove())}
-function ensureScannerOverlayOnTop(){const reader=document.querySelector('#reader');if(!reader)return;reader.querySelectorAll('[data-scan-overlay]').forEach(n=>{if(n.parentElement===reader&&n.nextElementSibling!==null)reader.appendChild(n)})}
-function forceCameraAndOverlayLayout(){const reader=document.querySelector('#reader');if(!reader)return;reader.querySelectorAll('video').forEach(v=>{v.setAttribute('playsinline','true');v.setAttribute('muted','true');Object.assign(v.style,{position:'absolute',inset:'0',display:'block',width:'100%',height:'100%',minWidth:'100%',minHeight:'100%',maxWidth:'none',maxHeight:'none',objectFit:'cover',zIndex:'1',background:'#020617'})});reader.querySelectorAll('canvas').forEach(c=>Object.assign(c.style,{display:'none',visibility:'hidden',opacity:'0',pointerEvents:'none'}));ensureScannerOverlayOnTop()}
-function captureTrack(){setTimeout(()=>{const v=document.querySelector('#reader video');if(v&&v.srcObject){const tracks=v.srcObject.getVideoTracks();currentTrack=tracks&&tracks[0]}},600)}
-async function toggleTorch(){try{if(!currentTrack){alert('Torche indisponible : caméra non active.');return}const caps=currentTrack.getCapabilities();if(!caps.torch){alert('Torche non supportée sur cet appareil/navigateur.');return}const enabled=!currentTrack._torchOn;await currentTrack.applyConstraints({advanced:[{torch:enabled}]});currentTrack._torchOn=enabled}catch(e){alert('Impossible de modifier la torche.')}}
-function getCameraErrorMessage(e){if(!e)return'erreur inconnue';if(typeof e==='string')return e;const n=e.name||'',m=e.message||String(e);if(n==='NotAllowedError'||n==='PermissionDeniedError')return'permission refusée. Vérifie Réglages > Safari/Chrome > Caméra.';if(n==='NotFoundError'||n==='DevicesNotFoundError')return'aucune caméra détectée.';if(n==='NotReadableError'||n==='TrackStartError')return'caméra déjà utilisée ou bloquée par le système.';if(n==='OverconstrainedError'||n==='ConstraintNotSatisfiedError')return'contrainte caméra non supportée.';if(n==='SecurityError')return'accès caméra bloqué car la page n’est pas servie en HTTPS.';return`${n||'Erreur'} - ${m}`}
-function handleCode(rawBarcode,manual){const sn=normalizeSn(rawBarcode);const ref=refs.get(sn);const status=getStatusForRef(ref);const age=ref&&ref.date?daysSince(ref.date):null;const item={id:`${Date.now()}_${Math.random().toString(16).slice(2)}`,date:new Date().toISOString(),barcode:String(rawBarcode).trim(),sn,status:status.label,reason:status.reason,type:ref?ref.type:'ABSENT',controlDate:ref&&ref.date?ref.date.toISOString():'',controlDateText:ref?ref.dateText:'',ageDays:age,controlResult:ref?ref.result:'',notes:els.scanNotes.value||'',client:els.clientName.value||'',br:els.brNumber.value||'',globalNotes:els.globalNotes.value||'',manual:Boolean(manual)};scans.unshift(item);saveScans();renderScans();showOverlay(item,status.cls);els.manualSn.value='';els.scanNotes.value='';beep(status.cls==='ok')}
-function getStatusForRef(ref){if(!ref)return{label:'À CONTRÔLER',cls:'bad',reason:'SN absent du référentiel'};const age=daysSince(ref.date);if(age===null)return{label:'À CONTRÔLER',cls:'bad',reason:'Date contrôle absente'};if(ref.result!=='OK')return{label:'À CONTRÔLER',cls:'bad',reason:`Dernier contrôle ${ref.result}`};const threshold=Number(els.thresholdDays.value||300);if(age<=threshold)return{label:'OK',cls:'ok',reason:'Contrôle valide'};return{label:'À CONTRÔLER',cls:'bad',reason:`Contrôle > ${threshold} jours`}}
-function normalizeSn(v){return String(v||'').trim().toUpperCase().replace(/\s+/g,'').replace(/^V(?=\d)/,'')}
-function parseDateAny(v){if(!v&&v!==0)return null;if(v instanceof Date&&!isNaN(v))return v;if(typeof v==='number'){const d=XLSX.SSF.parse_date_code(v);return d?new Date(d.y,d.m-1,d.d,d.H||0,d.M||0,Math.floor(d.S||0)):null}const t=String(v).trim();if(!t)return null;const iso=t.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?/);if(iso)return new Date(Number(iso[1]),Number(iso[2])-1,Number(iso[3]),Number(iso[4]||0),Number(iso[5]||0),Number(iso[6]||0));const fr=t.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?/);if(fr){let y=Number(fr[3]);if(y<100)y+=2000;return new Date(y,Number(fr[2])-1,Number(fr[1]),Number(fr[4]||0),Number(fr[5]||0),Number(fr[6]||0))}const date=new Date(t);return isNaN(date)?null:date}
-function daysSince(date){if(!date)return null;return Math.floor((Date.now()-date.getTime())/86400000)}
-function formatDate(date){if(!date)return'';return new Intl.DateTimeFormat('fr-FR',{dateStyle:'short',timeStyle:'short'}).format(date)}
-function showOverlay(item,cls){pendingOverlayId=item.id;els.overlay.className=cls==='ok'?'':'bad';els.ovStatus.textContent=item.status;els.ovSn.textContent=item.sn;els.ovMeta.textContent=`${item.reason} | Type: ${item.type} | Dernier contrôle: ${item.controlDateText||'absent'} | Résultat: ${item.controlResult||'n/a'} | Âge: ${item.ageDays==null?'n/a':item.ageDays+' j'}`;els.ovNotes.value=item.notes||'';els.overlay.style.display='block'}
-function hideOverlay(){els.overlay.style.display='none';pendingOverlayId=null}
-function syncOverlayNote(){if(!pendingOverlayId)return;const item=scans.find(s=>s.id===pendingOverlayId);if(!item)return;item.notes=els.ovNotes.value;saveScans();renderScans()}
-function cancelOverlayScan(){if(!pendingOverlayId)return;scans=scans.filter(s=>s.id!==pendingOverlayId);saveScans();renderScans();hideOverlay();scrollToScanner();setTimeout(startScanner,150)}
-function saveScans(){localStorage.setItem(STORAGE_SCANS,JSON.stringify(scans))}
-function renderScans(){els.scanCount.textContent=scans.length+(scans.length>1?' lignes':' ligne');if(!scans.length){els.scanTbody.innerHTML='<tr><td colspan="10" class="empty">Aucun scan archivé.</td></tr>';return}els.scanTbody.innerHTML=scans.map(i=>`<tr><td>${formatDate(new Date(i.date))}</td><td>${escapeHtml(i.barcode)}</td><td><strong>${escapeHtml(i.sn)}</strong></td><td class="${i.status==='OK'?'ok':'bad'}"><strong>${escapeHtml(i.status)}</strong><br><small>${escapeHtml(i.reason||'')}</small></td><td>${escapeHtml(i.type||'')}</td><td>${escapeHtml(i.controlDateText||'')}</td><td>${i.ageDays==null?'':i.ageDays+' j'}</td><td>${escapeHtml(i.controlResult||'')}</td><td>${escapeHtml(i.notes||'')}</td><td><button class="btn small danger" onclick="deleteScan('${i.id}')">Annuler</button></td></tr>`).join('')}
-window.deleteScan=function(id){scans=scans.filter(s=>s.id!==id);saveScans();renderScans()};
-function undoLastScan(){if(!scans.length)return;scans.shift();saveScans();renderScans()}
-function flushScans(){if(!confirm('Confirmer la suppression complète de la base scannée locale ?'))return;scans=[];saveScans();renderScans()}
-function clearRefs(){refs.clear();lastFile=null;els.excelFile.value='';renderRefStats()}
-function buildCsvText(){const h=['Date scan','Client','Bon reception','Barcode reel scanne','SN normalise','Statut','Raison','Type controle','Date dernier controle','Age jours','Resultat controle','Scan manuel','Notes SN','Notes globales'];const rows=scans.slice().reverse().map(i=>[formatDate(new Date(i.date)),i.client,i.br,i.barcode,i.sn,i.status,i.reason,i.type,i.controlDateText,i.ageDays,i.controlResult,i.manual?'OUI':'NON',i.notes,i.globalNotes]);return[h,...rows].map(r=>r.map(csvCell).join(';')).join('\r\n')}
-function csvCell(v){const t=String(v??'');return'"'+t.replace(/"/g,'""')+'"'}
-function getExportFileName(){const client=sanitizeFilePart(els.clientName.value||'CLIENT');const br=sanitizeFilePart(els.brNumber.value||'BR');const date=new Date().toISOString().slice(0,10);return`RetourLoc_${client}_${br}_${date}.csv`}
-function sanitizeFilePart(v){return String(v).trim().replace(/[^a-z0-9_-]+/gi,'_')}
-function downloadCsv(){const blob=new Blob(['\ufeff'+buildCsvText()],{type:'text/csv;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=getExportFileName();a.click();URL.revokeObjectURL(a.href)}
-async function shareCsv(){const blob=new Blob(['\ufeff'+buildCsvText()],{type:'text/csv;charset=utf-8'});const file=new File([blob],getExportFileName(),{type:'text/csv'});if(navigator.canShare&&navigator.canShare({files:[file]}))await navigator.share({files:[file],title:'RetourLoc',text:'Export scans RetourLoc'});else downloadCsv()}
-function beep(ok){try{const AC=window.AudioContext||window.webkitAudioContext;const ctx=new AC();const play=(f,d)=>{const o=ctx.createOscillator();const g=ctx.createGain();o.frequency.value=f;o.connect(g);g.connect(ctx.destination);g.gain.setValueAtTime(.001,ctx.currentTime+d);g.gain.exponentialRampToValueAtTime(.22,ctx.currentTime+d+.02);g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+d+.14);o.start(ctx.currentTime+d);o.stop(ctx.currentTime+d+.16)};if(ok)play(880,0);else{play(220,0);play(220,.22)}}catch(e){}}
-function safeJson(t,f){try{return JSON.parse(t)||f}catch(e){return f}}
-function escapeHtml(v){return String(v??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function init() {
+  applyTheme(localStorage.getItem(STORAGE_THEME)||'light');
+  scans=safeJson(localStorage.getItem(STORAGE_SCANS), []);
+  bindEvents();
+  renderScans();
+  forceCameraAndOverlayLayout()
+}
+function bindEvents() {
+  els.themeToggle.addEventListener('change', ()=>applyTheme(els.themeToggle.checked?'dark':'light'));
+  els.excelFile.addEventListener('change', e=> {
+    lastFile=e.target.files[0]||null;
+    if(lastFile)loadReferenceFile(lastFile)
+  });
+  els.reloadRefsBtn.addEventListener('click', ()=>lastFile?loadReferenceFile(lastFile):els.excelFile.click());
+  els.startBtn.addEventListener('click', ()=> {
+    scrollToScanner();
+    startScanner()
+  });
+  els.quickStartBtn.addEventListener('click', ()=> {
+    scrollToScanner();
+    startScanner()
+  });
+  els.stopBtn.addEventListener('click', stopScanner);
+  els.nextBtn.addEventListener('click', nextScan);
+  els.quickNextBtn.addEventListener('click', nextScan);
+  els.quickShareBtn.addEventListener('click', shareCsv);
+  els.torchBtn.addEventListener('click', toggleTorch);
+  els.manualBtn.addEventListener('click', ()=> {
+    const v=els.manualSn.value.trim();
+    if(v)handleCode(v, true)
+  });
+  els.rasBtn.addEventListener('click', ()=> {
+    els.scanNotes.value='RAS'
+  });
+  els.undoBtn.addEventListener('click', undoLastScan);
+  els.exportBtn.addEventListener('click', downloadCsv);
+  els.shareBtn.addEventListener('click', shareCsv);
+  els.flushBtn.addEventListener('click', flushScans);
+  els.clearRefsBtn.addEventListener('click', clearRefs);
+  els.ovRasBtn.addEventListener('click', ()=> {
+    els.ovNotes.value='RAS';
+    syncOverlayNote()
+  });
+  els.ovCancelBtn.addEventListener('click', cancelOverlayScan);
+  els.ovNextBtn.addEventListener('click', ()=> {
+    syncOverlayNote();
+    hideOverlay();
+    scrollToScanner();
+    startScanner()
+  });
+  els.ovNotes.addEventListener('input', syncOverlayNote);
+  els.thresholdDays.addEventListener('change', ()=> {
+    renderRefStats();
+    renderScans()
+  })
+}
+function applyTheme(t) {
+  document.documentElement.dataset.theme=t;
+  els.themeToggle.checked=t==='dark';
+  localStorage.setItem(STORAGE_THEME, t)
+}
+function scrollToScanner() {
+  document.getElementById('scannerCard')?.scrollIntoView( {
+    behavior:'smooth', block:'start'
+  })
+}
+async function loadReferenceFile(file) {
+  refs.clear();
+  const buffer=await file.arrayBuffer();
+  const wb=XLSX.read(buffer,  {
+    type:'array', cellDates:true
+  });
+  let rowsRead=0, rowsKept=0, sheetsUsed=0, sheetsIgnored=0;
+  for(const sheetName of wb.SheetNames) {
+    const rows=XLSX.utils.sheet_to_json(wb.Sheets[sheetName],  {
+      header:1, defval:'', raw:true
+    });
+    if(!rows.length)continue;
+    rowsRead+=rows.length;
+    const hi=detectHeaderRow(rows);
+    if(hi<0) {
+      sheetsIgnored++;
+      continue
+    }
+    const h=rows[hi]||[], snCol=detectColumn(h, ['SN_NORMALISE', 'SN normalisé', 'SN normalise', 'SN', 'NS', 'NS BJONG', 'NS Batterie', 'NS Doppler H/V', 'NS RADAR', 'N° série', 'N° serie', 'Numero serie', 'Numéro série', 'Serial', 'Code barre', 'Barcode'], -1), dateCol=detectColumn(h, ['DATE_CONTROLE', 'Date contrôle', 'Date controle', 'Dernier contrôle', 'Dernier controle', 'Heure de début', 'Heure de debut', 'Date', 'Timestamp'], -1), resCol=detectColumn(h, ['RESULTAT_CONTROLE', 'Résultat contrôle', 'Resultat controle', 'Résultat Autotest', 'Resultat Autotest', 'Résutat', 'Résultat', 'Resultat', 'Résultat test H/V', 'Resultat test H/V', 'Résultat test Hauteur', 'Resultat test Hauteur'], -1), typeCol=detectColumn(h, ['TYPE_MATERIEL', 'Type matériel', 'Type materiel', 'Type', 'Matériel', 'Materiel', 'Famille'], -1);
+    if(snCol<0||dateCol<0) {
+      sheetsIgnored++;
+      continue
+    }
+    sheetsUsed++;
+    for(let i=hi+1;
+    i<rows.length;
+    i++) {
+      const row=rows[i]||[], rawSn=row[snCol], sn=normalizeSn(rawSn);
+      if(!sn||sn.length<4)continue;
+      const d=parseDateAny(row[dateCol]);
+      if(!d)continue;
+      const rawResult=resCol>=0?row[resCol]:'OK', result=normalizeControlResult(rawResult), type=typeCol>=0&&row[typeCol]?String(row[typeCol]).trim():inferType(sheetName, file.name), old=refs.get(sn);
+      if(!old||d>old.date)refs.set(sn,  {
+        sn, rawSn:String(rawSn).trim(), date:d, dateText:formatDate(d), type, result, rawResult:String(rawResult??'').trim(), sheet:sheetName, file:file.name
+      });
+      rowsKept++
+    }
+  }
+  renderRefStats( {
+    rowsRead, rowsKept, sheetsUsed, sheetsIgnored
+  });
+  setTimeout(scrollToScanner, 250)
+}
+function detectHeaderRow(rows) {
+  for(let i=0;
+  i<Math.min(rows.length, 15);
+  i++) {
+    const cells=(rows[i]||[]).map(normalizeHeaderText).filter(Boolean), line=cells.join(' '), hasSn=cells.some(c=>c.includes('sn')||c==='ns'||c.includes('nsbjong')||c.includes('nsbatterie')||c.includes('nsradar')||c.includes('nsdoppler')||c.includes('serial')||c.includes('barcode')), hasDate=cells.some(c=>c.includes('date')||c.includes('heuredebut')||c.includes('heure'));
+    if(hasSn&&hasDate)return i;
+    if(line.includes('datecontrole')&&line.includes('snnormalise'))return i
+  }
+  return-1
+}
+function detectColumn(headers, candidates, fallback) {
+  const hs=headers.map(normalizeHeaderText), cs=candidates.map(normalizeHeaderText).filter(Boolean);
+  for(const c of cs) {
+    const i=hs.findIndex(h=>h&&h===c);
+    if(i>=0)return i
+  }
+  for(const c of cs) {
+    const i=hs.findIndex(h=>h&&(h.includes(c)||(h.length>=3&&c.includes(h))));
+    if(i>=0)return i
+  }
+  return fallback
+}
+function normalizeHeaderText(v) {
+  return String(v||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[\s_\-°()/]+/g, '')
+}
+function inferType(sheetName, fileName) {
+  const s=`${sheetName} ${fileName}`.toLowerCase();
+  if(s.includes('batt'))return'BATTERIE_BJONG';
+  if(s.includes('doppler'))return'DOPPLER_HAUTEUR';
+  if(s.includes('radar')||s.includes('vega'))return'RADAR_VEGA';
+  if(s.includes('bjong'))return'BJONG';
+  return'NON PRÉCISÉ'
+}
+function normalizeControlResult(v) {
+  const t=String(v??'').trim().toUpperCase();
+  return(t==='OK'||t==='PASS'||t==='CONFORME')?'OK':'FAIL'
+}
+function renderRefStats(info) {
+  const byType= {
+  }, byResult= {
+    OK:0, FAIL:0
+  };
+  refs.forEach(r=> {
+    byType[r.type]=(byType[r.type]||0)+1;
+    byResult[r.result]=(byResult[r.result]||0)+1
+  });
+  const parts=[`<span class="pill">Référentiel : ${refs.size} SN uniques</span>`];
+  Object.keys(byType).sort().forEach(t=>parts.push(`<span class="pill">${escapeHtml(t)} : ${byType[t]}</span>`));
+  parts.push(`<span class="pill ok">Contrôles OK : ${byResult.OK||0}</span>`, `<span class="pill bad">Contrôles FAIL : ${byResult.FAIL||0}</span>`);
+  if(info) {
+    parts.push(`<span class="pill">Lignes lues : ${info.rowsRead}</span>`, `<span class="pill">Lignes SN détectées : ${info.rowsKept}</span>`, `<span class="pill">Feuilles utilisées : ${info.sheetsUsed}</span>`);
+    if(info.sheetsIgnored)parts.push(`<span class="pill warnTxt">Feuilles ignorées : ${info.sheetsIgnored}</span>`)
+  }
+  els.refStats.innerHTML=parts.join('')
+}
+function startScanner() {
+  hideOverlay();
+  if(scanning)return;
+  if(!window.isSecureContext) {
+    alert('Caméra bloquée : ouvre l’application en HTTPS via GitHub Pages.');
+    return
+  }
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia) {
+    alert('Caméra indisponible : navigateur non compatible getUserMedia.');
+    return
+  }
+  if(!window.Quagga) {
+    alert('Moteur caméra non chargé. Vérifie la connexion Internet au premier chargement.');
+    return
+  }
+  const reader=document.querySelector('#reader');
+  if(!reader)return;
+  removeOldCameraNodes();
+  forceCameraAndOverlayLayout();
+  Quagga.init( {
+    inputStream: {
+      type:'LiveStream', target:reader, constraints: {
+        facingMode:'environment', width: {
+          ideal:1280
+        }, height: {
+          ideal:720
+        }
+      }, area: {
+        top:'30%', right:'5%', left:'5%', bottom:'30%'
+      }
+    }, decoder: {
+      readers:['code_128_reader']
+    }, locate:true, frequency:10
+  }, err=> {
+    if(err) {
+      alert('Caméra indisponible au lancement Quagga : '+getCameraErrorMessage(err));
+      return
+    }
+    try {
+      Quagga.start();
+      scanning=true;
+      forceCameraAndOverlayLayout();
+      layoutTimer=setInterval(forceCameraAndOverlayLayout, 400);
+      setTimeout(forceCameraAndOverlayLayout, 100);
+      setTimeout(forceCameraAndOverlayLayout, 800);
+      setTimeout(forceCameraAndOverlayLayout, 1600);
+      captureTrack()
+    }
+    catch(e) {
+      alert('Erreur au démarrage caméra : '+getCameraErrorMessage(e))
+    }
+  });
+  Quagga.offDetected(onDetected);
+  Quagga.onDetected(onDetected)
+}
+function onDetected(result) {
+  const code=result&&result.codeResult&&result.codeResult.code;
+  if(!code)return;
+  const now=Date.now();
+  if(now-lastScanAt<1800)return;
+  lastScanAt=now;
+  stopScanner();
+  handleCode(code, false)
+}
+function stopScanner() {
+  if(layoutTimer) {
+    clearInterval(layoutTimer);
+    layoutTimer=null
+  }
+  try {
+    if(window.Quagga&&scanning)Quagga.stop()
+  }
+  catch(e) {
+  }
+  scanning=false;
+  currentTrack=null
+}
+function nextScan() {
+  hideOverlay();
+  scrollToScanner();
+  startScanner()
+}
+function removeOldCameraNodes() {
+  const r=document.querySelector('#reader');
+  if(r)r.querySelectorAll('video, canvas').forEach(n=>n.remove())
+}
+function ensureScannerOverlayOnTop() {
+  const r=document.querySelector('#reader');
+  if(!r)return;
+  r.querySelectorAll('[data-scan-overlay]').forEach(n=> {
+    if(n.parentElement===r&&n.nextElementSibling!==null)r.appendChild(n)
+  })
+}
+function forceCameraAndOverlayLayout() {
+  const r=document.querySelector('#reader');
+  if(!r)return;
+  r.querySelectorAll('video').forEach(v=> {
+    v.setAttribute('playsinline', 'true');
+    v.setAttribute('muted', 'true');
+    Object.assign(v.style,  {
+      position:'absolute', inset:'0', display:'block', width:'100%', height:'100%', minWidth:'100%', minHeight:'100%', maxWidth:'none', maxHeight:'none', objectFit:'cover', zIndex:'1', background:'#020617'
+    })
+  });
+  r.querySelectorAll('canvas').forEach(c=>Object.assign(c.style,  {
+    display:'none', visibility:'hidden', opacity:'0', pointerEvents:'none'
+  }));
+  ensureScannerOverlayOnTop()
+}
+function captureTrack() {
+  setTimeout(()=> {
+    const v=document.querySelector('#reader video');
+    if(v&&v.srcObject) {
+      const tracks=v.srcObject.getVideoTracks();
+      currentTrack=tracks&&tracks[0]
+    }
+  }, 600)
+}
+async function toggleTorch() {
+  try {
+    if(!currentTrack) {
+      alert('Torche indisponible : caméra non active.');
+      return
+    }
+    const caps=currentTrack.getCapabilities();
+    if(!caps.torch) {
+      alert('Torche non supportée sur cet appareil/navigateur.');
+      return
+    }
+    const enabled=!currentTrack._torchOn;
+    await currentTrack.applyConstraints( {
+      advanced:[ {
+        torch:enabled
+      }]
+    });
+    currentTrack._torchOn=enabled
+  }
+  catch(e) {
+    alert('Impossible de modifier la torche.')
+  }
+}
+function getCameraErrorMessage(e) {
+  if(!e)return'erreur inconnue';
+  if(typeof e==='string')return e;
+  return `${e.name||'Erreur'} - ${e.message||String(e)}`
+}
+function handleCode(rawBarcode, manual) {
+  const sn=normalizeSn(rawBarcode), ref=refs.get(sn), status=getStatusForRef(ref), age=ref&&ref.date?daysSince(ref.date):null, item= {
+    id:`${Date.now()}_${Math.random().toString(16).slice(2)}`, date:new Date().toISOString(), barcode:String(rawBarcode).trim(), sn, status:status.label, reason:status.reason, type:ref?ref.type:'ABSENT', controlDate:ref&&ref.date?ref.date.toISOString():'', controlDateText:ref?ref.dateText:'', ageDays:age, controlResult:ref?ref.result:'', notes:els.scanNotes.value||'', client:els.clientName.value||'', br:els.brNumber.value||'', globalNotes:els.globalNotes.value||'', manual:Boolean(manual)
+  };
+  scans.unshift(item);
+  saveScans();
+  renderScans();
+  showOverlay(item, status.cls);
+  els.manualSn.value='';
+  els.scanNotes.value='';
+  beep(status.cls==='ok')
+}
+function getStatusForRef(ref) {
+  if(!ref)return {
+    label:'À CONTRÔLER', cls:'bad', reason:'SN absent du référentiel'
+  };
+  const age=daysSince(ref.date);
+  if(age===null)return {
+    label:'À CONTRÔLER', cls:'bad', reason:'Date contrôle absente'
+  };
+  if(ref.result!=='OK')return {
+    label:'À CONTRÔLER', cls:'bad', reason:`Dernier contrôle ${ref.result}`
+  };
+  const th=Number(els.thresholdDays.value||300);
+  return age<=th? {
+    label:'OK', cls:'ok', reason:'Contrôle valide'
+  }: {
+    label:'À CONTRÔLER', cls:'bad', reason:`Contrôle > ${th} jours`
+  }
+}
+function normalizeSn(v) {
+  return String(v||'').trim().toUpperCase().replace(/\s+/g, '').replace(/^V(?=\d)/, '')
+}
+function parseDateAny(v) {
+  if(!v&&v!==0)return null;
+  if(v instanceof Date&&!isNaN(v))return v;
+  if(typeof v==='number') {
+    const d=XLSX.SSF.parse_date_code(v);
+    return d?new Date(d.y, d.m-1, d.d, d.H||0, d.M||0, Math.floor(d.S||0)):null
+  }
+  const t=String(v).trim();
+  if(!t)return null;
+  const iso=t.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
+  if(iso)return new Date(Number(iso[1]), Number(iso[2])-1, Number(iso[3]), Number(iso[4]||0), Number(iso[5]||0), Number(iso[6]||0));
+  const fr=t.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
+  if(fr) {
+    let y=Number(fr[3]);
+    if(y<100)y+=2000;
+    return new Date(y, Number(fr[2])-1, Number(fr[1]), Number(fr[4]||0), Number(fr[5]||0), Number(fr[6]||0))
+  }
+  const d=new Date(t);
+  return isNaN(d)?null:d
+}
+function daysSince(d) {
+  return d?Math.floor((Date.now()-d.getTime())/86400000):null}function formatDate(d){return d?new Intl.DateTimeFormat('fr-FR',{dateStyle:'short',timeStyle:'short'}).format(d):''}function showOverlay(item,cls){pendingOverlayId=item.id;els.overlay.className=cls==='ok'?'':'bad';els.ovStatus.textContent=item.status;els.ovSn.textContent=item.sn;els.ovMeta.textContent=`${item.reason} | Type: ${item.type} | Dernier contrôle: ${item.controlDateText||'absent'} | Résultat: ${item.controlResult||'n/a'} | Âge: ${item.ageDays==null?'n/a':item.ageDays+' j'}`;els.ovNotes.value=item.notes||'';els.overlay.style.display='block'}function hideOverlay(){els.overlay.style.display='none';pendingOverlayId=null}function syncOverlayNote(){if(!pendingOverlayId)return;const item=scans.find(s=>s.id===pendingOverlayId);if(!item)return;item.notes=els.ovNotes.value;saveScans();renderScans()}function cancelOverlayScan(){if(!pendingOverlayId)return;scans=scans.filter(s=>s.id!==pendingOverlayId);saveScans();renderScans();hideOverlay();scrollToScanner();setTimeout(startScanner,150)}function saveScans(){localStorage.setItem(STORAGE_SCANS,JSON.stringify(scans))}function renderScans(){els.scanCount.textContent=scans.length+(scans.length>1?' lignes':' ligne');if(!scans.length){els.scanTbody.innerHTML='<tr><td colspan="10" class="empty">Aucun scan archivé.</td></tr>';return}els.scanTbody.innerHTML=scans.map(i=>`<tr><td>${formatDate(new Date(i.date))}</td><td>$ {
+    escapeHtml(i.barcode)
+  }
+  </td><td><strong>${escapeHtml(i.sn)}</strong></td><td class="${i.status==='OK'?'ok':'bad'}"><strong>${escapeHtml(i.status)}</strong><br><small>$ {
+    escapeHtml(i.reason||'')
+  }
+  </small></td><td>$ {
+    escapeHtml(i.type||'')
+  }
+  </td><td>${escapeHtml(i.controlDateText||'')}</td><td>$ {
+    i.ageDays==null?'':i.ageDays+' j'
+  }
+  </td><td>${escapeHtml(i.controlResult||'')}</td><td>$ {
+    escapeHtml(i.notes||'')
+  }
+  </td><td><button class="btn small danger" onclick="deleteScan('${i.id}')">Annuler</button></td></tr>`).join('')}window.deleteScan=id=>{scans=scans.filter(s=>s.id!==id);saveScans();renderScans()};function undoLastScan(){if(scans.length){scans.shift();saveScans();renderScans()}}function flushScans(){if(confirm('Confirmer la suppression complète de la base scannée locale ?')){scans=[];saveScans();renderScans()}}function clearRefs(){refs.clear();lastFile=null;els.excelFile.value='';renderRefStats()}function buildCsvText(){const h=['Date scan','Client','Bon reception','Barcode reel scanne','SN normalise','Statut','Raison','Type controle','Date dernier controle','Age jours','Resultat controle','Scan manuel','Notes SN','Notes globales'];const rows=scans.slice().reverse().map(i=>[formatDate(new Date(i.date)),i.client,i.br,i.barcode,i.sn,i.status,i.reason,i.type,i.controlDateText,i.ageDays,i.controlResult,i.manual?'OUI':'NON',i.notes,i.globalNotes]);return[h,...rows].map(r=>r.map(csvCell).join(';')).join('\r\n')}function csvCell(v){const t=String(v??'');return'"'+t.replace(/"/g,'""')+'"'}function getExportFileName(){return`RetourLoc_$ {
+    sanitizeFilePart(els.clientName.value||'CLIENT')
+  }
+  _$ {
+    sanitizeFilePart(els.brNumber.value||'BR')
+  }
+  _$ {
+    new Date().toISOString().slice(0, 10)
+  }
+  .csv`}function sanitizeFilePart(v){return String(v).trim().replace(/[^a-z0-9_-]+/gi,'_')}function downloadCsv(){const blob=new Blob(['\ufeff'+buildCsvText()],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=getExportFileName();a.click();URL.revokeObjectURL(a.href)}async function shareCsv(){const blob=new Blob(['\ufeff'+buildCsvText()],{type:'text/csv;charset=utf-8'}),file=new File([blob],getExportFileName(),{type:'text/csv'});if(navigator.canShare&&navigator.canShare({files:[file]}))await navigator.share({files:[file],title:'RetourLoc',text:'Export scans RetourLoc'});else downloadCsv()}function beep(ok){try{const AC=window.AudioContext||window.webkitAudioContext,ctx=new AC(),play=(f,d)=>{const o=ctx.createOscillator(),g=ctx.createGain();o.frequency.value=f;o.connect(g);g.connect(ctx.destination);g.gain.setValueAtTime(.001,ctx.currentTime+d);g.gain.exponentialRampToValueAtTime(.22,ctx.currentTime+d+.02);g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+d+.14);o.start(ctx.currentTime+d);o.stop(ctx.currentTime+d+.16)};ok?play(880,0):(play(220,0),play(220,.22))}catch(e){}}function safeJson(t,f){try{return JSON.parse(t)||f}catch(e){return f}}function escapeHtml(v){return String(v??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 </script>
 </body>
 </html>
