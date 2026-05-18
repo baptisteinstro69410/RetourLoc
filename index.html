@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>RetourLoc</title>
+  <title>ScanLoc</title>
   <meta name="theme-color" content="#f3f4f6" />
 
   <script src="https://cdn.jsdelivr.net/npm/@ericblade/quagga2/dist/quagga.min.js"></script>
@@ -455,6 +455,58 @@
       transform: scale(1.15);
     }
 
+
+    /* =========================================================
+       06. Destination badge & sélecteur
+       ========================================================= */
+    .dest-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 900;
+      color: #ffffff;
+      background: var(--secondary);
+      transition: background 0.2s;
+      white-space: nowrap;
+    }
+    .dest-badge[data-dest="Expedition"] { background: var(--primary); }
+    .dest-badge[data-dest="Echange"]    { background: var(--warning); color: #111827; }
+    .dest-badge[data-dest="Retour"]     { background: var(--success); }
+    .dest-badge[data-dest="Inventaire"] { background: #7c3aed; }
+
+    select {
+      width: 100%;
+      padding: 11px 12px;
+      color: var(--text);
+      background: var(--soft);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 36px;
+    }
+
+    select:focus { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+    .dest-required-hint {
+      color: var(--danger);
+      font-size: 12px;
+      font-weight: 700;
+      margin-top: 4px;
+      display: none;
+    }
+    .dest-required-hint.show { display: block; }
+
     @media (max-width: 760px) {
       .topbar,
       .row {
@@ -545,17 +597,29 @@
     <section class="card">
       <div class="grid">
         <div class="col-3">
+          <label for="destinationSelect">Destination ★</label>
+          <select id="destinationSelect">
+            <option value="">— Choisir —</option>
+            <option value="Expedition">📦 Expédition</option>
+            <option value="Echange">🔁 Échange</option>
+            <option value="Retour">✅ Retour</option>
+            <option value="Inventaire">📋 Inventaire</option>
+          </select>
+          <div class="dest-required-hint" id="destRequiredHint">⚠ Sélectionne une destination avant d'exporter</div>
+        </div>
+
+        <div class="col-3">
           <label for="clientName">Client</label>
           <input id="clientName" placeholder="Nom client" />
         </div>
 
         <div class="col-3">
-          <label for="brNumber">Bon de réception</label>
+          <label id="brLabel" for="brNumber">Bon de réception</label>
           <input id="brNumber" placeholder="BR-..." />
         </div>
 
-        <div class="col-6">
-          <label for="globalNotes">Notes globales export</label>
+        <div class="col-3">
+          <label for="globalNotes">Notes export</label>
           <input id="globalNotes" placeholder="Optionnel" />
         </div>
       </div>
@@ -613,6 +677,7 @@
     <div class="quickbar-inner">
       <button class="btn success" id="quickStartBtn">Scanner</button>
       <button class="btn warning" id="quickNextBtn">Suivant</button>
+      <span class="dest-badge" id="quickDestBadge" data-dest="">—</span>
       <button class="btn secondary" id="quickShareBtn">Partager</button>
     </div>
   </div>
@@ -640,6 +705,7 @@
        ========================================================= */
     const STORAGE_SCANS = 'retourloc_scans_v16';
     const STORAGE_THEME = 'retourloc_theme';
+    const STORAGE_DEST  = 'retourloc_destination';
 
     let refs = new Map();
     let scans = [];
@@ -677,6 +743,10 @@
       shareBtn: $('shareBtn'),
       scanTbody: $('scanTbody'),
       scanCount: $('scanCount'),
+      destinationSelect: $('destinationSelect'),
+      destRequiredHint: $('destRequiredHint'),
+      quickDestBadge: $('quickDestBadge'),
+      brLabel: $('brLabel'),
       flushBtn: $('flushBtn'),
       clearRefsBtn: $('clearRefsBtn'),
       overlay: $('overlay'),
@@ -693,6 +763,9 @@
 
     function init() {
       applyTheme(localStorage.getItem(STORAGE_THEME) || 'light');
+      const savedDest = localStorage.getItem(STORAGE_DEST) || '';
+      els.destinationSelect.value = savedDest;
+      applyDestination(savedDest);
       scans = safeJson(localStorage.getItem(STORAGE_SCANS), []);
       bindEvents();
       renderScans();
@@ -732,6 +805,11 @@
       els.ovNextBtn.addEventListener('click', () => { syncOverlayNote(); hideOverlay(); scrollToScanner(); startScanner(); });
       els.ovNotes.addEventListener('input', syncOverlayNote);
       els.thresholdDays.addEventListener('change', () => { renderRefStats(); renderScans(); });
+      els.destinationSelect.addEventListener('change', () => {
+        const dest = els.destinationSelect.value;
+        localStorage.setItem(STORAGE_DEST, dest);
+        applyDestination(dest);
+      });
     }
 
     function applyTheme(theme) {
@@ -1170,7 +1248,8 @@
         client: els.clientName.value || '',
         br: els.brNumber.value || '',
         globalNotes: els.globalNotes.value || '',
-        manual: Boolean(manual)
+        manual: Boolean(manual),
+        destination: els.destinationSelect.value || ''
       };
 
       scans.unshift(item);
@@ -1321,6 +1400,30 @@
       renderScans();
     }
 
+
+    function applyDestination(dest) {
+      const labels = {
+        Expedition: { label: 'Bon de livraison', placeholder: 'BL-...' },
+        Echange:    { label: 'N° échange',        placeholder: 'ECH-...' },
+        Retour:     { label: 'Bon de réception',  placeholder: 'BR-...' },
+        Inventaire: { label: 'Réf. inventaire',   placeholder: 'INV-...' }
+      };
+      const cfg = labels[dest] || { label: 'Bon de réception', placeholder: 'BR-...' };
+      els.brLabel.textContent = cfg.label;
+      els.brNumber.placeholder = cfg.placeholder;
+
+      const destLabels = {
+        Expedition: '📦 Expédition',
+        Echange:    '🔁 Échange',
+        Retour:     '✅ Retour',
+        Inventaire: '📋 Inventaire'
+      };
+      const displayLabel = dest ? (destLabels[dest] || dest) : '—';
+      els.quickDestBadge.textContent = displayLabel;
+      els.quickDestBadge.dataset.dest = dest || '';
+      els.quickShareBtn.textContent = dest ? ('Partager · ' + (destLabels[dest] || dest)) : 'Partager';
+    }
+
     function clearRefs() {
       refs.clear();
       lastFile = null;
@@ -1334,6 +1437,7 @@
     function buildCsvText() {
       const headers = [
         'Date scan',
+        'Destination',
         'Client',
         'Bon reception',
         'Barcode reel scanne',
@@ -1351,6 +1455,7 @@
 
       const rows = scans.slice().reverse().map((item) => [
         formatDate(new Date(item.date)),
+        item.destination || '',
         item.client,
         item.br,
         item.barcode,
@@ -1375,14 +1480,19 @@
     }
 
     function getExportFileName() {
+      const dest   = sanitizeFilePart(els.destinationSelect.value || 'Export');
       const client = sanitizeFilePart(els.clientName.value || 'CLIENT');
-      const br = sanitizeFilePart(els.brNumber.value || 'BR');
-      const date = new Date().toISOString().slice(0, 10);
-      return 'RetourLoc_' + client + '_' + br + '_' + date + '.csv';
+      const br     = sanitizeFilePart(els.brNumber.value || 'BR');
+      const date   = new Date().toISOString().slice(0, 10);
+      return dest + '_' + client + '_' + br + '_' + date + '.csv';
     }
 
     function sanitizeFilePart(value) {
-      return String(value).trim().replace(/[^a-z0-9_-]+/gi, '_');
+      return String(value)
+        .trim()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9_-]+/gi, '_');
     }
 
     function makeCsvBlob() {
@@ -1390,6 +1500,15 @@
     }
 
     function downloadCsv() {
+      if (!els.destinationSelect.value) {
+        els.destRequiredHint.classList.add('show');
+        els.destinationSelect.focus();
+        const card = els.destinationSelect.closest('.card');
+        if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+      els.destRequiredHint.classList.remove('show');
+
       const blob = makeCsvBlob();
       const link = document.createElement('a');
       const objectUrl = URL.createObjectURL(blob);
@@ -1405,16 +1524,29 @@
     }
 
     async function shareCsv() {
+      if (!els.destinationSelect.value) {
+        els.destRequiredHint.classList.add('show');
+        els.destinationSelect.focus();
+        const card = els.destinationSelect.closest('.card');
+        if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+      els.destRequiredHint.classList.remove('show');
+
       const blob = makeCsvBlob();
       const fileName = getExportFileName();
       const file = new File([blob], fileName, { type: 'text/csv' });
+      const dest   = els.destinationSelect.value;
+      const client = els.clientName.value || '';
+      const br     = els.brNumber.value || '';
+      const shareText = [dest, client, br].filter(Boolean).join(' – ');
 
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          files: [file],
-          title: fileName,
-          text: 'Export scans RetourLoc'
-        });
+        try {
+          await navigator.share({ files: [file], title: fileName, text: shareText });
+        } catch (e) {
+          if (e.name !== 'AbortError') downloadCsv();
+        }
         return;
       }
 
