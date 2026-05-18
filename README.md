@@ -1,178 +1,232 @@
-# RetourLoc
+# 📦 RetourLoc / ScanLoc
 
-Application web statique pour scanner des retours de location, vérifier le dernier contrôle d’un matériel depuis un fichier Excel, puis partager/exporter la base scannée au format CSV.
+Application web mobile (HTML autonome) permettant de :
+- scanner des codes-barres (SN matériel)
+- vérifier automatiquement le statut de contrôle périodique
+- gérer les opérations : retour, expédition, échange, inventaire
+- générer un export CSV exploitable (Power Automate / SharePoint)
 
-## Fichiers du dépôt
+---
 
-```text
+# 🚀 Fonctionnalités
+
+## 🔍 Scan matériel
+- Scan caméra (Quagga2)
+- Compatible iPhone / Android
+- Saisie manuelle possible
+- Anti double scan
+
+## 📊 Vérification automatique
+- Chargement d’un fichier Excel
+- Détection automatique des colonnes :
+  - SN
+  - Date contrôle
+  - Résultat
+  - Type matériel
+- Calcul du statut :
+  - ✅ OK → conforme
+  - ❌ À CONTRÔLER → hors délai / défaut / absent
+
+---
+
+## 🎯 Gestion des destinations
+
+Obligatoire avant export.
+
+Choix disponibles :
+- 📦 Expedition
+- 🔁 Echange
+- ✅ Retour
+- 📋 Inventaire
+
+Effets :
+- modifie automatiquement le libellé du champ (BL / BR / ECH / INV)
+- affiché dans l’interface (badge bas écran)
+- enregistré dans chaque ligne de scan
+- intégré au nom du fichier exporté
+
+---
+
+## 📁 Export CSV
+
+### Structure
+
+Colonnes générées :
+
+- Date scan
+- Destination
+- Client
+- Référence document (BR / BL / ECH / INV)
+- Barcode scanné
+- SN normalisé
+- Statut
+- Raison
+- Type matériel
+- Date dernier contrôle
+- Âge (jours)
+- Résultat contrôle
+- Scan manuel
+- Notes SN
+- Notes globales
+
+---
+
+## 📂 Nom du fichier
+
+Format :
+
+<Destination>_<Client>_<BR>_<YYYY-MM-DD>.csv
+
+Exemples :
+
+Retour_Semeru_BR-123_2026-05-18.csv  
+Expedition_Veolia_BL-456_2026-05-18.csv
+
+---
+
+## 📤 Partage mobile
+
+- Utilise navigator.share (API native)
+- Compatible :
+  - iOS (AirDrop, Mail, Teams…)
+  - Android (partage natif)
+- fallback automatique → téléchargement
+
+---
+
+## 📸 Scan terrain optimisé
+
+- overlay de visée (cadre scan)
+- ligne laser
+- affichage résultat plein écran
+- torche activable (si supportée)
+- signal sonore :
+  - OK → bip court
+  - NOK → double bip
+
+---
+
+## 💾 Stockage
+
+- localStorage uniquement
+- aucune base externe
+- persistance des scans
+- mémorisation de la destination sélectionnée
+
+---
+
+## ⚠️ Contraintes
+
+### Caméra
+
+Fonctionne uniquement en :
+- HTTPS ✅ (GitHub Pages recommandé)
+- localhost ✅
+
+Ne fonctionne pas en HTTP standard.
+
+---
+
+## 📦 Déploiement
+
+### GitHub Pages
+
+1. Créer un repository
+2. Ajouter le fichier :
+
 index.html
-README.md
-```
 
-Aucun build n’est nécessaire.
+3. Activer GitHub Pages
+4. Accès via :
 
-## Déploiement
+https://<user>.github.io/<repo>
 
-Déposer `index.html` à la racine du dépôt GitHub Pages.
+---
 
-URL de test :
+## 🔄 Workflow terrain
 
-```text
-https://baptisteinstro69410.github.io/RetourLoc/
-```
+1. Charger fichier Excel de contrôle
+2. Choisir destination
+3. Scanner matériel
+4. Ajouter notes si nécessaire
+5. Valider via overlay
+6. Exporter ou partager
 
-En cas de cache navigateur après modification, ajouter un paramètre temporaire :
+---
 
-```text
-https://baptisteinstro69410.github.io/RetourLoc/?refresh=1
-```
+## 🔌 Intégration Power Automate
 
-## Fonctionnement
+Utilisations possibles :
 
-1. Charger le fichier Excel de contrôles.
-2. Vérifier que le référentiel affiche des SN détectés.
-3. Scanner le code-barres du matériel.
-4. L’application affiche `OK` ou `À CONTRÔLER`.
-5. Utiliser `Partager` pour envoyer le CSV des scans.
+- tri automatique par destination
+- stockage SharePoint
+- génération automatique PDF certificat
+- alertes équipements non conformes
+- création historique par client
 
-## Fichier Excel attendu
+---
 
-L’application lit toutes les feuilles du classeur.
+## ⚙️ Détails techniques
 
-Elle recherche automatiquement :
+### Librairies utilisées
 
-- une colonne SN ;
-- une colonne date de contrôle ;
-- si disponible, une colonne résultat de contrôle.
+- Quagga2 → scan code-barres
+- SheetJS (xlsx) → lecture Excel
 
-Colonnes SN reconnues notamment :
+### Normalisation SN
 
-```text
-SN_NORMALISE
-SN
-NS
-NS BJONG
-NS Batterie
-NS Doppler H/V
-NS RADAR
-N° série
-Barcode
-```
+- suppression du préfixe "V"
+- suppression espaces
+- conversion en majuscules
 
-Colonnes date reconnues notamment :
+### Lecture Excel
 
-```text
-DATE_CONTROLE
-Date contrôle
-Dernier contrôle
-Heure de début
-Date
-Timestamp
-```
+- compatible multi-feuilles
+- détection automatique des colonnes
+- conservation du dernier contrôle par SN
 
-Colonnes résultat reconnues notamment :
+---
 
-```text
-RESULTAT_CONTROLE
-Résultat contrôle
-Résultat Autotest
-Résutat
-Résultat test H/V
-Résultat test Hauteur
-```
+## 🧪 Sécurité / UX
 
-Si aucune colonne résultat n’est trouvée, le contrôle est considéré `OK` par défaut.
+- destination obligatoire avant export
+- confirmation avant suppression base
+- overlay validation scan
+- bouton purge isolé (évite erreurs terrain)
 
-## Règle de décision
+---
 
-Un matériel est affiché `OK` uniquement si :
+## 🛠️ Améliorations possibles
 
-```text
-SN trouvé
-Dernier contrôle trouvé
-Résultat contrôle = OK
-Âge du contrôle <= seuil configuré
-```
+- upload automatique SharePoint
+- ajout photo par scan
+- génération PDF directe
+- scan QR code
+- API backend
+- gestion multi-utilisateurs
 
-Sinon, le matériel est affiché :
+---
 
-```text
-À CONTRÔLER
-```
+## 👤 Usage cible
 
-Résultats considérés comme OK :
+- gestion parc matériel
+- location instrumentation
+- maintenance terrain
+- contrôle équipements
 
-```text
-OK
-PASS
-CONFORME
-```
+---
 
-Tout autre résultat est considéré comme `FAIL`.
+## ✅ Résultat
 
-## Normalisation SN
+Application permettant :
 
-Avant comparaison, l’application :
+✔ Scan rapide terrain  
+✔ Vérification conformité automatique  
+✔ Export structuré standardisé  
+✔ Intégration directe workflow métier  
 
-- supprime les espaces ;
-- met en majuscules ;
-- supprime le préfixe `V` si le SN commence par `V` suivi d’un chiffre.
+---
 
-Exemple :
+## 📄 Licence
 
-```text
-V202100137747 -> 202100137747
-```
-
-## Interface terrain
-
-La barre rapide en bas contient :
-
-```text
-Scanner | Suivant | Partager
-```
-
-Le bouton `Partager` utilise le partage natif du téléphone avec le CSV généré.
-
-Le bouton `Exporter CSV` reste disponible dans la section `Base scannée` comme solution de secours.
-
-## Données locales
-
-Les scans sont stockés localement dans le navigateur via `localStorage`.
-
-Ils restent disponibles après fermeture/réouverture de la page, tant que les données du navigateur ne sont pas supprimées.
-
-## Zone maintenance
-
-La section `Zone maintenance / actions dangereuses` contient :
-
-- Mode sombre ;
-- Flush base scannée ;
-- Vider références.
-
-Le bouton `Flush base scannée` supprime l’historique local après confirmation.
-
-## Compatibilité
-
-Recommandé :
-
-- GitHub Pages en HTTPS ;
-- iPhone Safari récent ;
-- Chrome mobile récent ;
-- navigateur compatible caméra ;
-- connexion Internet au premier chargement pour récupérer les bibliothèques externes.
-
-## Dépendances
-
-L’application charge depuis CDN :
-
-```text
-Quagga2
-SheetJS / XLSX
-```
-
-## Notes
-
-- La caméra est gérée par Quagga dans la zone `#reader`.
-- Le fichier Excel n’est pas envoyé sur un serveur ; il est lu localement par le navigateur.
-- Le CSV partagé/exporté est généré localement.
+Usage interne / professionnel
